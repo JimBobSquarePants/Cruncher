@@ -161,22 +161,18 @@ namespace Cruncher.HttpHandlers
         /// </summary>
         /// <param name="key">The key that is added to the cache.</param>
         /// <param name="value">The <see cref="T:System.Object"/>item associated with the key added to the cache.</param>
-        /// <param name="path">The path of any files to add a cache dependancy for.</param>
-        protected void RemoteFileNotifier(string key, object value, string path = null)
+        protected void RemoteFileNotifier(string key, object value)
         {
             this.addingNotifier = true;
 
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                HttpRuntime.Cache.Insert(
-                    key,
-                    value,
-                    null,
-                    Cache.NoAbsoluteExpiration,
-                    new TimeSpan(MaxCacheDays, 0, 0, 0),
-                    CacheItemPriority.High,
-                    this.OnFileChanged);
-            }
+            HttpRuntime.Cache.Insert(
+                key,
+                value,
+                null,
+                Cache.NoAbsoluteExpiration,
+                new TimeSpan(MaxCacheDays, 0, 0, 0),
+                CacheItemPriority.High,
+                this.OnFileChanged);
 
             this.addingNotifier = false;
         }

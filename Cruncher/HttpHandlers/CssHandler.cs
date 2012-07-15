@@ -107,7 +107,7 @@ namespace Cruncher.HttpHandlers
 
             string path = request.QueryString["path"];
             string combinedCss = string.Empty;
-            this.CombinedFilesCacheKey = context.Server.HtmlDecode(path);
+            this.CombinedFilesCacheKey = HttpUtility.HtmlDecode(path);
 
             if (!string.IsNullOrWhiteSpace(path))
             {
@@ -120,7 +120,7 @@ namespace Cruncher.HttpHandlers
                 if (minify)
                 {
                     // Try and pull it from the cache.
-                    combinedCss = (string)context.Cache[this.CombinedFilesCacheKey];
+                    combinedCss = (string)HttpRuntime.Cache[this.CombinedFilesCacheKey];
                 }
 
                 // Check to see if the combined snippet exists. If not we process the list.
@@ -137,7 +137,7 @@ namespace Cruncher.HttpHandlers
                                 // Anything without a path extension should be a token representing a remote file.
                                 cssSnippet = StringComparer.OrdinalIgnoreCase.Compare(
                                     Path.GetExtension(cssName), ".css") != 0
-                                                 ? this.RetrieveRemoteCss(cssName, CombinedFilesCacheKey, minify)
+                                                 ? this.RetrieveRemoteCss(cssName, minify)
                                                  : this.RetrieveLocalCss(cssName, minify);
                             }
 
@@ -221,29 +221,37 @@ namespace Cruncher.HttpHandlers
         /// <summary>
         /// Retrieves and caches the specified remote CSS.
         /// </summary>
-        /// <param name="file">The file name of the remote style sheet to retrieve.</param>
-        /// <param name="cacheKey">The key used to insert this script into the cache.</param>
+        /// <param name="token">The token representing the path of the remote style sheet to retrieve.</param>
         /// <param name="minify">Whether or not the remote script should be minified.</param>
         /// <returns>
         /// The retrieved and processed remote css.
         /// </returns>
-        private string RetrieveRemoteCss(string file, string cacheKey, bool minify)
+        private string RetrieveRemoteCss(string token, bool minify)
         {
             Uri url;
+            string css = string.Empty;
 
-            if (Uri.TryCreate(this.GetUrlFromToken(file), UriKind.Absolute, out url))
+            if (Uri.TryCreate(this.GetUrlFromToken(token), UriKind.Absolute, out url))
             {
                 try
                 {
-                    RemoteFile remoteFile = new RemoteFile(url, false);
-                    string css = remoteFile.GetFileAsString();
+                    // Try and pull it from the cache.
+                    if (minify)
+                    {
+                        css = (string)HttpRuntime.Cache[token];
+                    }
+                    else
+                    {
+                        RemoteFile remoteFile = new RemoteFile(url, false);
+                        css = remoteFile.GetFileAsString();
+                    }
 
                     if (!string.IsNullOrWhiteSpace(css))
                     {
                         if (minify)
                         {
                             // Insert into cache
-                            this.RemoteFileNotifier(cacheKey, css);
+                            this.RemoteFileNotifier(token, css);
                         }
                     }
 
@@ -262,7 +270,7 @@ namespace Cruncher.HttpHandlers
                 }
             }
 
-            return string.Empty;
+            return css;
         }
 
         /// <summary>

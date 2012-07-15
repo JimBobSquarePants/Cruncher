@@ -95,7 +95,7 @@ namespace Cruncher.HttpHandlers
 
             string path = request.QueryString["path"];
             string combinedJavaScript = string.Empty;
-            this.CombinedFilesCacheKey = context.Server.HtmlDecode(path);
+            this.CombinedFilesCacheKey = HttpUtility.HtmlDecode(path);
 
             if (!string.IsNullOrWhiteSpace(path))
             {
@@ -108,7 +108,7 @@ namespace Cruncher.HttpHandlers
                 if (minify)
                 {
                     // Try and pull it from the cache.
-                    combinedJavaScript = (string)context.Cache[this.CombinedFilesCacheKey];
+                    combinedJavaScript = (string)HttpRuntime.Cache[this.CombinedFilesCacheKey];
                 }
 
                 // Check to see if the combined snippet exists. If not we process the list.
@@ -125,7 +125,7 @@ namespace Cruncher.HttpHandlers
                                 // Anything without a path extension should be a token representing a remote file.
                                 jsSnippet = StringComparer.OrdinalIgnoreCase.Compare(
                                     Path.GetExtension(jsName), ".js") != 0
-                                                 ? this.RetrieveRemoteJavaScript(jsName, CombinedFilesCacheKey, minify)
+                                                 ? this.RetrieveRemoteJavaScript(jsName, minify)
                                                  : this.RetrieveLocalJavaScript(jsName, minify);
                             }
 
@@ -221,29 +221,37 @@ namespace Cruncher.HttpHandlers
         /// <summary>
         /// Retrieves and caches the specified remote JavaScript.
         /// </summary>
-        /// <param name="file">The file name of the remote script to retrieve.</param>
-        /// <param name="cacheKey">The key used to insert this script into the cache.</param>
+        /// <param name="token">The token representing the path of the remote script to retrieve.</param>
         /// <param name="minify">Whether or not the remote script should be minified.</param>
         /// <returns>
         /// The retrieved and processed remote javascript.
         /// </returns>
-        private string RetrieveRemoteJavaScript(string file, string cacheKey, bool minify)
+        private string RetrieveRemoteJavaScript(string token, bool minify)
         {
             Uri url;
+            string script = string.Empty;
 
-            if (Uri.TryCreate(this.GetUrlFromToken(file), UriKind.Absolute, out url))
+            if (Uri.TryCreate(this.GetUrlFromToken(token), UriKind.Absolute, out url))
             {
                 try
                 {
-                    RemoteFile remoteFile = new RemoteFile(url, false);
-                    string script = remoteFile.GetFileAsString();
+                    // Try and pull it from the cache.
+                    if (minify)
+                    {
+                        script = (string)HttpRuntime.Cache[token];
+                    }
+                    else
+                    {
+                        RemoteFile remoteFile = new RemoteFile(url, false);
+                        script = remoteFile.GetFileAsString();
+                    }
 
                     if (!string.IsNullOrWhiteSpace(script))
                     {
                         if (minify)
                         {
                             // Insert into cache
-                            this.RemoteFileNotifier(cacheKey, script);
+                            this.RemoteFileNotifier(token, script);
                         }
                     }
 
@@ -262,7 +270,7 @@ namespace Cruncher.HttpHandlers
                 }
             }
 
-            return string.Empty;
+            return script;
         }
 
         /// <summary>
