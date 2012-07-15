@@ -57,6 +57,7 @@ then add the following to your **web.config**
     </cruncher>
   
 To request your files you just need to create links ans script tags as such
+
     <!-- Request three local css.files  -->
     <link  href="/css.axd?path=normalize.css|style.css|helpers.css" rel="stylesheet" type="text/css" />
     
