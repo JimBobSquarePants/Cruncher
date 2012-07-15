@@ -197,18 +197,20 @@ namespace Cruncher.HttpHandlers
                 {
                     if (this.cacheDependencies != null)
                     {
-                        AggregateCacheDependency aggregate = new AggregateCacheDependency();
-                        aggregate.Add(this.cacheDependencies.ToArray());
+                        using (AggregateCacheDependency aggregate = new AggregateCacheDependency())
+                        {
+                            aggregate.Add(this.cacheDependencies.ToArray());
 
-                        // Add the combined script to the cache.
-                        HttpRuntime.Cache.Insert(
-                            this.CombinedFilesCacheKey,
-                            script,
-                            aggregate,
-                            Cache.NoAbsoluteExpiration,
-                            new TimeSpan(MaxCacheDays, 0, 0, 0),
-                            CacheItemPriority.High,
-                            null);
+                            // Add the combined script to the cache.
+                            HttpRuntime.Cache.Insert(
+                                this.CombinedFilesCacheKey,
+                                script,
+                                aggregate,
+                                Cache.NoAbsoluteExpiration,
+                                new TimeSpan(MaxCacheDays, 0, 0, 0),
+                                CacheItemPriority.High,
+                                null);
+                        }
                     }
                 }
             }
@@ -254,9 +256,9 @@ namespace Cruncher.HttpHandlers
                     // The remote site is currently down. Try again next time.
                     return string.Empty;
                 }
-                catch (Exception ex)
+                catch
                 {
-                    throw ex;
+                    throw;
                 }
             }
 
@@ -314,9 +316,9 @@ namespace Cruncher.HttpHandlers
 
                 return script;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
         #endregion

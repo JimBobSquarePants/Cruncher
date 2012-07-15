@@ -197,18 +197,20 @@ namespace Cruncher.HttpHandlers
                 {
                     if (this.cacheDependencies != null)
                     {
-                        AggregateCacheDependency aggregate = new AggregateCacheDependency();
-                        aggregate.Add(this.cacheDependencies.ToArray());
+                        using (AggregateCacheDependency aggregate = new AggregateCacheDependency())
+                        {
+                            aggregate.Add(this.cacheDependencies.ToArray());
 
-                        // Add the combined css to the cache.
-                        HttpRuntime.Cache.Insert(
-                            this.CombinedFilesCacheKey,
-                            css,
-                            aggregate,
-                            Cache.NoAbsoluteExpiration,
-                            new TimeSpan(MaxCacheDays, 0, 0, 0),
-                            CacheItemPriority.High,
-                            null);
+                            // Add the combined css to the cache.
+                            HttpRuntime.Cache.Insert(
+                                this.CombinedFilesCacheKey,
+                                css,
+                                aggregate,
+                                Cache.NoAbsoluteExpiration,
+                                new TimeSpan(MaxCacheDays, 0, 0, 0),
+                                CacheItemPriority.High,
+                                null);
+                        }
                     }
                 }
             }
@@ -254,9 +256,9 @@ namespace Cruncher.HttpHandlers
                     // The remote site is currently down. Try again next time.
                     return string.Empty;
                 }
-                catch (Exception ex)
+                catch
                 {
-                    throw ex;
+                    throw;
                 }
             }
 
@@ -317,9 +319,9 @@ namespace Cruncher.HttpHandlers
 
                 return css;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
 
