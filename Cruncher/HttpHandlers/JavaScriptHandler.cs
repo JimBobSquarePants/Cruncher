@@ -156,8 +156,8 @@ namespace Cruncher.HttpHandlers
             }
         }
         #endregion
-
         #endregion
+
         #region Private
         /// <summary>
         /// Processes the script resource before being written to the response.
