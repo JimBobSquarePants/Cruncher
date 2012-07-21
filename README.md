@@ -28,6 +28,14 @@ then add the following to your **web.config**
       <!--The JavaScipt compression HttpHandler-->
       <add verb="*" path="js.axd" type="Cruncher.HttpHandlers.JavaScriptHandler, Cruncher" validate="false"/>
     </httpHandlers>
+    
+    <!-- Add to httphandlers in the system.webServer section. -->
+    <handlers>
+      <!--The CSS compression HttpHandler-->
+      <add name="CssHandler" verb="*" path="css.axd" type="Cruncher.HttpHandlers.CssHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode"/>
+      <!--The JavaScipt compression HttpHandler-->
+      <add name="JavaScript" verb="*" path="js.axd"  type="Cruncher.HttpHandlers.JavaScriptHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode"/>
+    </handlers>
   
     <!-- Add this to the end of the configuration section  -->
     <cruncher>
