@@ -36,7 +36,7 @@ namespace Cruncher.HttpHandlers
         /// <summary>
         /// The regular expression to search files for.
         /// </summary>
-        private static readonly Regex ImportsRegex = new Regex(@"(?:@import\surl\()(?<filename>[^.]+\.css)(?:\);)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+        private static readonly Regex ImportsRegex = new Regex(@"(?:@import\surl\()(?<filename>[^.]+\.css)(?:\)((?<media>[^;]+);|;))", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         /// <summary>
         /// The default path for css files on the server.
@@ -354,41 +354,48 @@ namespace Cruncher.HttpHandlers
             {
                 // Recursivly parse the css for imports.
                 GroupCollection groups = match.Groups;
+                Capture fileName = groups["filename"].Captures[0];
+                CaptureCollection mediaQueries = groups["media"].Captures;
+                Capture mediaQuery = null;
+
+                if (mediaQueries.Count > 0)
+                {
+                    mediaQuery = mediaQueries[0];
+                }
 
                 // Check and add the @import params to the cache dependancy list.
-                foreach (var groupName in groups["filename"].Captures)
+
+                // Get the match
+                List<string> files = new List<string>();
+                Array.ForEach(
+                    CSSPaths,
+                    cssPath => Array.ForEach(
+                        Directory.GetFiles(
+                            HttpContext.Current.Server.MapPath(cssPath),
+                            fileName.ToString(),
+                            SearchOption.AllDirectories),
+                        files.Add));
+
+                string file = files.FirstOrDefault();
+                string thisCSS = string.Empty;
+
+                // Read the file.
+                if (file != null)
                 {
-                    // Get the match
-                    List<string> files = new List<string>();
-                    Array.ForEach(
-                        CSSPaths,
-                        cssPath => Array.ForEach(
-                            Directory.GetFiles(
-                                HttpContext.Current.Server.MapPath(cssPath),
-                                groupName.ToString(),
-                                SearchOption.AllDirectories),
-                            files.Add));
-
-                    string file = files.FirstOrDefault();
-                    string thisCSS = string.Empty;
-
-                    // Read the file.
-                    if (file != null)
+                    using (StreamReader reader = new StreamReader(file))
                     {
-                        using (StreamReader reader = new StreamReader(file))
-                        {
-                            // Recursiveley parse the css.
-                            thisCSS = this.ParseImportsAndCache(reader.ReadToEnd(), minify);
-                        }
+                        thisCSS = mediaQuery != null
+                            ? string.Format("@media {0}{{\r\n{1}\r\n}}", mediaQuery, this.ParseImportsAndCache(reader.ReadToEnd(), minify))
+                            : this.ParseImportsAndCache(reader.ReadToEnd(), minify);
                     }
+                }
 
-                    // Replace the regex match with the full qualified css.
-                    css = css.Replace(match.Value, thisCSS);
+                // Replace the regex match with the full qualified css.
+                css = css.Replace(match.Value, thisCSS);
 
-                    if (minify)
-                    {
-                        this.cacheDependencies.Add(new CacheDependency(files.FirstOrDefault()));
-                    }
+                if (minify)
+                {
+                    this.cacheDependencies.Add(new CacheDependency(files.FirstOrDefault()));
                 }
             }
 
