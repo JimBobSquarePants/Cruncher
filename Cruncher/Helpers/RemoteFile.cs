@@ -1,7 +1,7 @@
 ﻿#region Licence
 // -----------------------------------------------------------------------
 // <copyright file="RemoteFile.cs" company="James South">
-//     Copyright (c) 2012,  James South.
+//     Copyright (c) James South.
 //     Dual licensed under the MIT or GPL Version 2 licenses.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -256,7 +256,7 @@ namespace Cruncher.Helpers
             using (WebResponse response = this.GetWebResponse())
             {
                 Stream responseStream = response.GetResponseStream();
-
+                
                 if (responseStream != null)
                 {
                     // Pipe the stream to a stream reader with the required encoding format.

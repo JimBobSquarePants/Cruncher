@@ -1,7 +1,7 @@
 ﻿#region Licence
 // -----------------------------------------------------------------------
 // <copyright file="CssHandler.cs" company="James South">
-//     Copyright (c) 2012,  James South.
+//     Copyright (c) James South.
 //     Dual licensed under the MIT or GPL Version 2 licenses.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -240,7 +240,8 @@ namespace Cruncher.HttpHandlers
                     {
                         css = (string)HttpRuntime.Cache[token];
                     }
-                    else
+
+                    if (string.IsNullOrWhiteSpace(css))
                     {
                         RemoteFile remoteFile = new RemoteFile(url, false);
                         css = remoteFile.GetFileAsString();
@@ -385,7 +386,7 @@ namespace Cruncher.HttpHandlers
                     using (StreamReader reader = new StreamReader(file))
                     {
                         thisCSS = mediaQuery != null
-                            ? string.Format("@media {0}{{\r\n{1}\r\n}}", mediaQuery, this.ParseImportsAndCache(reader.ReadToEnd(), minify))
+                            ? string.Format("@media {0}{{{1}{2}{1}}}", mediaQuery, Environment.NewLine, this.ParseImportsAndCache(reader.ReadToEnd(), minify))
                             : this.ParseImportsAndCache(reader.ReadToEnd(), minify);
                     }
                 }

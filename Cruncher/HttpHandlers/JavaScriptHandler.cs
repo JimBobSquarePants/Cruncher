@@ -1,7 +1,7 @@
 ﻿#region Licence
 // -----------------------------------------------------------------------
 // <copyright file="JavaScriptHandler.cs" company="James South">
-//     Copyright (c) 2012,  James South.
+//     Copyright (c) James South.
 //     Dual licensed under the MIT or GPL Version 2 licenses.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -137,22 +137,22 @@ namespace Cruncher.HttpHandlers
                 }
 
                 // Make sure js isn't empty
-                if (!string.IsNullOrWhiteSpace(combinedJavaScript))
-                {
-                    // Configure response headers
-                    this.SetHeaders(combinedJavaScript.GetHashCode(), context, ResponseType.JavaScript, minify);
-                    context.Response.Write(combinedJavaScript);
+                //if (!string.IsNullOrWhiteSpace(combinedJavaScript))
+                //{
+                // Configure response headers
+                this.SetHeaders(combinedJavaScript.GetHashCode(), context, ResponseType.JavaScript, minify);
+                context.Response.Write(combinedJavaScript);
 
-                    // Compress the response if applicable.
-                    if (CompressResources)
-                    {
-                        CompressionModule.CompressResponse(context);
-                    }
-                }
-                else
+                // Compress the response if applicable.
+                if (CompressResources)
                 {
-                    context.Response.Status = "404 Not Found";
+                    CompressionModule.CompressResponse(context);
                 }
+                //}
+                //else
+                //{
+                //    context.Response.Status = "404 Not Found";
+                //}
             }
         }
         #endregion
@@ -240,7 +240,8 @@ namespace Cruncher.HttpHandlers
                     {
                         script = (string)HttpRuntime.Cache[token];
                     }
-                    else
+
+                    if (string.IsNullOrWhiteSpace(script))
                     {
                         RemoteFile remoteFile = new RemoteFile(url, false);
                         script = remoteFile.GetFileAsString();

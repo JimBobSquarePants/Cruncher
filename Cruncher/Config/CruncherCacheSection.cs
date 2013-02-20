@@ -1,7 +1,7 @@
 ﻿#region Licence
 // -----------------------------------------------------------------------
 // <copyright file="CruncherCacheSection.cs" company="James South">
-//     Copyright (c) 2012,  James South.
+//     Copyright (c) James South.
 //     Dual licensed under the MIT or GPL Version 2 licenses.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -23,9 +23,9 @@ namespace Cruncher.Config
         /// Gets or sets the maximum number of days to store a css or javascript resource in the cache.
         /// </summary>
         /// <value>The maximum number of days to store a css or javascript resource in the cache.</value>
-        /// <remarks>Defaults to 7 if not set. Maximum of 28.</remarks>
-        [ConfigurationProperty("maxDays", DefaultValue = "7", IsRequired = false)]
-        [IntegerValidator(ExcludeRange = false, MaxValue = 28, MinValue = 0)]
+        /// <remarks>Defaults to 28 if not set.</remarks>
+        [ConfigurationProperty("maxDays", DefaultValue = "28", IsRequired = false)]
+        [IntegerValidator(ExcludeRange = false, MinValue = 0)]
         public int MaxDays
         {
             get
@@ -37,7 +37,7 @@ namespace Cruncher.Config
             {
                 this["maxDays"] = value;
             }
-        } 
+        }
         #endregion
 
         #region Methods
@@ -55,7 +55,7 @@ namespace Cruncher.Config
             }
 
             return new CruncherCacheSection();
-        } 
+        }
         #endregion
     }
 }

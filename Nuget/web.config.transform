@@ -1,23 +1,31 @@
-<!-- Cruncher -->
-<sectionGroup name="cruncher">
-  <section name="security" requirePermission="false" type="Cruncher.Config.CruncherSecuritySection, Cruncher" />
-  <section name="processing" requirePermission="false" type="Cruncher.Config.CruncherProcessingSection, Cruncher" />
-  <section name="cache" requirePermission="false" type="Cruncher.Config.CruncherCacheSection, Cruncher" />
-</sectionGroup>
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+<configSections>
+    <!-- Cruncher -->
+    <sectionGroup name="cruncher">
+      <section name="security" requirePermission="false" type="Cruncher.Config.CruncherSecuritySection, Cruncher" />
+      <section name="processing" requirePermission="false" type="Cruncher.Config.CruncherProcessingSection, Cruncher" />
+      <section name="cache" requirePermission="false" type="Cruncher.Config.CruncherCacheSection, Cruncher" />
+    </sectionGroup>
+</configSections>
 
-<httpHandlers>
-  <!--The Cruncher CSS compression HttpHandler-->
-  <add verb="*" path="css.axd" type="Cruncher.HttpHandlers.CssHandler, Cruncher" validate="false"/>
-  <!--The Cruncher JavaScipt compression HttpHandler-->
-  <add verb="*" path="js.axd" type="Cruncher.HttpHandlers.JavaScriptHandler, Cruncher" validate="false"/>
-</httpHandlers>
+<system.web>
+    <httpHandlers>
+      <!--The Cruncher CSS compression HttpHandler-->
+      <add verb="*" path="css.axd" type="Cruncher.HttpHandlers.CssHandler, Cruncher" validate="false"/>
+      <!--The Cruncher JavaScipt compression HttpHandler-->
+      <add verb="*" path="js.axd" type="Cruncher.HttpHandlers.JavaScriptHandler, Cruncher" validate="false"/>
+    </httpHandlers>
+</system.web>
 
-<handlers>
-  <!--The Cruncher CSS compression HttpHandler-->
-  <add name="CssHandler" verb="*" path="css.axd" type="Cruncher.HttpHandlers.CssHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode"/>
-  <!--The Cruncher JavaScipt compression HttpHandler-->
-  <add name="JavaScript" verb="*" path="js.axd"  type="Cruncher.HttpHandlers.JavaScriptHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode"/>
-</handlers>
+<system.webServer>
+    <handlers>
+      <!--The Cruncher CSS compression HttpHandler-->
+      <add name="CssHandler" verb="*" path="css.axd" type="Cruncher.HttpHandlers.CssHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode"/>
+      <!--The Cruncher JavaScipt compression HttpHandler-->
+      <add name="JavaScript" verb="*" path="js.axd"  type="Cruncher.HttpHandlers.JavaScriptHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode"/>
+    </handlers>
+</system.webServer>
 
 <!-- Cruncher -->
 <cruncher>
@@ -31,7 +39,7 @@
       character url limit.
       -->
       <whiteList>
-          <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"/>
+          <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"/>
       </whiteList>
   </security>
   <processing>
@@ -43,5 +51,6 @@
       <relativeCssRoot path="/content" />
   </processing>
   <!-- The number of days to store a client resource in the cache. -->
-  <cache maxDays="28"/>
+  <cache maxDays="365"/>
 </cruncher>
+</configuration>
