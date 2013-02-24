@@ -16,11 +16,13 @@ namespace Cruncher.HttpHandlers
     using System.Globalization;
     using System.Linq;
     using System.Net;
+    using System.Net.Sockets;
     using System.Web;
     using System.Web.Caching;
     using Cruncher.Config;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
+    using Cruncher.PreProcessors;
     #endregion
 
     /// <summary>
@@ -29,7 +31,6 @@ namespace Cruncher.HttpHandlers
     public abstract class HandlerBase : IHttpHandler
     {
         #region Fields
-
         /// <summary>
         /// The maximum number of days to store the resource in the browser cache.
         /// </summary>
@@ -85,6 +86,82 @@ namespace Cruncher.HttpHandlers
 
         #region Protected
         /// <summary>
+        /// Transforms the content of the given string using the correct preprocessor. 
+        /// </summary>
+        /// <param name="input">The input string to transform.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <returns>The transformed string.</returns>
+        protected abstract string PreProcessInput(string input, string path);
+
+        /// <summary>
+        /// Retrieves the local file from the disk
+        /// </summary>
+        /// <param name="file">The file name of the file to retrieve.</param>
+        /// <param name="minify">Whether or not the local file should be minified</param>
+        /// <returns>
+        /// The retrieved and processed local file contents.
+        /// </returns>
+        protected abstract string RetrieveLocalFile(string file, bool minify);
+
+        /// <summary>
+        /// Retrieves and caches the specified remote file.
+        /// </summary>
+        /// <param name="token">The token representing the path of the remote file to retrieve.</param>
+        /// <param name="path">The path of the remote file to retrieve.</param>
+        /// <param name="minify">Whether or not the remote file should be minified.</param>
+        /// <returns>
+        /// The retrieved and processed remote file as a string.
+        /// </returns>
+        protected string RetrieveRemoteFile(string token, string path, bool minify)
+        {
+            Uri url;
+            string contents = string.Empty;
+
+            if (Uri.TryCreate(path, UriKind.Absolute, out url))
+            {
+                try
+                {
+                    // Try and pull it from the cache.
+                    if (minify)
+                    {
+                        contents = (string)HttpRuntime.Cache[token];
+                    }
+
+                    if (string.IsNullOrWhiteSpace(contents))
+                    {
+                        RemoteFile remoteFile = new RemoteFile(url, false);
+                        contents = remoteFile.GetFileAsString();
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(contents))
+                    {
+                        if (minify)
+                        {
+                            // Insert into cache
+                            this.RemoteFileNotifier(token, contents);
+                        }
+                    }
+
+                    return contents;
+                }
+                catch (SocketException)
+                {
+                    // A SocketException is thrown by the Socket and Dns classes when an error occurs with 
+                    // the network.
+                    // The remote site is currently down. Try again next time.
+                    return string.Empty;
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+
+            return contents;
+        }
+
+
+        /// <summary>
         /// This will make the browser and server keep the output
         /// in its cache and thereby improve performance.
         /// See http://en.wikipedia.org/wiki/HTTP_ETag
@@ -96,7 +173,7 @@ namespace Cruncher.HttpHandlers
         /// </param>
         /// <param name="responseType">The HTTP MIME type to to send.</param>
         /// <param name="futureExpire">Whether the response headers should be set to expire in the future.</param>
-        protected internal void SetHeaders(int hash, HttpContext context, ResponseType responseType, bool futureExpire)
+        protected void SetHeaders(int hash, HttpContext context, ResponseType responseType, bool futureExpire)
         {
             HttpResponse response = context.Response;
 
@@ -140,7 +217,7 @@ namespace Cruncher.HttpHandlers
         /// </summary>
         /// <param name="token">The token to look up.</param>
         /// <returns>A string representing the url from the given token from the whitelist in the web.config.</returns>
-        protected internal string GetUrlFromToken(string token)
+        protected string GetUrlFromToken(string token)
         {
             string url = string.Empty;
 

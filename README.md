@@ -1,14 +1,18 @@
 #Cruncher
 
-###A Css and Javascript Processor for ASP.NET
+###A CSS, LESS and Javascript Processor for ASP.NET
 
 ##What is is?
-Cruncher is a C# NET4 library which concatinates and minifies css and javascript files using Micosofts AjaxMin library.
+Cruncher is a C# NET4 library which concatinates, minifies, caches and serves CSS, LESS and JavaScript files using Micosoft's AjaxMin library.
 
 ##Why?
 Partly for the purposes of learning but mostly because most alternatives out there aren't that great. Even Microsofts Bundle is a bit flakey.
 
-Cruncher can handle unlimited combinations of remote and local css and javascript files. It combines them, minifies them and caches them in the browser. It can handle nested css @import statements, the cache is self cleaning should any changes be made to any of the resource files and it'll even gzip compress the output.
+Cruncher can handle unlimited combinations of remote and local CSS, LESS and JavaScript files. It combines them, minifies them and caches them in the browser. It can handle nested css @import statements and has a self cleaning cache should any changes be made to any of the resource files. It'll even gzip compress the output.
+
+If you use Cruncher please get in touch on my twitter @james_m_south.
+
+Feedback is always welcome.
 
 ##Installation
 Installation is simple. Download and build the project and reference the binaries. **Cruncher.dll** and **AjaxMin.dll**
@@ -49,7 +53,7 @@ then add the following to your **web.config**
           character url limit.
           -->
           <whiteList>
-              <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"/>
+              <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"/>
           </whiteList>
       </security>
       <processing>
@@ -61,13 +65,13 @@ then add the following to your **web.config**
           <relativeCssRoot path="/content" />
       </processing>
       <!-- The number of days to store a client resource in the cache. -->
-      <cache maxDays="28"/>
+      <cache maxDays="365"/>
     </cruncher>
   
 To request your files you just need to create links and script tags as such
 
     <!-- Request three local css.files  -->
-    <link  href="/css.axd?path=normalize.css|style.css|helpers.css" rel="stylesheet" type="text/css" />
+    <link  href="/css.axd?path=normalize.css|style.css|helpers.css|styles.less" rel="stylesheet" type="text/css" />
     
     <!-- Request an external copy of jQuery and a local copy of Modernizr  -->
     <script src="/js.axd?path=jquery|modernizr-1.7.js"></script>

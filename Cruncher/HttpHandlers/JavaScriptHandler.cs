@@ -14,9 +14,10 @@ namespace Cruncher.HttpHandlers
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Net.Sockets;
+    using System.Net;
     using System.Security;
     using System.Text;
+    using System.Text.RegularExpressions;
     using System.Web;
     using System.Web.Caching;
     using Cruncher.Compression;
@@ -31,6 +32,11 @@ namespace Cruncher.HttpHandlers
     public class JavaScriptHandler : HandlerBase
     {
         #region Fields
+        /// <summary>
+        /// The regular expression for matching filetype.
+        /// </summary>
+        private static readonly Regex ExtensionsRegex = new Regex(@"\.js", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         /// <summary>
         /// The default path for javascript files on the server.
         /// </summary>
@@ -119,17 +125,24 @@ namespace Cruncher.HttpHandlers
                         jsName =>
                         {
                             string jsSnippet = string.Empty;
+                            string untokenizedJSName = jsName;
 
                             if (string.IsNullOrWhiteSpace(jsSnippet))
                             {
                                 // Anything without a path extension should be a token representing a remote file.
-                                jsSnippet = StringComparer.OrdinalIgnoreCase.Compare(
-                                    Path.GetExtension(jsName), ".js") != 0
-                                                 ? this.RetrieveRemoteJavaScript(jsName, minify)
-                                                 : this.RetrieveLocalJavaScript(jsName, minify);
+                                if (!ExtensionsRegex.IsMatch(jsName))
+                                {
+                                    untokenizedJSName = this.GetUrlFromToken(jsName);
+                                    jsSnippet = this.RetrieveRemoteFile(jsName, untokenizedJSName, minify);
+                                }
+                                else
+                                {
+                                    jsSnippet = this.RetrieveLocalFile(jsName, minify);
+                                }
                             }
 
-                            stringBuilder.Append(jsSnippet);
+                            // Run the snippet through the preprocessor and append.
+                            stringBuilder.Append(this.PreProcessInput(jsSnippet, untokenizedJSName));
                         });
 
                     // Minify the js here as a whole.
@@ -137,26 +150,100 @@ namespace Cruncher.HttpHandlers
                 }
 
                 // Make sure js isn't empty
-                //if (!string.IsNullOrWhiteSpace(combinedJavaScript))
-                //{
-                // Configure response headers
-                this.SetHeaders(combinedJavaScript.GetHashCode(), context, ResponseType.JavaScript, minify);
-                context.Response.Write(combinedJavaScript);
-
-                // Compress the response if applicable.
-                if (CompressResources)
+                if (!string.IsNullOrWhiteSpace(combinedJavaScript))
                 {
-                    CompressionModule.CompressResponse(context);
+                    // Configure response headers
+                    this.SetHeaders(combinedJavaScript.GetHashCode(), context, ResponseType.JavaScript, minify);
+                    context.Response.Write(combinedJavaScript);
+
+                    // Compress the response if applicable.
+                    if (CompressResources)
+                    {
+                        CompressionModule.CompressResponse(context);
+                    }
                 }
-                //}
-                //else
-                //{
-                //    context.Response.Status = "404 Not Found";
-                //}
+                else
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    context.Response.Status = HttpStatusCode.NotFound.ToString();
+                }
+
             }
         }
         #endregion
         #endregion
+
+        #region Protected
+        /// <summary>
+        /// Transforms the content of the given string using the correct preprocessor. 
+        /// </summary>
+        /// <param name="input">The input string to transform.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <returns>The transformed string.</returns>
+        protected override string PreProcessInput(string input, string path)
+        {
+            // Getting ready for supporting coffeescript.
+            return input;
+        }
+
+        /// <summary>
+        /// Retrieves the local script from the disk
+        /// </summary>
+        /// <param name="file">The file name of the script to retrieve.</param>
+        /// <param name="minify">Whether or not the local script should be minified</param>
+        /// <returns>
+        /// The retrieved and processed local script.
+        /// </returns>
+        protected override string RetrieveLocalFile(string file, bool minify)
+        {
+            if (!ExtensionsRegex.IsMatch(Path.GetExtension(file)))
+            {
+                throw new SecurityException("No access");
+            }
+
+            try
+            {
+                List<string> files = new List<string>();
+
+                // Get the path from the server.
+                // Loop through each possible directory.
+                Array.ForEach(
+                    JavaScriptPaths,
+                    scriptFolder => Array.ForEach(
+                        Directory.GetFiles(HttpContext.Current.Server.MapPath(scriptFolder), file, SearchOption.AllDirectories),
+                        files.Add));
+
+                // We only want the first file.
+                string path = files.FirstOrDefault();
+
+                string script = string.Empty;
+
+                if (path != null)
+                {
+                    using (StreamReader reader = new StreamReader(path))
+                    {
+                        script = reader.ReadToEnd();
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(script))
+                    {
+                        if (minify)
+                        {
+                            // Add the file to the cache dependancy list.
+                            this.cacheDependencies.Add(new CacheDependency(path));
+                        }
+                    }
+                }
+
+                return script;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        #endregion
+
 
         #region Private
         /// <summary>
@@ -216,119 +303,6 @@ namespace Cruncher.HttpHandlers
             }
 
             return script;
-        }
-
-        /// <summary>
-        /// Retrieves and caches the specified remote JavaScript.
-        /// </summary>
-        /// <param name="token">The token representing the path of the remote script to retrieve.</param>
-        /// <param name="minify">Whether or not the remote script should be minified.</param>
-        /// <returns>
-        /// The retrieved and processed remote javascript.
-        /// </returns>
-        private string RetrieveRemoteJavaScript(string token, bool minify)
-        {
-            Uri url;
-            string script = string.Empty;
-
-            if (Uri.TryCreate(this.GetUrlFromToken(token), UriKind.Absolute, out url))
-            {
-                try
-                {
-                    // Try and pull it from the cache.
-                    if (minify)
-                    {
-                        script = (string)HttpRuntime.Cache[token];
-                    }
-
-                    if (string.IsNullOrWhiteSpace(script))
-                    {
-                        RemoteFile remoteFile = new RemoteFile(url, false);
-                        script = remoteFile.GetFileAsString();
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(script))
-                    {
-                        if (minify)
-                        {
-                            // Insert into cache
-                            this.RemoteFileNotifier(token, script);
-                        }
-                    }
-
-                    return script;
-                }
-                catch (SocketException)
-                {
-                    // A SocketException is thrown by the Socket and Dns classes when an error occurs with 
-                    // the network.
-                    // The remote site is currently down. Try again next time.
-                    return string.Empty;
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-
-            return script;
-        }
-
-        /// <summary>
-        /// Retrieves the local script from the disk
-        /// </summary>
-        /// <param name="file">The file name of the script to retrieve.</param>
-        /// <param name="minify">Whether or not the local script should be minified</param>
-        /// <returns>
-        /// The retrieved and processed local script.
-        /// </returns>
-        private string RetrieveLocalJavaScript(string file, bool minify)
-        {
-            if (StringComparer.OrdinalIgnoreCase.Compare(Path.GetExtension(file), ".js") != 0 || file.StartsWith("http"))
-            {
-                throw new SecurityException("No access");
-            }
-
-            try
-            {
-                List<string> files = new List<string>();
-
-                // Get the path from the server.
-                // Loop through each possible directory.
-                Array.ForEach(
-                    JavaScriptPaths,
-                    scriptFolder => Array.ForEach(
-                        Directory.GetFiles(HttpContext.Current.Server.MapPath(scriptFolder), file, SearchOption.AllDirectories),
-                        files.Add));
-
-                // We only want the first file.
-                string path = files.FirstOrDefault();
-
-                string script = string.Empty;
-
-                if (path != null)
-                {
-                    using (StreamReader reader = new StreamReader(path))
-                    {
-                        script = reader.ReadToEnd();
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(script))
-                    {
-                        if (minify)
-                        {
-                            // Add the file to the cache dependancy list.
-                            this.cacheDependencies.Add(new CacheDependency(path));
-                        }
-                    }
-                }
-
-                return script;
-            }
-            catch
-            {
-                throw;
-            }
         }
         #endregion
         #endregion

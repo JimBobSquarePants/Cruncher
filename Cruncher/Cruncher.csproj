@@ -34,6 +34,10 @@
     <Reference Include="AjaxMin, Version=4.84.4790.14405, Culture=neutral, PublicKeyToken=21ef50ce11b5d80f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\AjaxMin.4.84.4790.14417\lib\net40\AjaxMin.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="dotless.Core">
+      <HintPath>..\packages\dotless.1.3.1.0\lib\dotless.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -62,6 +66,8 @@
     <Compile Include="HttpHandlers\HandlerBase.cs" />
     <Compile Include="HttpHandlers\JavaScriptHandler.cs" />
     <Compile Include="HttpModules\CompressionModule.cs" />
+    <Compile Include="PreProcessors\IPreProcessor.cs" />
+    <Compile Include="PreProcessors\DotLessPreProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

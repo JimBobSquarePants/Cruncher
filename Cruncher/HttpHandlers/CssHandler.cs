@@ -14,7 +14,7 @@ namespace Cruncher.HttpHandlers
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Net.Sockets;
+    using System.Net;
     using System.Security;
     using System.Text;
     using System.Text.RegularExpressions;
@@ -25,6 +25,7 @@ namespace Cruncher.HttpHandlers
     using Cruncher.Extensions;
     using Cruncher.Helpers;
     using Cruncher.HttpModules;
+    using Cruncher.PreProcessors;
     #endregion
 
     /// <summary>
@@ -34,9 +35,14 @@ namespace Cruncher.HttpHandlers
     {
         #region Fields
         /// <summary>
+        /// The regular expression for matching filetype.
+        /// </summary>
+        private static readonly Regex ExtensionsRegex = new Regex(@"\.css|\.less", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        /// <summary>
         /// The regular expression to search files for.
         /// </summary>
-        private static readonly Regex ImportsRegex = new Regex(@"(?:@import\surl\()(?<filename>[^.]+\.css)(?:\)((?<media>[^;]+);|;))", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+        private static readonly Regex ImportsRegex = new Regex(@"(?:@import\s(url\(|\""))(?<filename>[^.]+(\.css|\.less))(?:(\)|\"")((?<media>[^;]+);|;))", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         /// <summary>
         /// The default path for css files on the server.
@@ -62,6 +68,11 @@ namespace Cruncher.HttpHandlers
         /// A list of the fileCacheDependancies that will be monitored by the application.
         /// </summary>
         private readonly List<CacheDependency> cacheDependencies = new List<CacheDependency>();
+
+        /// <summary>
+        /// The preprocessor for converting .less files into css.
+        /// </summary>
+        private static readonly DotLessPreProcessor DotLessPreProcessor = new DotLessPreProcessor();
         #endregion
 
         #region Properties
@@ -131,20 +142,27 @@ namespace Cruncher.HttpHandlers
                         cssName =>
                         {
                             string cssSnippet = string.Empty;
+                            string untokenizedCSSName = cssName;
 
                             if (string.IsNullOrWhiteSpace(cssSnippet))
                             {
                                 // Anything without a path extension should be a token representing a remote file.
-                                cssSnippet = StringComparer.OrdinalIgnoreCase.Compare(
-                                    Path.GetExtension(cssName), ".css") != 0
-                                                 ? this.RetrieveRemoteCss(cssName, minify)
-                                                 : this.RetrieveLocalCss(cssName, minify);
+                                if (!ExtensionsRegex.IsMatch(cssName))
+                                {
+                                    untokenizedCSSName = this.GetUrlFromToken(cssName);
+                                    cssSnippet = this.RetrieveRemoteFile(cssName, untokenizedCSSName, minify);
+                                }
+                                else
+                                {
+                                    cssSnippet = this.RetrieveLocalFile(cssName, minify);
+                                }
                             }
 
-                            stringBuilder.Append(cssSnippet);
+                            // Run the snippet through the preprocessor and append.
+                            stringBuilder.Append(this.PreProcessInput(cssSnippet, untokenizedCSSName));
                         });
 
-                    // Minify the css here as a whole.
+                    // Process and minify the css here as a whole.
                     combinedCss = this.ProcessCss(stringBuilder.ToString(), minify);
                 }
 
@@ -163,115 +181,32 @@ namespace Cruncher.HttpHandlers
                 }
                 else
                 {
-                    context.Response.Status = "404 Not Found";
+                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    context.Response.Status = HttpStatusCode.NotFound.ToString();
                 }
             }
         }
         #endregion
         #endregion
 
-        #region Private
+        #region Protected
         /// <summary>
-        /// Call this method to do any post-processing on the css before its returned in the context response.
+        /// Transforms the content of the given string using the correct preprocessor. 
         /// </summary>
-        /// <param name="css">The css stylesheet to process</param>
-        /// <param name="shouldMinify">Whether the stylesheet should be minified.</param>
-        /// <returns>The processed css stylesheet</returns>
-        private string ProcessCss(string css, bool shouldMinify)
+        /// <param name="input">The input string to transform.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <returns>The transformed string.</returns>
+        protected override string PreProcessInput(string input, string path)
         {
-            if (shouldMinify)
-            {
-                CssMinifier minifier = new CssMinifier
-                {
-                    ColorNamesRange = ColorNamesRange.W3CStrict
-                };
+            string extension = path.Substring(path.LastIndexOf('.'));
 
-                css = minifier.Minify(css);
+            switch (extension.ToUpperInvariant())
+            {
+                case ".LESS":
+                    return DotLessPreProcessor.Transform(input);
             }
 
-            css = css.Replace("{root}", RelativeCSSRoot);
-
-            if (shouldMinify)
-            {
-                if (!string.IsNullOrWhiteSpace(css))
-                {
-                    if (this.cacheDependencies != null)
-                    {
-                        using (AggregateCacheDependency aggregate = new AggregateCacheDependency())
-                        {
-                            aggregate.Add(this.cacheDependencies.ToArray());
-
-                            // Add the combined css to the cache.
-                            HttpRuntime.Cache.Insert(
-                                this.CombinedFilesCacheKey,
-                                css,
-                                aggregate,
-                                Cache.NoAbsoluteExpiration,
-                                new TimeSpan(MaxCacheDays, 0, 0, 0),
-                                CacheItemPriority.High,
-                                null);
-                        }
-                    }
-                }
-            }
-
-            return css;
-        }
-
-        /// <summary>
-        /// Retrieves and caches the specified remote CSS.
-        /// </summary>
-        /// <param name="token">The token representing the path of the remote style sheet to retrieve.</param>
-        /// <param name="minify">Whether or not the remote script should be minified.</param>
-        /// <returns>
-        /// The retrieved and processed remote css.
-        /// </returns>
-        private string RetrieveRemoteCss(string token, bool minify)
-        {
-            Uri url;
-            string css = string.Empty;
-
-            if (Uri.TryCreate(this.GetUrlFromToken(token), UriKind.Absolute, out url))
-            {
-                try
-                {
-                    // Try and pull it from the cache.
-                    if (minify)
-                    {
-                        css = (string)HttpRuntime.Cache[token];
-                    }
-
-                    if (string.IsNullOrWhiteSpace(css))
-                    {
-                        RemoteFile remoteFile = new RemoteFile(url, false);
-                        css = remoteFile.GetFileAsString();
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(css))
-                    {
-                        if (minify)
-                        {
-                            // Insert into cache
-                            this.RemoteFileNotifier(token, css);
-                        }
-                    }
-
-                    return css;
-                }
-                catch (SocketException)
-                {
-                    // A SocketException is thrown by the Socket and Dns classes when an error occurs with 
-                    // the network.
-                    // The remote site is currently down. Try again next time.
-                    return string.Empty;
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-
-            return css;
+            return input;
         }
 
         /// <summary>
@@ -282,9 +217,9 @@ namespace Cruncher.HttpHandlers
         /// <returns>
         /// The retrieved and processed local style sheet.
         /// </returns>
-        private string RetrieveLocalCss(string file, bool minify)
+        protected override string RetrieveLocalFile(string file, bool minify)
         {
-            if (StringComparer.OrdinalIgnoreCase.Compare(Path.GetExtension(file), ".css") != 0 || file.StartsWith("http"))
+            if (!ExtensionsRegex.IsMatch(Path.GetExtension(file)))
             {
                 throw new SecurityException("No access");
             }
@@ -333,6 +268,56 @@ namespace Cruncher.HttpHandlers
                 throw;
             }
         }
+        #endregion
+
+        #region Private
+        /// <summary>
+        /// Call this method to do any post-processing on the css before its returned in the context response.
+        /// </summary>
+        /// <param name="css">The css stylesheet to process</param>
+        /// <param name="shouldMinify">Whether the stylesheet should be minified.</param>
+        /// <returns>The processed css stylesheet</returns>
+        private string ProcessCss(string css, bool shouldMinify)
+        {
+            if (shouldMinify)
+            {
+                CssMinifier minifier = new CssMinifier
+                {
+                    ColorNamesRange = ColorNamesRange.W3CStrict
+                };
+
+                css = minifier.Minify(css);
+            }
+
+            // Replace the root token.
+            css = css.Replace("{root}", RelativeCSSRoot);
+
+            if (shouldMinify)
+            {
+                if (!string.IsNullOrWhiteSpace(css))
+                {
+                    if (this.cacheDependencies != null)
+                    {
+                        using (AggregateCacheDependency aggregate = new AggregateCacheDependency())
+                        {
+                            aggregate.Add(this.cacheDependencies.ToArray());
+
+                            // Add the combined css to the cache.
+                            HttpRuntime.Cache.Insert(
+                                this.CombinedFilesCacheKey,
+                                css,
+                                aggregate,
+                                Cache.NoAbsoluteExpiration,
+                                new TimeSpan(MaxCacheDays, 0, 0, 0),
+                                CacheItemPriority.High,
+                                null);
+                        }
+                    }
+                }
+            }
+
+            return css;
+        }
 
         /// <summary>
         /// Parses the string for css imports and adds them to the file dependency list.
@@ -365,7 +350,6 @@ namespace Cruncher.HttpHandlers
                 }
 
                 // Check and add the @import params to the cache dependancy list.
-
                 // Get the match
                 List<string> files = new List<string>();
                 Array.ForEach(
