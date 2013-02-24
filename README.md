@@ -15,7 +15,11 @@ If you use Cruncher please get in touch on my twitter @james_m_south.
 Feedback is always welcome.
 
 ##Installation
-Installation is simple. Download and build the project and reference the binaries. **Cruncher.dll** and **AjaxMin.dll**
+Installation is simple. A Nuget package is available [here][1]. 
+
+  [1]: https://nuget.org/packages/Cruncher/
+
+Alternatively you can download and build the project and reference the binaries. **Cruncher.dll** and **AjaxMin.dll**
 then add the following to your **web.config**
 
     <!-- Add to start of the configuration section. -->
