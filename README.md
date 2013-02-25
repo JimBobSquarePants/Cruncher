@@ -19,7 +19,7 @@ Installation is simple. A Nuget package is available [here][1].
 
   [1]: https://nuget.org/packages/Cruncher/
 
-Alternatively you can download and build the project and reference the binaries. **Cruncher.dll** and **AjaxMin.dll**
+Alternatively you can download and build the project and reference the binaries. **Cruncher.dll** **dotless.dll** and **AjaxMin.dll**
 then add the following to your **web.config**
 
     <!-- Add to start of the configuration section. -->
