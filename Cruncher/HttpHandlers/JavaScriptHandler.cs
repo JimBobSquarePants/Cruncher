@@ -142,7 +142,7 @@ namespace Cruncher.HttpHandlers
                             }
 
                             // Run the snippet through the preprocessor and append.
-                            stringBuilder.Append(this.PreProcessInput(jsSnippet, untokenizedJSName));
+                            stringBuilder.Append(jsSnippet);
                         });
 
                     // Minify the js here as a whole.
@@ -232,6 +232,9 @@ namespace Cruncher.HttpHandlers
                             // Add the file to the cache dependancy list.
                             this.cacheDependencies.Add(new CacheDependency(path));
                         }
+
+                        // Run any filters 
+                        script = this.PreProcessInput(script, path);
                     }
                 }
 

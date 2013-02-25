@@ -42,7 +42,7 @@ namespace Cruncher.HttpHandlers
         /// <summary>
         /// The regular expression to search files for.
         /// </summary>
-        private static readonly Regex ImportsRegex = new Regex(@"(?:@import\s(url\(|\""))(?<filename>[^.]+(\.css|\.less))(?:(\)|\"")((?<media>[^;]+);|;))", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+        private static readonly Regex ImportsRegex = new Regex(@"(?:@import\s*(url\(|\""))(?<filename>[^.]+(\.css|\.less))(?:(\)|\"")((?<media>[^;]+);|;))", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         /// <summary>
         /// The default path for css files on the server.
@@ -73,6 +73,11 @@ namespace Cruncher.HttpHandlers
         /// The preprocessor for converting .less files into css.
         /// </summary>
         private static readonly DotLessPreProcessor DotLessPreProcessor = new DotLessPreProcessor();
+
+        /// <summary>
+        /// The preprocessor for rewriting relative urls.
+        /// </summary>
+        private static readonly ResourcePreprocessor ResourcePreprocessor = new ResourcePreprocessor();
         #endregion
 
         #region Properties
@@ -159,7 +164,7 @@ namespace Cruncher.HttpHandlers
                             }
 
                             // Run the snippet through the preprocessor and append.
-                            stringBuilder.Append(this.PreProcessInput(cssSnippet, untokenizedCSSName));
+                            stringBuilder.Append(cssSnippet);
                         });
 
                     // Process and minify the css here as a whole.
@@ -203,8 +208,11 @@ namespace Cruncher.HttpHandlers
             switch (extension.ToUpperInvariant())
             {
                 case ".LESS":
-                    return DotLessPreProcessor.Transform(input);
+                    return DotLessPreProcessor.Transform(input, path);
             }
+
+            // Run the last filter.
+            input = ResourcePreprocessor.Transform(input, path);
 
             return input;
         }
@@ -255,6 +263,9 @@ namespace Cruncher.HttpHandlers
                             // Add the file to the cache dependancy list.
                             this.cacheDependencies.Add(new CacheDependency(path));
                         }
+
+                        // Run any filters 
+                        css = this.PreProcessInput(css, path);
 
                         // Parse any import statements.
                         css = this.ParseImportsAndCache(css, minify);
@@ -357,7 +368,7 @@ namespace Cruncher.HttpHandlers
                     cssPath => Array.ForEach(
                         Directory.GetFiles(
                             HttpContext.Current.Server.MapPath(cssPath),
-                            fileName.ToString(),
+                            Path.GetFileName(fileName.ToString()),
                             SearchOption.AllDirectories),
                         files.Add));
 
@@ -370,8 +381,8 @@ namespace Cruncher.HttpHandlers
                     using (StreamReader reader = new StreamReader(file))
                     {
                         thisCSS = mediaQuery != null
-                            ? string.Format("@media {0}{{{1}{2}{1}}}", mediaQuery, Environment.NewLine, this.ParseImportsAndCache(reader.ReadToEnd(), minify))
-                            : this.ParseImportsAndCache(reader.ReadToEnd(), minify);
+                            ? string.Format("@media {0}{{{1}{2}{1}}}", mediaQuery, Environment.NewLine, this.ParseImportsAndCache(this.PreProcessInput(reader.ReadToEnd(), file), minify))
+                            : this.ParseImportsAndCache(this.PreProcessInput(reader.ReadToEnd(), file), minify);
                     }
                 }
 

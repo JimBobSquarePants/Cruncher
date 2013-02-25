@@ -1,4 +1,8 @@
-﻿#header {
+﻿body {
+    background: url(../images/bg.jpg) center center no-repeat;
+}
+
+#header {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;

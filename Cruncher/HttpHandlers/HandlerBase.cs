@@ -130,7 +130,9 @@ namespace Cruncher.HttpHandlers
                     if (string.IsNullOrWhiteSpace(contents))
                     {
                         RemoteFile remoteFile = new RemoteFile(url, false);
-                        contents = remoteFile.GetFileAsString();
+                        
+                        // Return the preprocessed css.
+                        contents = this.PreProcessInput(remoteFile.GetFileAsString(), url.ToString());
                     }
 
                     if (!string.IsNullOrWhiteSpace(contents))
@@ -221,7 +223,9 @@ namespace Cruncher.HttpHandlers
         {
             string url = string.Empty;
 
-            var safeUrl = RemoteFileWhiteList.Cast<CruncherSecuritySection.SafeUrl>().FirstOrDefault(item => item.Token.ToUpperInvariant().Equals(token.ToUpperInvariant()));
+            var safeUrl = RemoteFileWhiteList.Cast<CruncherSecuritySection.SafeUrl>()
+                                             .FirstOrDefault(item => item.Token.ToUpperInvariant()
+                                             .Equals(token.ToUpperInvariant()));
 
             if (safeUrl != null)
             {

@@ -60,6 +60,7 @@
     <Compile Include="Compression\JavascriptMinifier.cs" />
     <Compile Include="Compression\VariableMinification.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="Helpers\RemoteFile.cs" />
     <Compile Include="Helpers\ResponseType.cs" />
     <Compile Include="HttpHandlers\CssHandler.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="HttpModules\CompressionModule.cs" />
     <Compile Include="PreProcessors\IPreProcessor.cs" />
     <Compile Include="PreProcessors\DotLessPreProcessor.cs" />
+    <Compile Include="PreProcessors\ResourcePreprocessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

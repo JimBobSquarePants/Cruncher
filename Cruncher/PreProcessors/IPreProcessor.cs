@@ -18,7 +18,8 @@ namespace Cruncher.PreProcessors
         /// Transforms the content of the given string. 
         /// </summary>
         /// <param name="input">The input string to transform.</param>
+        /// <param name="path">The path to the given input string to transform.</param>
         /// <returns>The transformed string.</returns>
-        string Transform(string input);
+        string Transform(string input, string path);
     }
 }
