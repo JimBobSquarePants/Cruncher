@@ -3,7 +3,7 @@
 ###A CSS, LESS and Javascript Processor for ASP.NET
 
 ##What is is?
-Cruncher is a C# NET4 library which concatinates, minifies, caches and serves CSS, LESS and JavaScript files using Micosoft's AjaxMin library.
+Cruncher is a C# NET4 library which concatenates, minifies, caches and serves CSS, LESS and JavaScript files using Micosoft's AjaxMin library.
 
 ##Why?
 Partly for the purposes of learning but mostly because most alternatives out there aren't that great. Even Microsofts Bundle is a bit flakey.
