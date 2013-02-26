@@ -15,6 +15,11 @@ namespace Cruncher.PreProcessors
     public interface IPreProcessor
     {
         /// <summary>
+        /// The extension that this filter processes.
+        /// </summary>
+        string AllowedExtension { get; }
+
+        /// <summary>
         /// Transforms the content of the given string. 
         /// </summary>
         /// <param name="input">The input string to transform.</param>
