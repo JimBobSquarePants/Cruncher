@@ -3,12 +3,12 @@
 ###A CSS, LESS and Javascript Processor for ASP.NET
 
 ##What is is?
-Cruncher is a C# NET4 library which concatenates, minifies, caches and serves CSS, LESS and JavaScript files using Micosoft's AjaxMin library.
+Cruncher is a C# ASP.NET 4 library which concatenates, minifies, caches and serves CSS, LESS and JavaScript files using Micosoft's AjaxMin library.
 
 ##Why?
-Partly for the purposes of learning but mostly because most alternatives out there aren't that great. Even Microsofts Bundle is a bit flakey.
+Partly for the purposes of learning but mostly because most alternatives out there aren't that great. Even Microsoft's Bundles are a bit flakey.
 
-Cruncher can handle unlimited combinations of remote and local CSS, LESS and JavaScript files. It combines them, minifies them and caches them in the browser. It can handle nested css @import statements and has a self cleaning cache should any changes be made to any of the resource files. It'll even gzip compress the output.
+Cruncher can handle unlimited combinations of remote and local CSS, LESS and JavaScript files. It combines them, minifies them and caches them in the browser. It can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files. It'll even gzip compress the output.
 
 If you use Cruncher please get in touch on my twitter @james_m_south.
 
@@ -65,8 +65,10 @@ then add the following to your **web.config**
           <compression minifyCSS="true" minifyJS="true" compressResponse="true"/>
           <!-- The comma separated virtual paths to the css and js folders.-->
           <virtualPaths cssPaths="~/content" jsPaths="~/scripts" />
-          <!-- A value used to replace the token '{root}' within a css file to determine the root path for resources. -->
+          ############ VERSIONS PRIOR TO 1.3.0 ONLY ###################
+		  <!-- A value used to replace the token '{root}' within a css file to determine the root path for resources. -->
           <relativeCssRoot path="/content" />
+		  ############ VERSIONS PRIOR TO 1.3.0 ONLY ###################
       </processing>
       <!-- The number of days to store a client resource in the cache. -->
       <cache maxDays="365"/>
@@ -77,7 +79,7 @@ To request your files you just need to create links and script tags as such
     <!-- Request three local css.files  -->
     <link  href="/css.axd?path=normalize.css|style.css|helpers.css|styles.less" rel="stylesheet" type="text/css" />
     
-    <!-- Request an external copy of jQuery and a local copy of Modernizr  -->
+    <!-- Request an external copy of jQuery using its token and a local copy of Modernizr  -->
     <script src="/js.axd?path=jquery|modernizr-1.7.js"></script>
     
-Turning the cache and compression off is as simple as changing the **minifyCSS** and **minifyJS** properties in the configuration section in your web.config.
+Turning the cache and compression off is as simple as changing the **minifyCSS**, **minifyJS** and **compressResponse** properties in the configuration section in your web.config.
