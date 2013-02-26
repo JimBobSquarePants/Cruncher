@@ -35,11 +35,6 @@ namespace Cruncher.HttpHandlers
     {
         #region Fields
         /// <summary>
-        /// The regular expression for matching filetype.
-        /// </summary>
-        private static readonly Regex ExtensionsRegex = new Regex(@"\.css|\.less", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        /// <summary>
         /// The regular expression to search files for.
         /// </summary>
         private static readonly Regex ImportsRegex = new Regex(@"(?:@import\s*(url\(|\""))(?<filename>[^.]+(\.css|\.less))(?:(\)|\"")((?<media>[^;]+);|;))", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
@@ -60,24 +55,9 @@ namespace Cruncher.HttpHandlers
         private static readonly bool CompressResources = CruncherConfiguration.Instance.CompressResources;
 
         /// <summary>
-        /// The value used to replace the token '{root}' within a css file to determine the absolute root path for resources.
-        /// </summary>
-        private static readonly string RelativeCSSRoot = CruncherConfiguration.Instance.RelativeCSSRoot;
-
-        /// <summary>
         /// A list of the fileCacheDependancies that will be monitored by the application.
         /// </summary>
         private readonly List<CacheDependency> cacheDependencies = new List<CacheDependency>();
-
-        /// <summary>
-        /// The preprocessor for converting .less files into css.
-        /// </summary>
-        private static readonly DotLessPreProcessor DotLessPreProcessor = new DotLessPreProcessor();
-
-        /// <summary>
-        /// The preprocessor for rewriting relative urls.
-        /// </summary>
-        private static readonly ResourcePreprocessor ResourcePreprocessor = new ResourcePreprocessor();
         #endregion
 
         #region Properties
@@ -146,22 +126,10 @@ namespace Cruncher.HttpHandlers
                         cssNames,
                         cssName =>
                         {
-                            string cssSnippet = string.Empty;
-                            string untokenizedCSSName = cssName;
-
-                            if (string.IsNullOrWhiteSpace(cssSnippet))
-                            {
-                                // Anything without a path extension should be a token representing a remote file.
-                                if (!ExtensionsRegex.IsMatch(cssName))
-                                {
-                                    untokenizedCSSName = this.GetUrlFromToken(cssName);
-                                    cssSnippet = this.RetrieveRemoteFile(cssName, untokenizedCSSName, minify);
-                                }
-                                else
-                                {
-                                    cssSnippet = this.RetrieveLocalFile(cssName, minify);
-                                }
-                            }
+                            // Anything without a path extension should be a token representing a remote file.
+                            string cssSnippet = !CruncherConfiguration.Instance.AllowedExtensionsRegex.IsMatch(cssName)
+                                                ? this.RetrieveRemoteFile(cssName, minify)
+                                                : this.RetrieveLocalFile(cssName, minify);
 
                             // Run the snippet through the preprocessor and append.
                             stringBuilder.Append(cssSnippet);
@@ -203,16 +171,16 @@ namespace Cruncher.HttpHandlers
         /// <returns>The transformed string.</returns>
         protected override string PreProcessInput(string input, string path)
         {
-            string extension = path.Substring(path.LastIndexOf('.'));
+            string extension = path.Substring(path.LastIndexOf('.')).ToLowerInvariant();
 
-            switch (extension.ToUpperInvariant())
-            {
-                case ".LESS":
-                    return DotLessPreProcessor.Transform(input, path);
-            }
+            input = CruncherConfiguration.Instance.PreProcessors
+                .Where(preProcessor => extension.Equals(preProcessor.AllowedExtension, StringComparison.OrdinalIgnoreCase))
+                .Aggregate(input, (current, preProcessor) => preProcessor.Transform(current, path));
 
-            // Run the last filter.
-            input = ResourcePreprocessor.Transform(input, path);
+            // Run the last filter. This should be the resourcepreprocessor.
+            input = CruncherConfiguration.Instance.PreProcessors
+                .First(p => string.IsNullOrWhiteSpace(p.AllowedExtension))
+                .Transform(input, path);
 
             return input;
         }
@@ -227,7 +195,7 @@ namespace Cruncher.HttpHandlers
         /// </returns>
         protected override string RetrieveLocalFile(string file, bool minify)
         {
-            if (!ExtensionsRegex.IsMatch(Path.GetExtension(file)))
+            if (!CruncherConfiguration.Instance.AllowedExtensionsRegex.IsMatch(Path.GetExtension(file)))
             {
                 throw new SecurityException("No access");
             }
@@ -298,13 +266,7 @@ namespace Cruncher.HttpHandlers
                 };
 
                 css = minifier.Minify(css);
-            }
 
-            // Replace the root token.
-            css = css.Replace("{root}", RelativeCSSRoot);
-
-            if (shouldMinify)
-            {
                 if (!string.IsNullOrWhiteSpace(css))
                 {
                     if (this.cacheDependencies != null)

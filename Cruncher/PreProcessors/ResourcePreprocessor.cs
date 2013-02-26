@@ -14,7 +14,6 @@ namespace Cruncher.PreProcessors
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
     using System.Text.RegularExpressions;
     using System.Web.Hosting;
     #endregion
@@ -29,10 +28,20 @@ namespace Cruncher.PreProcessors
         /// The regular expression for matching resources within a css file.
         /// </summary>
         private static readonly Regex ResourceRegex = new Regex(@"url\(\s*(?:[""']?)(.*?)(?:[""']?)\s*\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        //private static readonly Regex ResourceRegex = new Regex(@"url\(\s*(?:[""']?)(.*?)(?:[""']?)\s*\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
         #endregion
 
+        #region Properties
+        /// <summary>
+        /// The extension that this filter processes.
+        /// </summary>
+        public string AllowedExtension
+        {
+            get
+            {
+                return string.Empty;
+            }
+        }
+        #endregion
 
         #region Methods
         /// <summary>
@@ -43,15 +52,15 @@ namespace Cruncher.PreProcessors
         /// <returns>The transformed string.</returns>
         public string Transform(string input, string path)
         {
-            //try
-            //{
+            try
+            {
                 return RewritePaths(input, path);
-            //}
-            //catch
-            //{
+            }
+            catch
+            {
 
-            //    return input;
-            //}
+                return input;
+            }
         }
 
         /// <summary>
@@ -65,6 +74,7 @@ namespace Cruncher.PreProcessors
             string sourceDirectory;
             bool isExternal = path.StartsWith("http");
 
+            // Parse the source directory.
             if (!isExternal)
             {
                 sourceDirectory = string.Format("{0}/", Path.GetDirectoryName(path));
@@ -81,25 +91,41 @@ namespace Cruncher.PreProcessors
 
             foreach (string relativePath in relativePaths)
             {
-                int hashQueryIndex = relativePath.IndexOfAny(new[] { '?', '#' });
+                if (!relativePath.StartsWith("/"))
+                {
+                    // Separate hashes and querystrings.
+                    int hashQueryIndex = relativePath.IndexOfAny(new[] { '?', '#' });
+                    string hashQuery = hashQueryIndex >= 0 ? relativePath.Substring(hashQueryIndex) : string.Empty;
 
-                string hashQuery = hashQueryIndex >= 0
-                    ? relativePath.Substring(hashQueryIndex)
-                    : string.Empty;
+                    // Parse the relative path without the hash/querystrings.
+                    string capturedRelativePath = hashQuery != string.Empty
+                                                ? relativePath.Substring(0, hashQueryIndex)
+                                                : relativePath;
 
-                string capturedRelativePath = hashQuery != string.Empty
-                    ? relativePath.Substring(0, hashQueryIndex)
-                    : relativePath;
+                    // Parse the Absolute path.
+                    Uri resolvedSourcePath = !isExternal
+                                            ? new Uri(Path.Combine(sourceDirectory, capturedRelativePath))
+                                            : new Uri(new Uri(sourceDirectory, UriKind.Absolute), new Uri(capturedRelativePath, UriKind.Relative));
 
-                Uri resolvedSourcePath = !isExternal
-                    ? new Uri(Path.Combine(sourceDirectory, capturedRelativePath))
-                    : new Uri(new Uri(sourceDirectory), new Uri(capturedRelativePath));
+                    // Make it relative.
+                    string resolvedOutput = rootUri.MakeRelativeUri(resolvedSourcePath).OriginalString;
 
-                string resolvedOutput = rootUri.MakeRelativeUri(resolvedSourcePath).OriginalString;
+                    // Add the hash/querystring
+                    string newRelativePath = string.Format("{0}{1}", resolvedOutput, hashQuery);
 
-                string newRelativePath = string.Format("{0,1}", resolvedOutput, hashQuery);
-
-                input = this.ReplaceRelativePathsIn(input, relativePath, newRelativePath);
+                    // Replace.
+                    input = this.ReplaceRelativePathsIn(input, relativePath, newRelativePath);
+                }
+                else
+                {
+                    // We only need to adjust for externally sourced paths.
+                    if (isExternal)
+                    {
+                        // Get the absolute url and combine it with the path.
+                        sourceDirectory = new Uri(sourceDirectory, UriKind.Absolute).GetLeftPart(UriPartial.Authority);
+                        input = this.ReplaceRelativePathsIn(input, relativePath, string.Format("{0}{1}", sourceDirectory, relativePath));
+                    }
+                }
             }
 
             return input;
@@ -116,10 +142,7 @@ namespace Cruncher.PreProcessors
         {
             Regex regex = new Regex(@"url\(\s*[""']{0,1}" + Regex.Escape(oldPath) + @"[""']{0,1}\s*\)", RegexOptions.IgnoreCase);
 
-            return regex.Replace(css, match =>
-            {
-                return match.Value.Replace(oldPath, newPath);
-            });
+            return regex.Replace(css, match => match.Value.Replace(oldPath, newPath));
         }
 
         /// <summary>
@@ -140,13 +163,6 @@ namespace Cruncher.PreProcessors
                     && !p.StartsWith("http://")
                     && !p.StartsWith("https://")
                     && !p.StartsWith("data:"))
-             //.Where(p => !p.StartsWith("/")
-             //       && p != "\"\""
-             //       && p != "''"
-             //       && !string.IsNullOrWhiteSpace(p)
-             //       && !p.StartsWith("http://")
-             //       && !p.StartsWith("https://")
-             //       && !p.StartsWith("data:"))
              .Distinct();
         }
         #endregion

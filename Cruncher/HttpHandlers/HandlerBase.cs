@@ -107,15 +107,15 @@ namespace Cruncher.HttpHandlers
         /// Retrieves and caches the specified remote file.
         /// </summary>
         /// <param name="token">The token representing the path of the remote file to retrieve.</param>
-        /// <param name="path">The path of the remote file to retrieve.</param>
         /// <param name="minify">Whether or not the remote file should be minified.</param>
         /// <returns>
         /// The retrieved and processed remote file as a string.
         /// </returns>
-        protected string RetrieveRemoteFile(string token, string path, bool minify)
+        protected string RetrieveRemoteFile(string token, bool minify)
         {
             Uri url;
             string contents = string.Empty;
+            string path = this.GetUrlFromToken(token);
 
             if (Uri.TryCreate(path, UriKind.Absolute, out url))
             {
@@ -130,7 +130,7 @@ namespace Cruncher.HttpHandlers
                     if (string.IsNullOrWhiteSpace(contents))
                     {
                         RemoteFile remoteFile = new RemoteFile(url, false);
-                        
+
                         // Return the preprocessed css.
                         contents = this.PreProcessInput(remoteFile.GetFileAsString(), url.ToString());
                     }

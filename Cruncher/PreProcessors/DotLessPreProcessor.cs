@@ -20,8 +20,24 @@ namespace Cruncher.PreProcessors
     /// </summary>
     public class DotLessPreProcessor : IPreProcessor
     {
+        #region Fields
+        /// <summary>
+        /// The regex for matching import statements.
+        /// </summary>
+        private static readonly Regex ImportsRegex = new Regex(@"@import(-once|)\s*[\""'](?<filename>[^.\""']+(\.css|\.less))[\""'];", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        #endregion
+
         #region Properties
-        private readonly Regex ImportsRegex = new Regex(@"@import(-once|)\s*[\""'](?<filename>[^.\""']+(\.css|\.less))[\""'];", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        /// <summary>
+        /// The extension that this filter processes.
+        /// </summary>
+        public  string AllowedExtension
+        {
+            get
+            {
+                return ".less";
+            }
+        }
 
         /// <summary>
         /// An instance of the DotlessConfiguration.
@@ -55,7 +71,7 @@ namespace Cruncher.PreProcessors
                     // Recursivly parse the css for imports.
                     GroupCollection groups = match.Groups;
                     Capture fileName = groups["filename"].Captures[0];
-                    string normalizedCss = string.Format("@import({0});", fileName.ToString());
+                    string normalizedCss = string.Format("@import({0});", fileName);
 
                     input = input.Replace(match.Value, normalizedCss);
 
@@ -65,7 +81,6 @@ namespace Cruncher.PreProcessors
             }
             catch
             {
-                // This is 
                 return input;
             }
         }

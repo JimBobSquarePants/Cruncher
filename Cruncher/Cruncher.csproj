@@ -43,11 +43,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\CruncherConfiguration.cs" />
@@ -60,7 +55,6 @@
     <Compile Include="Compression\JavascriptMinifier.cs" />
     <Compile Include="Compression\VariableMinification.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="Helpers\RemoteFile.cs" />
     <Compile Include="Helpers\ResponseType.cs" />
     <Compile Include="HttpHandlers\CssHandler.cs" />

@@ -40,17 +40,6 @@ namespace Cruncher.Config
             get { return (VirtualPathsElement)this["virtualPaths"]; }
             set { this["virtualPaths"] = value; }
         }
-
-        /// <summary>
-        /// Gets or sets the <see cref="T:Cruncher.Config.CruncherProcessingSection.RelativeCSSRootElement"/>.
-        /// </summary>
-        /// <value>The <see cref="T:Cruncher.Config.CruncherProcessingSection.RelativeCSSRootElement"/>.</value>
-        [ConfigurationProperty("relativeCssRoot", IsRequired = true)]
-        public RelativeCSSRootElement RelativeRoot
-        {
-            get { return (RelativeCSSRootElement)this["relativeCssRoot"]; }
-            set { this["relativeCssRoot"] = value; }
-        }
         #endregion
 
         #region Methods
@@ -156,30 +145,6 @@ namespace Cruncher.Config
                 set
                 {
                     this["jsPaths"] = value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Represents a relativeRoot configuration element within the configuration.
-        /// </summary>
-        public class RelativeCSSRootElement : ConfigurationElement
-        {
-            /// <summary>
-            /// Gets or sets the value used to replace the token '{root}' within a css file to determine the absolute root path for resources.
-            /// </summary>
-            /// <value>The value used to replace the token '{root}' within a css file to determine the absolute root path for resources.</value>
-            [ConfigurationProperty("path", DefaultValue = "/css", IsRequired = true)]
-            public string RelativeCSSRoot
-            {
-                get
-                {
-                    return (string)this["path"];
-                }
-
-                set
-                {
-                    this["path"] = value;
                 }
             }
         }

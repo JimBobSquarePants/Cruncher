@@ -1,5 +1,6 @@
-﻿body {
+﻿.snake {
     background: url(../images/bg.jpg) center center no-repeat;
+    height: 389px;
 }
 
 #header {

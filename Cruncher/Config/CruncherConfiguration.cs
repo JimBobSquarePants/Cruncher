@@ -11,10 +11,15 @@ namespace Cruncher.Config
 {
     #region Using
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using Cruncher.PreProcessors;
     #endregion
 
     /// <summary>
-    /// Encapsulates methods to allow the retrieval of imageprocessor settings.
+    /// Encapsulates methods to allow the retrieval of cruncher settings.
     /// http://csharpindepth.com/Articles/General/Singleton.aspx
     /// </summary>
     public class CruncherConfiguration
@@ -53,12 +58,24 @@ namespace Cruncher.Config
         private string[] javaScriptPaths;
         #endregion
 
+        /// <summary>
+        /// Gets the list of available PreProcessors.
+        /// </summary>
+        public List<IPreProcessor> PreProcessors { get; private set; }
+
+        /// <summary>
+        /// The regular expression for matching allowed filetype.
+        /// </summary>
+        public Regex AllowedExtensionsRegex { get; private set; }
+
         #region Constructors
         /// <summary>
         /// Prevents a default instance of the <see cref="T:Cruncher.Config.CruncherConfiguration"/> class from being created.
         /// </summary>
         private CruncherConfiguration()
         {
+            this.LoadPreProcessors();
+            this.CreateAllowedExtensionRegex();
         }
         #endregion
 
@@ -159,17 +176,6 @@ namespace Cruncher.Config
         }
 
         /// <summary>
-        /// Gets the value used to replace the token '{root}' within a css file to determine the absolute root path for resources.
-        /// </summary>
-        public string RelativeCSSRoot
-        {
-            get
-            {
-                return this.GetCruncherProcessingSection().RelativeRoot.RelativeCSSRoot;
-            }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether the current application is allowed to minify css files.
         /// </summary>
         public bool MinifyCSS
@@ -206,6 +212,48 @@ namespace Cruncher.Config
 
         #region Methods
         /// <summary>
+        /// Gets the list of available PreProcessors.
+        /// </summary>
+        private void LoadPreProcessors()
+        {
+            if (this.PreProcessors == null)
+            {
+                // Build a list of native IPreProcessors instances.
+                Type type = typeof(IPreProcessor);
+                IEnumerable<Type> types = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(s => s.GetTypes())
+                    .Where(p => type.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract)
+                    .ToList();
+
+                // Create them and add.
+                this.PreProcessors = types.Select(x => (Activator.CreateInstance(x) as IPreProcessor))
+                    .ToList();
+            }
+        }
+
+        /// <summary>
+        /// Generates a Regex with a list of allowed filetype extensions.
+        /// </summary>
+        /// <returns>A Regex with a list of allowed filetype extensions.</returns>
+        private void CreateAllowedExtensionRegex()
+        {
+            StringBuilder stringBuilder = new StringBuilder(@"\.css|\.js|");
+
+            foreach (IPreProcessor preProcessor in this.PreProcessors)
+            {
+                string extension = preProcessor.AllowedExtension;
+
+                if (!string.IsNullOrWhiteSpace(extension))
+                {
+                    stringBuilder.AppendFormat(@"\{0}|", extension.ToLowerInvariant());
+                }
+            }
+
+            this.AllowedExtensionsRegex = new Regex(stringBuilder.ToString().TrimEnd('|'), RegexOptions.IgnoreCase);
+        }
+
+        #region Configuration
+        /// <summary>
         /// Retrieves the caching configuration section from the current application configuration. 
         /// </summary>
         /// <returns>The caching configuration section from the current application configuration. </returns>
@@ -231,6 +279,7 @@ namespace Cruncher.Config
         {
             return this.processingSection ?? (this.processingSection = CruncherProcessingSection.GetConfiguration());
         }
+        #endregion
         #endregion
     }
 }

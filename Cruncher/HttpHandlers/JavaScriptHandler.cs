@@ -24,6 +24,8 @@ namespace Cruncher.HttpHandlers
     using Cruncher.Config;
     using Cruncher.Helpers;
     using Cruncher.HttpModules;
+    using Cruncher.PreProcessors;
+
     #endregion
 
     /// <summary>
@@ -124,22 +126,10 @@ namespace Cruncher.HttpHandlers
                         javaScriptNames,
                         jsName =>
                         {
-                            string jsSnippet = string.Empty;
-                            string untokenizedJSName = jsName;
-
-                            if (string.IsNullOrWhiteSpace(jsSnippet))
-                            {
-                                // Anything without a path extension should be a token representing a remote file.
-                                if (!ExtensionsRegex.IsMatch(jsName))
-                                {
-                                    untokenizedJSName = this.GetUrlFromToken(jsName);
-                                    jsSnippet = this.RetrieveRemoteFile(jsName, untokenizedJSName, minify);
-                                }
-                                else
-                                {
-                                    jsSnippet = this.RetrieveLocalFile(jsName, minify);
-                                }
-                            }
+                            // Anything without a path extension should be a token representing a remote file.
+                            string jsSnippet = !ExtensionsRegex.IsMatch(jsName)
+                                ? this.RetrieveRemoteFile(jsName, minify)
+                                : this.RetrieveLocalFile(jsName, minify);
 
                             // Run the snippet through the preprocessor and append.
                             stringBuilder.Append(jsSnippet);
@@ -182,7 +172,12 @@ namespace Cruncher.HttpHandlers
         /// <returns>The transformed string.</returns>
         protected override string PreProcessInput(string input, string path)
         {
-            // Getting ready for supporting coffeescript.
+            string extension = path.Substring(path.LastIndexOf('.')).ToLowerInvariant();
+
+            input = CruncherConfiguration.Instance.PreProcessors
+                .Where(preProcessor => extension.Equals(preProcessor.AllowedExtension, StringComparison.OrdinalIgnoreCase))
+                .Aggregate(input, (current, preProcessor) => preProcessor.Transform(current, path));
+
             return input;
         }
 
