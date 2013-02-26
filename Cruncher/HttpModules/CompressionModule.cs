@@ -83,17 +83,20 @@ namespace Cruncher.HttpModules
         /// </param>
         public static void CompressResponse(HttpContext context)
         {
-            if (IsEncodingAccepted(Deflate))
+            if (context != null)
             {
-                context.Response.Filter = new DeflateStream(context.Response.Filter, CompressionMode.Compress);
-                WillCompressResponse = true;
-                SetEncoding(Deflate);
-            }
-            else if (IsEncodingAccepted(Gzip))
-            {
-                context.Response.Filter = new GZipStream(context.Response.Filter, CompressionMode.Compress);
-                WillCompressResponse = true;
-                SetEncoding(Gzip);
+                if (IsEncodingAccepted(Deflate))
+                {
+                    context.Response.Filter = new DeflateStream(context.Response.Filter, CompressionMode.Compress);
+                    WillCompressResponse = true;
+                    SetEncoding(Deflate);
+                }
+                else if (IsEncodingAccepted(Gzip))
+                {
+                    context.Response.Filter = new GZipStream(context.Response.Filter, CompressionMode.Compress);
+                    WillCompressResponse = true;
+                    SetEncoding(Gzip);
+                }
             }
         }
         #endregion

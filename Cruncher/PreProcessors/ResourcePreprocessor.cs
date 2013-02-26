@@ -7,11 +7,12 @@
 // -----------------------------------------------------------------------
 #endregion
 
-namespace Cruncher.PreProcessors
+namespace Cruncher.Preprocessors
 {
     #region Using
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
@@ -21,7 +22,7 @@ namespace Cruncher.PreProcessors
     /// <summary>
     /// Provides methods to replace relative resource paths within a stylesheet with absolute paths.
     /// </summary>
-    public class ResourcePreprocessor : IPreProcessor
+    public class ResourcePreprocessor : IPreprocessor
     {
         #region Fields
         /// <summary>
@@ -72,12 +73,12 @@ namespace Cruncher.PreProcessors
         private string RewritePaths(string input, string path)
         {
             string sourceDirectory;
-            bool isExternal = path.StartsWith("http");
+            bool isExternal = path.StartsWith("http", StringComparison.OrdinalIgnoreCase);
 
             // Parse the source directory.
             if (!isExternal)
             {
-                sourceDirectory = string.Format("{0}/", Path.GetDirectoryName(path));
+                sourceDirectory = string.Format(CultureInfo.InvariantCulture, "{0}/", Path.GetDirectoryName(path));
             }
             else
             {
@@ -85,20 +86,22 @@ namespace Cruncher.PreProcessors
                 sourceDirectory = path.Substring(0, directoryIndex + 1);
             }
 
-            string rootDirectory = string.Format("{0}/", Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath));
+            string rootDirectory = string.Format(CultureInfo.InvariantCulture,
+                "{0}/",
+                Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath));
             Uri rootUri = new Uri(rootDirectory, UriKind.Absolute);
             IEnumerable<string> relativePaths = this.GetRelativePaths(input);
 
             foreach (string relativePath in relativePaths)
             {
-                if (!relativePath.StartsWith("/"))
+                if (!relativePath.StartsWith("/", StringComparison.OrdinalIgnoreCase))
                 {
                     // Separate hashes and querystrings.
                     int hashQueryIndex = relativePath.IndexOfAny(new[] { '?', '#' });
                     string hashQuery = hashQueryIndex >= 0 ? relativePath.Substring(hashQueryIndex) : string.Empty;
 
                     // Parse the relative path without the hash/querystrings.
-                    string capturedRelativePath = hashQuery != string.Empty
+                    string capturedRelativePath = !string.IsNullOrWhiteSpace(hashQuery)
                                                 ? relativePath.Substring(0, hashQueryIndex)
                                                 : relativePath;
 
@@ -111,10 +114,10 @@ namespace Cruncher.PreProcessors
                     string resolvedOutput = rootUri.MakeRelativeUri(resolvedSourcePath).OriginalString;
 
                     // Add the hash/querystring
-                    string newRelativePath = string.Format("{0}{1}", resolvedOutput, hashQuery);
+                    string newRelativePath = string.Format(CultureInfo.InvariantCulture, "{0}{1}", resolvedOutput, hashQuery);
 
                     // Replace.
-                    input = this.ReplaceRelativePathsIn(input, relativePath, newRelativePath);
+                    input = ReplaceRelativePathsIn(input, relativePath, newRelativePath);
                 }
                 else
                 {
@@ -123,7 +126,7 @@ namespace Cruncher.PreProcessors
                     {
                         // Get the absolute url and combine it with the path.
                         sourceDirectory = new Uri(sourceDirectory, UriKind.Absolute).GetLeftPart(UriPartial.Authority);
-                        input = this.ReplaceRelativePathsIn(input, relativePath, string.Format("{0}{1}", sourceDirectory, relativePath));
+                        input = ReplaceRelativePathsIn(input, relativePath, string.Format(CultureInfo.InvariantCulture, "{0}{1}", sourceDirectory, relativePath));
                     }
                 }
             }
@@ -138,7 +141,7 @@ namespace Cruncher.PreProcessors
         /// <param name="oldPath">The path to replace.</param>
         /// <param name="newPath">The path to replace the old one with.</param>
         /// <returns>The css content wit the paths replaced.</returns>
-        private string ReplaceRelativePathsIn(string css, string oldPath, string newPath)
+        private static string ReplaceRelativePathsIn(string css, string oldPath, string newPath)
         {
             Regex regex = new Regex(@"url\(\s*[""']{0,1}" + Regex.Escape(oldPath) + @"[""']{0,1}\s*\)", RegexOptions.IgnoreCase);
 
@@ -160,9 +163,9 @@ namespace Cruncher.PreProcessors
              .Where(p => p != "\"\""
                     && p != "''"
                     && !string.IsNullOrWhiteSpace(p)
-                    && !p.StartsWith("http://")
-                    && !p.StartsWith("https://")
-                    && !p.StartsWith("data:"))
+                    && !p.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                    && !p.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                    && !p.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
              .Distinct();
         }
         #endregion

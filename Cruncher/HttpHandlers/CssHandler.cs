@@ -12,6 +12,7 @@ namespace Cruncher.HttpHandlers
     #region Using
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -25,7 +26,7 @@ namespace Cruncher.HttpHandlers
     using Cruncher.Extensions;
     using Cruncher.Helpers;
     using Cruncher.HttpModules;
-    using Cruncher.PreProcessors;
+    using Cruncher.Preprocessors;
     #endregion
 
     /// <summary>
@@ -42,7 +43,7 @@ namespace Cruncher.HttpHandlers
         /// <summary>
         /// The default path for css files on the server.
         /// </summary>
-        private static readonly string[] CSSPaths = CruncherConfiguration.Instance.CSSPaths;
+        private static readonly IList<string> CSSPaths = CruncherConfiguration.Instance.CSSPaths;
 
         /// <summary>
         /// Whether to minify css files on the server.
@@ -131,7 +132,7 @@ namespace Cruncher.HttpHandlers
                                                 ? this.RetrieveRemoteFile(cssName, minify)
                                                 : this.RetrieveLocalFile(cssName, minify);
 
-                            // Run the snippet through the preprocessor and append.
+                            // Run the snippet through the Preprocessor and append.
                             stringBuilder.Append(cssSnippet);
                         });
 
@@ -164,7 +165,7 @@ namespace Cruncher.HttpHandlers
 
         #region Protected
         /// <summary>
-        /// Transforms the content of the given string using the correct preprocessor. 
+        /// Transforms the content of the given string using the correct Preprocessor. 
         /// </summary>
         /// <param name="input">The input string to transform.</param>
         /// <param name="path">The path to the file.</param>
@@ -174,8 +175,8 @@ namespace Cruncher.HttpHandlers
             // Do the base processing then process any specific code here. 
             input = base.PreProcessInput(input, path);
 
-            // Run the last filter. This should be the resourcepreprocessor.
-            input = CruncherConfiguration.Instance.PreProcessors
+            // Run the last filter. This should be the resourcePreprocessor.
+            input = CruncherConfiguration.Instance.Preprocessors
                 .First(p => string.IsNullOrWhiteSpace(p.AllowedExtension))
                 .Transform(input, path);
 
@@ -199,15 +200,14 @@ namespace Cruncher.HttpHandlers
 
             try
             {
-                List<string> files = new List<string>();
-
                 // Get the path from the server.
                 // Loop through each possible directory.
-                Array.ForEach(
-                    CSSPaths,
-                    cssFolder => Array.ForEach(
-                        Directory.GetFiles(HttpContext.Current.Server.MapPath(cssFolder), file, SearchOption.AllDirectories),
-                        files.Add));
+                List<string> files = CSSPaths
+                    .SelectMany(cssFolder => Directory.GetFiles(
+                        HttpContext.Current.Server.MapPath(cssFolder),
+                        file,
+                        SearchOption.AllDirectories))
+                    .ToList();
 
                 // We only want the first file.
                 string path = files.FirstOrDefault();
@@ -321,15 +321,12 @@ namespace Cruncher.HttpHandlers
 
                 // Check and add the @import params to the cache dependancy list.
                 // Get the match
-                List<string> files = new List<string>();
-                Array.ForEach(
-                    CSSPaths,
-                    cssPath => Array.ForEach(
-                        Directory.GetFiles(
-                            HttpContext.Current.Server.MapPath(cssPath),
-                            Path.GetFileName(fileName.ToString()),
-                            SearchOption.AllDirectories),
-                        files.Add));
+                List<string> files = CSSPaths
+                    .SelectMany(cssPath => Directory.GetFiles(
+                        HttpContext.Current.Server.MapPath(cssPath),
+                        Path.GetFileName(fileName.ToString()),
+                        SearchOption.AllDirectories))
+                    .ToList();
 
                 string file = files.FirstOrDefault();
                 string thisCSS = string.Empty;
@@ -340,7 +337,12 @@ namespace Cruncher.HttpHandlers
                     using (StreamReader reader = new StreamReader(file))
                     {
                         thisCSS = mediaQuery != null
-                            ? string.Format("@media {0}{{{1}{2}{1}}}", mediaQuery, Environment.NewLine, this.ParseImportsAndCache(this.PreProcessInput(reader.ReadToEnd(), file), minify))
+                            ? string.Format(CultureInfo.InvariantCulture,
+                                        "@media {0}{{{1}{2}{1}}}",
+                                        mediaQuery,
+                                        Environment.NewLine,
+                                        this.ParseImportsAndCache(this.PreProcessInput(reader.ReadToEnd(), file),
+                                        minify))
                             : this.ParseImportsAndCache(this.PreProcessInput(reader.ReadToEnd(), file), minify);
                     }
                 }

@@ -22,7 +22,7 @@ namespace Cruncher.HttpHandlers
     using Cruncher.Config;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
-    using Cruncher.PreProcessors;
+    using Cruncher.Preprocessors;
     #endregion
 
     /// <summary>
@@ -86,19 +86,20 @@ namespace Cruncher.HttpHandlers
 
         #region Protected
         /// <summary>
-        /// Transforms the content of the given string using the correct preprocessor. 
+        /// Transforms the content of the given string using the correct Preprocessor. 
         /// </summary>
         /// <param name="input">The input string to transform.</param>
         /// <param name="path">The path to the file.</param>
         /// <returns>The transformed string.</returns>
-        protected virtual string PreProcessInput(string input, string path) {
-            
+        protected virtual string PreProcessInput(string input, string path)
+        {
+
             string extension = path.Substring(path.LastIndexOf('.')).ToUpperInvariant();
 
-            input = CruncherConfiguration.Instance.PreProcessors
-                .Where(preProcessor => extension.Equals(preProcessor.AllowedExtension, StringComparison.OrdinalIgnoreCase))
-                .Aggregate(input, (current, preProcessor) => preProcessor.Transform(current, path));
-            
+            input = CruncherConfiguration.Instance.Preprocessors
+                .Where(Preprocessor => extension.Equals(Preprocessor.AllowedExtension, StringComparison.OrdinalIgnoreCase))
+                .Aggregate(input, (current, Preprocessor) => Preprocessor.Transform(current, path));
+
             return input;
 
         }
@@ -123,11 +124,10 @@ namespace Cruncher.HttpHandlers
         /// </returns>
         protected string RetrieveRemoteFile(string token, bool minify)
         {
-            Uri url;
+            Uri url = this.GetUrlFromToken(token);
             string contents = string.Empty;
-            string path = this.GetUrlFromToken(token);
 
-            if (Uri.TryCreate(path, UriKind.Absolute, out url))
+            if (url != null)
             {
                 try
                 {
@@ -225,22 +225,22 @@ namespace Cruncher.HttpHandlers
         }
 
         /// <summary>
-        /// Returns a string representing the url from the given token from the whitelist in the web.config.
+        /// Returns a Uri representing the url from the given token from the whitelist in the web.config.
         /// </summary>
         /// <param name="token">The token to look up.</param>
-        /// <returns>A string representing the url from the given token from the whitelist in the web.config.</returns>
-        protected string GetUrlFromToken(string token)
+        /// <returns>A Uri representing the url from the given token from the whitelist in the web.config.</returns>
+        protected Uri GetUrlFromToken(string token)
         {
-            string url = string.Empty;
+            Uri url = null;
 
-            var safeUrl = RemoteFileWhiteList.Cast<CruncherSecuritySection.SafeUrl>()
+            CruncherSecuritySection.SafeUrl safeUrl = RemoteFileWhiteList.Cast<CruncherSecuritySection.SafeUrl>()
                                              .FirstOrDefault(item => item.Token.ToUpperInvariant()
                                              .Equals(token.ToUpperInvariant()));
 
             if (safeUrl != null)
             {
                 // Url encode any value here as we cannot store them encoded in the web.config.
-                url = safeUrl.Url.ToString();
+                url = safeUrl.Url;
             }
 
             return url;

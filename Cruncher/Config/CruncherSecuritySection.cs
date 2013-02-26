@@ -176,7 +176,7 @@ namespace Cruncher.Config
             [ConfigurationProperty("url", DefaultValue = "", IsRequired = true)]
             public Uri Url
             {
-                get { return (Uri)this["url"]; }
+                get { return new Uri(this["url"].ToString(), UriKind.Absolute); }
 
                 set { this["url"] = value; }
             }

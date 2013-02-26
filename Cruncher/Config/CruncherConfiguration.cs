@@ -15,7 +15,7 @@ namespace Cruncher.Config
     using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
-    using Cruncher.PreProcessors;
+    using Cruncher.Preprocessors;
     #endregion
 
     /// <summary>
@@ -59,9 +59,9 @@ namespace Cruncher.Config
         #endregion
 
         /// <summary>
-        /// Gets the list of available PreProcessors.
+        /// Gets the list of available Preprocessors.
         /// </summary>
-        public List<IPreProcessor> PreProcessors { get; private set; }
+        public IList<IPreprocessor> Preprocessors { get; private set; }
 
         /// <summary>
         /// The regular expression for matching allowed filetype.
@@ -74,7 +74,7 @@ namespace Cruncher.Config
         /// </summary>
         private CruncherConfiguration()
         {
-            this.LoadPreProcessors();
+            this.LoadPreprocessors();
             this.CreateAllowedExtensionRegex();
         }
         #endregion
@@ -154,7 +154,7 @@ namespace Cruncher.Config
         /// <summary>
         /// Gets an array of registered css paths for the application.
         /// </summary>
-        public string[] CSSPaths
+        public IList<string> CSSPaths
         {
             get
             {
@@ -166,7 +166,7 @@ namespace Cruncher.Config
         /// <summary>
         /// Gets an array of registered JavaScript paths for the application.
         /// </summary>
-        public string[] JavaScriptPaths
+        public IList<string> JavaScriptPaths
         {
             get
             {
@@ -212,21 +212,21 @@ namespace Cruncher.Config
 
         #region Methods
         /// <summary>
-        /// Gets the list of available PreProcessors.
+        /// Gets the list of available Preprocessors.
         /// </summary>
-        private void LoadPreProcessors()
+        private void LoadPreprocessors()
         {
-            if (this.PreProcessors == null)
+            if (this.Preprocessors == null)
             {
-                // Build a list of native IPreProcessors instances.
-                Type type = typeof(IPreProcessor);
+                // Build a list of native IPreprocessors instances.
+                Type type = typeof(IPreprocessor);
                 IEnumerable<Type> types = AppDomain.CurrentDomain.GetAssemblies()
                     .SelectMany(s => s.GetTypes())
                     .Where(p => type.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract)
                     .ToList();
 
                 // Create them and add.
-                this.PreProcessors = types.Select(x => (Activator.CreateInstance(x) as IPreProcessor))
+                this.Preprocessors = types.Select(x => (Activator.CreateInstance(x) as IPreprocessor))
                     .ToList();
             }
         }
@@ -239,9 +239,9 @@ namespace Cruncher.Config
         {
             StringBuilder stringBuilder = new StringBuilder(@"\.CSS|\.JS|");
 
-            foreach (IPreProcessor preProcessor in this.PreProcessors)
+            foreach (IPreprocessor Preprocessor in this.Preprocessors)
             {
-                string extension = preProcessor.AllowedExtension;
+                string extension = Preprocessor.AllowedExtension;
 
                 if (!string.IsNullOrWhiteSpace(extension))
                 {

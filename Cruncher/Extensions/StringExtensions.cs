@@ -42,7 +42,7 @@ namespace Cruncher.Extensions
         public static bool IsValidVirtualPathName(this string expression)
         {
             // Check the start of the string.
-            if (expression.StartsWith("~/"))
+            if (expression.StartsWith("~/", StringComparison.OrdinalIgnoreCase))
             {
                 // Trim the first two characters and test the path.
                 expression = expression.Substring(2);

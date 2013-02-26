@@ -24,7 +24,7 @@ namespace Cruncher.HttpHandlers
     using Cruncher.Config;
     using Cruncher.Helpers;
     using Cruncher.HttpModules;
-    using Cruncher.PreProcessors;
+    using Cruncher.Preprocessors;
 
     #endregion
 
@@ -42,7 +42,7 @@ namespace Cruncher.HttpHandlers
         /// <summary>
         /// The default path for javascript files on the server.
         /// </summary>
-        private static readonly string[] JavaScriptPaths = CruncherConfiguration.Instance.JavaScriptPaths;
+        private static readonly IList<string> JavaScriptPaths = CruncherConfiguration.Instance.JavaScriptPaths;
 
         /// <summary>
         /// Whether to minify javascript files on the server.
@@ -131,7 +131,7 @@ namespace Cruncher.HttpHandlers
                                 ? this.RetrieveRemoteFile(jsName, minify)
                                 : this.RetrieveLocalFile(jsName, minify);
 
-                            // Run the snippet through the preprocessor and append.
+                            // Run the snippet through the Preprocessor and append.
                             stringBuilder.Append(jsSnippet);
                         });
 
@@ -165,7 +165,7 @@ namespace Cruncher.HttpHandlers
 
         #region Protected
         /// <summary>
-        /// Transforms the content of the given string using the correct preprocessor. 
+        /// Transforms the content of the given string using the correct Preprocessor. 
         /// </summary>
         /// <param name="input">The input string to transform.</param>
         /// <param name="path">The path to the file.</param>
@@ -195,15 +195,14 @@ namespace Cruncher.HttpHandlers
 
             try
             {
-                List<string> files = new List<string>();
-
                 // Get the path from the server.
                 // Loop through each possible directory.
-                Array.ForEach(
-                    JavaScriptPaths,
-                    scriptFolder => Array.ForEach(
-                        Directory.GetFiles(HttpContext.Current.Server.MapPath(scriptFolder), file, SearchOption.AllDirectories),
-                        files.Add));
+                List<string> files = JavaScriptPaths
+                    .SelectMany(scriptFolder => Directory.GetFiles(
+                        HttpContext.Current.Server.MapPath(scriptFolder), 
+                        file, 
+                        SearchOption.AllDirectories))
+                    .ToList();
 
                 // We only want the first file.
                 string path = files.FirstOrDefault();

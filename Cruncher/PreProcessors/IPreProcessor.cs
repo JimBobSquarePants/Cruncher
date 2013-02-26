@@ -1,18 +1,18 @@
 ﻿#region Licence
 // -----------------------------------------------------------------------
-// <copyright file="IPreProcessor.cs" company="James South">
+// <copyright file="IPreprocessor.cs" company="James South">
 //     Copyright (c) James South.
 //     Dual licensed under the MIT or GPL Version 2 licenses.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
-namespace Cruncher.PreProcessors
+namespace Cruncher.Preprocessors
 {
     /// <summary>
     /// Defines methods to preprocess the file before compression.
     /// </summary>
-    public interface IPreProcessor
+    public interface IPreprocessor
     {
         /// <summary>
         /// The extension that this filter processes.

@@ -1,15 +1,18 @@
 ﻿#region Licence
 // -----------------------------------------------------------------------
-// <copyright file="DotLessPreProcessor.cs" company="James South">
+// <copyright file="DotLessPreprocessor.cs" company="James South">
 //     Copyright (c) James South.
 //     Dual licensed under the MIT or GPL Version 2 licenses.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
-namespace Cruncher.PreProcessors
+namespace Cruncher.Preprocessors
 {
     #region Using
+
+    using System.Globalization;
+
     using dotless.Core;
     using dotless.Core.configuration;
     using System.Text.RegularExpressions;
@@ -18,7 +21,7 @@ namespace Cruncher.PreProcessors
     /// <summary>
     /// Provides methods to convert LESS into CSS.
     /// </summary>
-    public class DotLessPreProcessor : IPreProcessor
+    public class DotLessPreprocessor : IPreprocessor
     {
         #region Fields
         /// <summary>
@@ -31,7 +34,7 @@ namespace Cruncher.PreProcessors
         /// <summary>
         /// The extension that this filter processes.
         /// </summary>
-        public  string AllowedExtension
+        public string AllowedExtension
         {
             get
             {
@@ -64,14 +67,14 @@ namespace Cruncher.PreProcessors
         {
             try
             {
-                // Replace the Imports statements as they cause an error as the preprocessor
+                // Replace the Imports statements as they cause an error as the Preprocessor
                 // tries to import them when in native .less format.
                 foreach (Match match in ImportsRegex.Matches(input))
                 {
                     // Recursivly parse the css for imports.
                     GroupCollection groups = match.Groups;
                     Capture fileName = groups["filename"].Captures[0];
-                    string normalizedCss = string.Format("@import({0});", fileName);
+                    string normalizedCss = string.Format(CultureInfo.InvariantCulture, "@import({0});", fileName);
 
                     input = input.Replace(match.Value, normalizedCss);
 
