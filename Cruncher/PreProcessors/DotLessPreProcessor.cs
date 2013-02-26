@@ -24,7 +24,7 @@ namespace Cruncher.PreProcessors
         /// <summary>
         /// The regex for matching import statements.
         /// </summary>
-        private static readonly Regex ImportsRegex = new Regex(@"@import(-once|)\s*[\""'](?<filename>[^.\""']+(\.css|\.less))[\""'];", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        private static readonly Regex ImportsRegex = new Regex(@"@import(-once|)\s*[\""'](?<filename>[^.\""']+(\.CSS|\.LESS))[\""'];", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
         #endregion
 
         #region Properties
@@ -35,7 +35,7 @@ namespace Cruncher.PreProcessors
         {
             get
             {
-                return ".less";
+                return ".LESS";
             }
         }
 

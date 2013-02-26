@@ -237,7 +237,7 @@ namespace Cruncher.Config
         /// <returns>A Regex with a list of allowed filetype extensions.</returns>
         private void CreateAllowedExtensionRegex()
         {
-            StringBuilder stringBuilder = new StringBuilder(@"\.css|\.js|");
+            StringBuilder stringBuilder = new StringBuilder(@"\.CSS|\.JS|");
 
             foreach (IPreProcessor preProcessor in this.PreProcessors)
             {
@@ -245,7 +245,7 @@ namespace Cruncher.Config
 
                 if (!string.IsNullOrWhiteSpace(extension))
                 {
-                    stringBuilder.AppendFormat(@"\{0}|", extension.ToLowerInvariant());
+                    stringBuilder.AppendFormat(@"\{0}|", extension.ToUpperInvariant());
                 }
             }
 

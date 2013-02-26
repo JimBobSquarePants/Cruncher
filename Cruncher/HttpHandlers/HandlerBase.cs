@@ -91,7 +91,17 @@ namespace Cruncher.HttpHandlers
         /// <param name="input">The input string to transform.</param>
         /// <param name="path">The path to the file.</param>
         /// <returns>The transformed string.</returns>
-        protected abstract string PreProcessInput(string input, string path);
+        protected virtual string PreProcessInput(string input, string path) {
+            
+            string extension = path.Substring(path.LastIndexOf('.')).ToUpperInvariant();
+
+            input = CruncherConfiguration.Instance.PreProcessors
+                .Where(preProcessor => extension.Equals(preProcessor.AllowedExtension, StringComparison.OrdinalIgnoreCase))
+                .Aggregate(input, (current, preProcessor) => preProcessor.Transform(current, path));
+            
+            return input;
+
+        }
 
         /// <summary>
         /// Retrieves the local file from the disk

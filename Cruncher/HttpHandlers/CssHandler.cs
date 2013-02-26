@@ -171,11 +171,8 @@ namespace Cruncher.HttpHandlers
         /// <returns>The transformed string.</returns>
         protected override string PreProcessInput(string input, string path)
         {
-            string extension = path.Substring(path.LastIndexOf('.')).ToLowerInvariant();
-
-            input = CruncherConfiguration.Instance.PreProcessors
-                .Where(preProcessor => extension.Equals(preProcessor.AllowedExtension, StringComparison.OrdinalIgnoreCase))
-                .Aggregate(input, (current, preProcessor) => preProcessor.Transform(current, path));
+            // Do the base processing then process any specific code here. 
+            input = base.PreProcessInput(input, path);
 
             // Run the last filter. This should be the resourcepreprocessor.
             input = CruncherConfiguration.Instance.PreProcessors
