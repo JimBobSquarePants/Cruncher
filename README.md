@@ -1,14 +1,14 @@
 #Cruncher
 
-###A CSS, LESS and Javascript Processor for ASP.NET
+###A CSS, LESS and JavaScript PreProcessor for ASP.NET
 
 ##What is is?
-Cruncher is a C# ASP.NET 4 library which concatenates, minifies, caches and serves CSS, LESS and JavaScript files using Micosoft's AjaxMin library.
+Cruncher is a C# ASP.NET 4 library which concatenates, minifies, caches and serves CSS, LESS, and JavaScript files using Micosoft's AjaxMin library.
 
 ##Why?
 Partly for the purposes of learning but mostly because most alternatives out there aren't that great. Even Microsoft's Bundles are a bit flakey.
 
-Cruncher can handle unlimited combinations of remote and local CSS, LESS and JavaScript files. It combines them, minifies them and caches them in the browser. It can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files. It'll even gzip compress the output.
+Cruncher can handle unlimited combinations of remote and local CSS, LESS, and JavaScript files. It combines them, minifies them and caches them in the browser. It can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files. It'll even gzip compress the output.
 
 If you use Cruncher please get in touch on my twitter @james_m_south.
 
@@ -19,7 +19,7 @@ Installation is simple. A Nuget package is available [here][1].
 
   [1]: https://nuget.org/packages/Cruncher/
 
-Alternatively you can download and build the project and reference the binaries. **Cruncher.dll** **dotless.dll** and **AjaxMin.dll**
+Alternatively you can download and build the project and reference the binaries. **Cruncher.dll**, **dotless.dll**, and **AjaxMin.dll**
 then add the following to your **web.config**
 
     <!-- Add to start of the configuration section. -->
@@ -80,6 +80,6 @@ To request your files you just need to create links and script tags as such
     <link  href="/css.axd?path=normalize.css|style.css|helpers.css|styles.less" rel="stylesheet" type="text/css" />
     
     <!-- Request an external copy of jQuery using its token and a local copy of Modernizr  -->
-    <script src="/js.axd?path=jquery|modernizr-1.7.js"></script>
+    <script src="/js.axd?path=jquery|modernizr-2.6.2js"></script>
     
 Turning the cache and compression off is as simple as changing the **minifyCSS**, **minifyJS** and **compressResponse** properties in the configuration section in your web.config.
