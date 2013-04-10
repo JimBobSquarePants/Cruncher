@@ -80,6 +80,6 @@ To request your files you just need to create links and script tags as such
     <link  href="/css.axd?path=normalize.css|style.css|helpers.css|styles.less" rel="stylesheet" type="text/css" />
     
     <!-- Request an external copy of jQuery using its token and a local copy of Modernizr  -->
-    <script src="/js.axd?path=jquery|modernizr-2.6.2js"></script>
+    <script src="/js.axd?path=jquery|modernizr-2.6.2.js"></script>
     
 Turning the cache and compression off is as simple as changing the **minifyCSS**, **minifyJS** and **compressResponse** properties in the configuration section in your web.config.
