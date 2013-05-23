@@ -30,10 +30,10 @@ namespace Cruncher.Helpers
     /// outside users. There's various areas in application where an attacker could supply an external url to the server
     /// and tie up resources.
     /// </para>
-    /// For example, the JavascriptHandler accepts off-server addresses as a path. An attacker could, for instance, pass the url
+    /// For example, the JavaScriptHandler accepts off-server addresses as a path. An attacker could, for instance, pass the url
     /// to a file that's a few gigs in size, causing the server to get out-of-memory exceptions or some other errors. An attacker
     /// could also use this same method to use one application instance to hammer another site by, again, passing an off-server
-    /// address of the victims site to the JavascriptHandler. 
+    /// address of the victims site to the JavaScriptHandler. 
     /// This class will not throw an exception if the Uri supplied points to a resource local to the running application instance.
     /// <para>
     /// There shouldn't be any security issues there, as the internal WebRequest instance is still calling it remotely. 
@@ -44,11 +44,6 @@ namespace Cruncher.Helpers
     internal sealed class RemoteFile
     {
         #region Fields
-        /// <summary>
-        /// The line ending regex.
-        /// </summary>
-        private static readonly Regex LineEndingRegex = new Regex(@"\r\n|\n\r|\n|\r", RegexOptions.Compiled);
-
         /// <summary>
         /// The length of time, in milliseconds, that a remote file download attempt can last before timing out.
         /// </summary>
@@ -262,26 +257,20 @@ namespace Cruncher.Helpers
         {
             using (WebResponse response = this.GetWebResponse())
             {
-                Stream responseStream = response.GetResponseStream();
-
-                if (responseStream != null)
+                using (Stream responseStream = response.GetResponseStream())
                 {
-                    // Pipe the stream to a stream reader with the required encoding format.
-                    using (StreamReader reader = new StreamReader(responseStream, Encoding.UTF8))
+                    if (responseStream != null && responseStream.CanRead)
                     {
-                        // Normalize the line endings.
-                        string output = reader.ReadToEnd();
-
-                        foreach (Match match in LineEndingRegex.Matches(output))
+                        // Pipe the stream to a stream reader with the required encoding format.
+                        using (StreamReader reader = new StreamReader(responseStream, Encoding.UTF8))
                         {
-                            output = output.Replace(match.Value, Environment.NewLine);
+                            // Normalize the line endings.
+                            return reader.ReadToEnd();
                         }
-                        
-                        return output;
                     }
-                }
 
-                return string.Empty;
+                    return string.Empty;
+                }
             }
         }
         #endregion
