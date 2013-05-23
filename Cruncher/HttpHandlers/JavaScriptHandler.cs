@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------
 // <copyright file="JavaScriptHandler.cs" company="James South">
 //     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//     Licensed under the Apache License, Version 2.0.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -24,28 +24,26 @@ namespace Cruncher.HttpHandlers
     using Cruncher.Config;
     using Cruncher.Helpers;
     using Cruncher.HttpModules;
-    using Cruncher.Preprocessors;
-
     #endregion
 
     /// <summary>
-    /// Concatinates and minifies javascript files before serving them to a page.
+    /// Concatenates and minifies JavaScript files before serving them to a page.
     /// </summary>
     public class JavaScriptHandler : HandlerBase
     {
         #region Fields
         /// <summary>
-        /// The regular expression for matching filetype.
+        /// The regular expression for matching file type.
         /// </summary>
         private static readonly Regex ExtensionsRegex = new Regex(@"\.js", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
-        /// The default path for javascript files on the server.
+        /// The default path for JavaScript files on the server.
         /// </summary>
         private static readonly IList<string> JavaScriptPaths = CruncherConfiguration.Instance.JavaScriptPaths;
 
         /// <summary>
-        /// Whether to minify javascript files on the server.
+        /// Whether to minify JavaScript files on the server.
         /// </summary>
         private static readonly bool MinifyJavaScript = CruncherConfiguration.Instance.MinifyJavaScript;
 
@@ -55,7 +53,7 @@ namespace Cruncher.HttpHandlers
         private static readonly bool CompressResources = CruncherConfiguration.Instance.CompressResources;
 
         /// <summary>
-        /// A list of the fileCacheDependancies that will be monitored by the application.
+        /// A list of the fileCacheDependencies that will be monitored by the application.
         /// </summary>
         private readonly List<CacheDependency> cacheDependencies = new List<CacheDependency>();
         #endregion
@@ -157,7 +155,6 @@ namespace Cruncher.HttpHandlers
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                     context.Response.Status = HttpStatusCode.NotFound.ToString();
                 }
-
             }
         }
         #endregion
@@ -165,7 +162,7 @@ namespace Cruncher.HttpHandlers
 
         #region Protected
         /// <summary>
-        /// Transforms the content of the given string using the correct Preprocessor. 
+        /// Transforms the content of the given string using the correct Pre-processor. 
         /// </summary>
         /// <param name="input">The input string to transform.</param>
         /// <param name="path">The path to the file.</param>
@@ -220,7 +217,7 @@ namespace Cruncher.HttpHandlers
                     {
                         if (minify)
                         {
-                            // Add the file to the cache dependancy list.
+                            // Add the file to the cache dependency list.
                             this.cacheDependencies.Add(new CacheDependency(path));
                         }
 
@@ -237,7 +234,6 @@ namespace Cruncher.HttpHandlers
             }
         }
         #endregion
-
 
         #region Private
         /// <summary>

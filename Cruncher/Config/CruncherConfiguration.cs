@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------
 // <copyright file="CruncherConfiguration.cs" company="James South">
 //     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//     Licensed under the Apache License, Version 2.0.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -61,7 +61,7 @@ namespace Cruncher.Config
         /// <summary>
         /// Gets the list of available Preprocessors.
         /// </summary>
-        public IList<IPreprocessor> Preprocessors { get; private set; }
+        public IList<IPreprocessor> PreProcessors { get; private set; }
 
         /// <summary>
         /// The regular expression for matching allowed filetype.
@@ -216,7 +216,7 @@ namespace Cruncher.Config
         /// </summary>
         private void LoadPreprocessors()
         {
-            if (this.Preprocessors == null)
+            if (this.PreProcessors == null)
             {
                 // Build a list of native IPreprocessors instances.
                 Type type = typeof(IPreprocessor);
@@ -226,22 +226,21 @@ namespace Cruncher.Config
                     .ToList();
 
                 // Create them and add.
-                this.Preprocessors = types.Select(x => (Activator.CreateInstance(x) as IPreprocessor))
+                this.PreProcessors = types.Select(x => (Activator.CreateInstance(x) as IPreprocessor))
                     .ToList();
             }
         }
 
         /// <summary>
-        /// Generates a Regex with a list of allowed filetype extensions.
+        /// Generates a Regex with a list of allowed file type extensions.
         /// </summary>
-        /// <returns>A Regex with a list of allowed filetype extensions.</returns>
         private void CreateAllowedExtensionRegex()
         {
             StringBuilder stringBuilder = new StringBuilder(@"\.CSS|\.JS|");
 
-            foreach (IPreprocessor Preprocessor in this.Preprocessors)
+            foreach (IPreprocessor preprocessor in this.PreProcessors)
             {
-                string extension = Preprocessor.AllowedExtension;
+                string extension = preprocessor.AllowedExtension;
 
                 if (!string.IsNullOrWhiteSpace(extension))
                 {

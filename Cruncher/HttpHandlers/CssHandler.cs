@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------
 // <copyright file="CssHandler.cs" company="James South">
 //     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//     Licensed under the Apache License, Version 2.0.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -26,11 +26,10 @@ namespace Cruncher.HttpHandlers
     using Cruncher.Extensions;
     using Cruncher.Helpers;
     using Cruncher.HttpModules;
-    using Cruncher.Preprocessors;
     #endregion
 
     /// <summary>
-    /// Concatinates and minifies css files before serving them to a page.
+    /// Concatenates and minifies CSS files before serving them to a page.
     /// </summary>
     public class CssHandler : HandlerBase
     {
@@ -41,12 +40,12 @@ namespace Cruncher.HttpHandlers
         private static readonly Regex ImportsRegex = new Regex(@"(?:@import\s*(url\(|\""))(?<filename>[^.]+(\.css|\.less))(?:(\)|\"")((?<media>[^;]+);|;))", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         /// <summary>
-        /// The default path for css files on the server.
+        /// The default path for CSS files on the server.
         /// </summary>
         private static readonly IList<string> CSSPaths = CruncherConfiguration.Instance.CSSPaths;
 
         /// <summary>
-        /// Whether to minify css files on the server.
+        /// Whether to minify CSS files on the server.
         /// </summary>
         private static readonly bool MinifyCSS = CruncherConfiguration.Instance.MinifyCSS;
 
@@ -56,7 +55,7 @@ namespace Cruncher.HttpHandlers
         private static readonly bool CompressResources = CruncherConfiguration.Instance.CompressResources;
 
         /// <summary>
-        /// A list of the fileCacheDependancies that will be monitored by the application.
+        /// A list of the fileCache dependencies that will be monitored by the application.
         /// </summary>
         private readonly List<CacheDependency> cacheDependencies = new List<CacheDependency>();
         #endregion
@@ -165,7 +164,7 @@ namespace Cruncher.HttpHandlers
 
         #region Protected
         /// <summary>
-        /// Transforms the content of the given string using the correct Preprocessor. 
+        /// Transforms the content of the given string using the correct PreProcessor. 
         /// </summary>
         /// <param name="input">The input string to transform.</param>
         /// <param name="path">The path to the file.</param>
@@ -176,7 +175,7 @@ namespace Cruncher.HttpHandlers
             input = base.PreProcessInput(input, path);
 
             // Run the last filter. This should be the resourcePreprocessor.
-            input = CruncherConfiguration.Instance.Preprocessors
+            input = CruncherConfiguration.Instance.PreProcessors
                 .First(p => string.IsNullOrWhiteSpace(p.AllowedExtension))
                 .Transform(input, path);
 
@@ -184,7 +183,7 @@ namespace Cruncher.HttpHandlers
         }
 
         /// <summary>
-        /// Retrieves the local css style sheet from the disk
+        /// Retrieves the local CSS style sheet from the disk
         /// </summary>
         /// <param name="file">The file name of the style sheet to retrieve.</param>
         /// <param name="minify">Whether or not the local script should be minified.</param>
@@ -248,11 +247,11 @@ namespace Cruncher.HttpHandlers
 
         #region Private
         /// <summary>
-        /// Call this method to do any post-processing on the css before its returned in the context response.
+        /// Call this method to do any post-processing on the CSS before its returned in the context response.
         /// </summary>
-        /// <param name="css">The css stylesheet to process</param>
-        /// <param name="shouldMinify">Whether the stylesheet should be minified.</param>
-        /// <returns>The processed css stylesheet</returns>
+        /// <param name="css">The CSS style sheet to process</param>
+        /// <param name="shouldMinify">Whether the style sheet should be minified.</param>
+        /// <returns>The processed CSS style sheet</returns>
         private string ProcessCss(string css, bool shouldMinify)
         {
             if (shouldMinify)
@@ -290,13 +289,13 @@ namespace Cruncher.HttpHandlers
         }
 
         /// <summary>
-        /// Parses the string for css imports and adds them to the file dependency list.
+        /// Parses the string for CSS imports and adds them to the file dependency list.
         /// </summary>
         /// <param name="css">
-        /// The css to parse for import statements.
+        /// The CSS to parse for import statements.
         /// </param>
         /// <param name="minify">Whether or not the local script should be minified.</param>
-        /// <returns>The css file parsed for imports.</returns>
+        /// <returns>The CSS file parsed for imports.</returns>
         private string ParseImportsAndCache(string css, bool minify)
         {
             // Check for imports and parse if necessary.
@@ -305,10 +304,10 @@ namespace Cruncher.HttpHandlers
                 return css;
             }
 
-            // Recursivly parse the css for imports.
+            // Recursively parse the css for imports.
             foreach (Match match in ImportsRegex.Matches(css))
             {
-                // Recursivly parse the css for imports.
+                // Recursively parse the css for imports.
                 GroupCollection groups = match.Groups;
                 Capture fileName = groups["filename"].Captures[0];
                 CaptureCollection mediaQueries = groups["media"].Captures;
@@ -319,7 +318,7 @@ namespace Cruncher.HttpHandlers
                     mediaQuery = mediaQueries[0];
                 }
 
-                // Check and add the @import params to the cache dependancy list.
+                // Check and add the @import params to the cache dependency list.
                 // Get the match
                 List<string> files = CSSPaths
                     .SelectMany(cssPath => Directory.GetFiles(
@@ -337,13 +336,14 @@ namespace Cruncher.HttpHandlers
                     using (StreamReader reader = new StreamReader(file))
                     {
                         thisCSS = mediaQuery != null
-                            ? string.Format(CultureInfo.InvariantCulture,
-                                        "@media {0}{{{1}{2}{1}}}",
-                                        mediaQuery,
-                                        Environment.NewLine,
-                                        this.ParseImportsAndCache(this.PreProcessInput(reader.ReadToEnd(), file),
-                                        minify))
-                            : this.ParseImportsAndCache(this.PreProcessInput(reader.ReadToEnd(), file), minify);
+                                      ? string.Format(
+                                          CultureInfo.InvariantCulture,
+                                          "@media {0}{{{1}{2}{1}}}",
+                                          mediaQuery,
+                                          Environment.NewLine,
+                                          this.ParseImportsAndCache(
+                                              this.PreProcessInput(reader.ReadToEnd(), file), minify))
+                                      : this.ParseImportsAndCache(this.PreProcessInput(reader.ReadToEnd(), file), minify);
                     }
                 }
 

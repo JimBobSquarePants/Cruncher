@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------
 // <copyright file="IPreprocessor.cs" company="James South">
 //     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//     Licensed under the Apache License, Version 2.0.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -15,7 +15,7 @@ namespace Cruncher.Preprocessors
     public interface IPreprocessor
     {
         /// <summary>
-        /// The extension that this filter processes.
+        /// Gets the extension that this filter processes.
         /// </summary>
         string AllowedExtension { get; }
 

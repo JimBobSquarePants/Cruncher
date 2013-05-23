@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------
 // <copyright file="DotLessPreprocessor.cs" company="James South">
 //     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//     Licensed under the Apache License, Version 2.0.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -11,11 +11,11 @@ namespace Cruncher.Preprocessors
 {
     #region Using
 
+    using System;
     using System.Globalization;
-
+    using System.Text.RegularExpressions;
     using dotless.Core;
     using dotless.Core.configuration;
-    using System.Text.RegularExpressions;
     #endregion
 
     /// <summary>
@@ -28,11 +28,25 @@ namespace Cruncher.Preprocessors
         /// The regex for matching import statements.
         /// </summary>
         private static readonly Regex ImportsRegex = new Regex(@"@import(-once|)\s*[\""'](?<filename>[^.\""']+(\.CSS|\.LESS))[\""'];", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+
+        /// <summary>
+        /// An instance of the <see cref="DotlessConfiguration"/>.
+        /// </summary>
+        private static readonly DotlessConfiguration Config = new DotlessConfiguration
+        {
+            CacheEnabled = false,
+            MinifyOutput = false
+        };
+
+        /// <summary>
+        /// The Engine Factory that will perform the preprocessing.
+        /// </summary>
+        private static readonly EngineFactory EngineFactory = new EngineFactory(Config);
         #endregion
 
         #region Properties
         /// <summary>
-        /// The extension that this filter processes.
+        /// Gets the extension that this filter processes.
         /// </summary>
         public string AllowedExtension
         {
@@ -41,20 +55,6 @@ namespace Cruncher.Preprocessors
                 return ".LESS";
             }
         }
-
-        /// <summary>
-        /// An instance of the DotlessConfiguration.
-        /// </summary>
-        private static readonly DotlessConfiguration Config = new DotlessConfiguration
-        {
-            CacheEnabled = false,
-            MinifyOutput = false,
-        };
-
-        /// <summary>
-        /// The Engine Factory that will perform the preprocessing.
-        /// </summary>
-        private static readonly EngineFactory EngineFactory = new EngineFactory(Config);
         #endregion
 
         /// <summary>
@@ -67,23 +67,23 @@ namespace Cruncher.Preprocessors
         {
             try
             {
+                return EngineFactory.GetEngine().TransformToCss(input, path);
+            }
+            catch
+            {
                 // Replace the Imports statements as they cause an error as the Preprocessor
-                // tries to import them when in native .less format.
+                // tries to import them when in native .less format. They will get processed
+                // down the line in the CSS handler.
                 foreach (Match match in ImportsRegex.Matches(input))
                 {
-                    // Recursivly parse the css for imports.
+                    // Parse the CSS for imports.
                     GroupCollection groups = match.Groups;
                     Capture fileName = groups["filename"].Captures[0];
                     string normalizedCss = string.Format(CultureInfo.InvariantCulture, "@import({0});", fileName);
 
                     input = input.Replace(match.Value, normalizedCss);
-
                 }
 
-                return EngineFactory.GetEngine().TransformToCss(input, null);
-            }
-            catch
-            {
                 return input;
             }
         }

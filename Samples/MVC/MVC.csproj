@@ -134,6 +134,7 @@
     </Content>
     <Content Include="Global.asax" />
     <Content Include="Images\bg.jpg" />
+    <Content Include="scripts\jquery.1.9.1.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

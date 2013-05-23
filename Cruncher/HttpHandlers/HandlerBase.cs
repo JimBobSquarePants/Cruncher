@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------
 // <copyright file="HandlerBase.cs" company="James South">
 //     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//     Licensed under the Apache License, Version 2.0.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -22,7 +22,6 @@ namespace Cruncher.HttpHandlers
     using Cruncher.Config;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
-    using Cruncher.Preprocessors;
     #endregion
 
     /// <summary>
@@ -37,7 +36,7 @@ namespace Cruncher.HttpHandlers
         protected static readonly int MaxCacheDays = CruncherConfiguration.Instance.MaxCacheDays;
 
         /// <summary>
-        /// The white-list of urls from which to download remote files.
+        /// The white-list of Uri's from which to download remote files.
         /// </summary>
         private static readonly CruncherSecuritySection.WhiteListElementCollection RemoteFileWhiteList = CruncherConfiguration.Instance.RemoteFileWhiteList;
 
@@ -86,22 +85,20 @@ namespace Cruncher.HttpHandlers
 
         #region Protected
         /// <summary>
-        /// Transforms the content of the given string using the correct Preprocessor. 
+        /// Transforms the content of the given string using the correct PreProcessor. 
         /// </summary>
         /// <param name="input">The input string to transform.</param>
         /// <param name="path">The path to the file.</param>
         /// <returns>The transformed string.</returns>
         protected virtual string PreProcessInput(string input, string path)
         {
-
             string extension = path.Substring(path.LastIndexOf('.')).ToUpperInvariant();
 
-            input = CruncherConfiguration.Instance.Preprocessors
-                .Where(Preprocessor => extension.Equals(Preprocessor.AllowedExtension, StringComparison.OrdinalIgnoreCase))
-                .Aggregate(input, (current, Preprocessor) => Preprocessor.Transform(current, path));
+            input = CruncherConfiguration.Instance.PreProcessors
+                .Where(preprocessor => extension.Equals(preprocessor.AllowedExtension, StringComparison.OrdinalIgnoreCase))
+                .Aggregate(input, (current, preprocessor) => preprocessor.Transform(current, path));
 
             return input;
-
         }
 
         /// <summary>
@@ -263,23 +260,9 @@ namespace Cruncher.HttpHandlers
                 Cache.NoAbsoluteExpiration,
                 new TimeSpan(MaxCacheDays, 0, 0, 0),
                 CacheItemPriority.High,
-                this.OnFileChanged);
+                null);
 
             this.addingNotifier = false;
-        }
-
-        /// <summary>
-        /// Defines a callback method for notifying applications when a cached item is removed from the <see cref="T:System.Web.Caching.Cache"/>.
-        /// </summary>
-        /// <param name="key">The key that is removed from the cache.</param>
-        /// <param name="value">The <see cref="T:System.Object"/>item associated with the key removed from the cache.</param>
-        /// <param name="reason">The reason the item was removed from the cache, as specified by the <see cref="T:System.Web.Caching.CacheItemRemovedReason"/> enumeration.</param>
-        protected void OnFileChanged(string key, object value, CacheItemRemovedReason reason)
-        {
-            if (!this.addingNotifier)
-            {
-                this.ClearCachedResources(key);
-            }
         }
 
         /// <summary>

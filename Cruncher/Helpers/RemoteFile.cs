@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------
 // <copyright file="RemoteFile.cs" company="James South">
 //     Copyright (c) James South.
-//     Dual licensed under the MIT or GPL Version 2 licenses.
+//     Licensed under the Apache License, Version 2.0.
 // </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -16,6 +16,8 @@ namespace Cruncher.Helpers
     using System.Net;
     using System.Security;
     using System.Text;
+    using System.Text.RegularExpressions;
+
     using Cruncher.Config;
     #endregion
 
@@ -42,6 +44,11 @@ namespace Cruncher.Helpers
     internal sealed class RemoteFile
     {
         #region Fields
+        /// <summary>
+        /// The line ending regex.
+        /// </summary>
+        private static readonly Regex LineEndingRegex = new Regex(@"\r\n|\n\r|\n|\r", RegexOptions.Compiled);
+
         /// <summary>
         /// The length of time, in milliseconds, that a remote file download attempt can last before timing out.
         /// </summary>
@@ -256,13 +263,21 @@ namespace Cruncher.Helpers
             using (WebResponse response = this.GetWebResponse())
             {
                 Stream responseStream = response.GetResponseStream();
-                
+
                 if (responseStream != null)
                 {
                     // Pipe the stream to a stream reader with the required encoding format.
                     using (StreamReader reader = new StreamReader(responseStream, Encoding.UTF8))
                     {
-                        return reader.ReadToEnd();
+                        // Normalize the line endings.
+                        string output = reader.ReadToEnd();
+
+                        foreach (Match match in LineEndingRegex.Matches(output))
+                        {
+                            output = output.Replace(match.Value, Environment.NewLine);
+                        }
+                        
+                        return output;
                     }
                 }
 
