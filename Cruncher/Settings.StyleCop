@@ -1,0 +1,10 @@
+<StyleCopSettings Version="105">
+  <GlobalSettings>
+    <CollectionProperty Name="RecognizedWords">
+      <Value>css</Value>
+      <Value>minified</Value>
+      <Value>minifier</Value>
+      <Value>stylesheet</Value>
+    </CollectionProperty>
+  </GlobalSettings>
+</StyleCopSettings>
