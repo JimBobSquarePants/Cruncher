@@ -1,16 +1,19 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ResponseType.cs" company="James South">
-//     Copyright (c) James South.
-//     Licensed under the Apache License, Version 2.0.
+//   Copyright (c) James South.
+//   Licensed under the Apache License, Version 2.0.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Globally available enumeration which specifies the correct HTTP MIME type of
+//   the output stream for different response types.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher.Helpers
 {
     #region Using
     using System.ComponentModel;
+    using System.Diagnostics.CodeAnalysis;
     #endregion
 
     /// <summary>
@@ -23,7 +26,7 @@ namespace Cruncher.Helpers
     public enum ResponseType
     {
         /// <summary>
-        /// The correct HTTP MIME type of the output stream for Css.
+        /// The correct HTTP MIME type of the output stream for CSS.
         /// </summary>
         [Description("text/css")]
         Css,
@@ -38,6 +41,7 @@ namespace Cruncher.Helpers
         /// </para>
         /// </remarks>
         /// </summary>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         [Description("text/javascript")]
         JavaScript
     }

@@ -10,6 +10,9 @@
 namespace Cruncher.Compression
 {
     #region Using
+
+    using System.Diagnostics.CodeAnalysis;
+
     using Microsoft.Ajax.Utilities;
     #endregion
 
@@ -28,6 +31,7 @@ namespace Cruncher.Compression
     /// everyone's encouraged to use it directly if they want to.
     /// </para>
     /// </remarks>
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
     public sealed class JavaScriptMinifier
     {
         #region Fields
@@ -50,7 +54,6 @@ namespace Cruncher.Compression
         #endregion
 
         #region Properties
-
         /// <summary>
         /// Gets or sets whether this Minifier instance should minify local-scoped variables.
         /// </summary>
@@ -79,14 +82,6 @@ namespace Cruncher.Compression
         /// <see langword="true"/> if whitespace should be removed from the script; otherwise, <see langword="false"/>.
         /// </value>
         public bool RemoveWhiteSpace { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether termination semicolons should be added to the script.
-        /// </summary>
-        /// <value>
-        /// <see langword="true"/> if termination semicolons should be added to the script; otherwise, <see langword="false"/>.
-        /// </value>
-        public bool TermSemiColons { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether this instance of the minifier should minify the code.
@@ -144,7 +139,6 @@ namespace Cruncher.Compression
             {
                 MinifyCode = this.ShouldMinifyCode,
                 OutputMode = this.RemoveWhiteSpace ? OutputMode.SingleLine : OutputMode.MultipleLines,
-                TermSemicolons = this.TermSemiColons
             };
 
             if (this.ShouldMinifyCode)
@@ -171,6 +165,12 @@ namespace Cruncher.Compression
                 // This makes sure that function names on objects are kept exactly as they are. This is
                 // so functions that other non-minified scripts rely on do not get renamed.
                 codeSettings.PreserveFunctionNames = this.PreserveFunctionNames;
+
+                // Specifies whether or not important comments will be retained in the output. 
+                // Important comments are frequently used by developers to specify copyright or licensing 
+                // information that needs to be retained in distributed scripts.
+                // e.g /*! This is important */
+                codeSettings.PreserveImportantComments = true;
             }
 
             return codeSettings;
