@@ -34,6 +34,10 @@
     <Reference Include="AjaxMin">
       <HintPath>..\packages\AjaxMin.4.97.4951.28483\lib\net40\AjaxMin.dll</HintPath>
     </Reference>
+    <Reference Include="dotless.Core, Version=1.3.1.0, Culture=neutral, PublicKeyToken=96b446c9e63eae34, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\dotless.1.3.1.0\lib\dotless.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -50,6 +54,7 @@
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Helpers\ResponseType.cs" />
     <Compile Include="JavaScriptCruncher.cs" />
+    <Compile Include="Preprocessors\DotLessPreprocessor.cs" />
     <Compile Include="Preprocessors\PreprocessorManager.cs" />
     <Compile Include="CruncherBase.cs" />
     <Compile Include="CruncherOptions.cs" />

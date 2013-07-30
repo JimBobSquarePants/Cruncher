@@ -65,6 +65,7 @@ namespace Cruncher.Web
 
                 CruncherOptions cruncherOptions = new CruncherOptions
                                                       {
+                                                          RootFolder = context.Server.MapPath("~/"),
                                                           Minify = !string.IsNullOrWhiteSpace(minify) || CruncherConfiguration.Instance.MinifyJavaScript,
                                                           AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
                                                           RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,

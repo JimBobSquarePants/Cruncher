@@ -30,7 +30,7 @@ namespace Cruncher
         /// <summary>
         /// The regular expression to search files for.
         /// </summary>
-        private static readonly Regex ImportsRegex = new Regex(@"((?:@import\s*(url\([""']?)\s*(?<filename>[^.]+\.\w+ss)(\s*[""']?)\s*\)\s*;?)((?<media>([^;]+)\s*;)?))", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+        private static readonly Regex ImportsRegex = new Regex(@"((?:@import\s*(url\([""']?)\s*(?<filename>[^.]+\.\w+ss)(\s*[""']?)\s*\))((?<media>([^;]+))?);)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
         #endregion
 
         #region Constructors
@@ -143,7 +143,7 @@ namespace Cruncher
                 FileInfo fileInfo = directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories)
                                  .FirstOrDefault(
                                      f =>
-                                     f.Name.Equals(fileName.ToString(), StringComparison.InvariantCultureIgnoreCase));
+                                     f.Name.Equals(Path.GetFileName(fileName.ToString()), StringComparison.InvariantCultureIgnoreCase));
 
                 string importedCSS = string.Empty;
 

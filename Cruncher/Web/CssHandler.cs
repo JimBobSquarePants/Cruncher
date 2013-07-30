@@ -15,6 +15,7 @@ namespace Cruncher.Web
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Runtime.Remoting.Channels;
     using System.Text;
     using System.Web;
     using Cruncher.Helpers;
@@ -62,6 +63,7 @@ namespace Cruncher.Web
 
                 CruncherOptions cruncherOptions = new CruncherOptions
                                                       {
+                                                          RootFolder = context.Server.MapPath("~/"),
                                                           Minify = !string.IsNullOrWhiteSpace(minify) || CruncherConfiguration.Instance.MinifyCSS,
                                                           AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
                                                           RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,

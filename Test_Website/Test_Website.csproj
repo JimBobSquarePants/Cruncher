@@ -133,6 +133,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\style.less" />
+    <None Include="Content\style2.less" />
+    <Content Include="Content\style2.css" />
     <Content Include="Content\libs\images\arnie.jpg" />
     <Content Include="Content\style.css" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
