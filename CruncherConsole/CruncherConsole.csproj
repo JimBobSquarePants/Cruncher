@@ -7,8 +7,8 @@
     <ProjectGuid>{1968E2B0-25B9-4CB5-BC60-FF1C4C51561B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AssetCruncher</RootNamespace>
-    <AssemblyName>AssetCruncher</AssemblyName>
+    <RootNamespace>CruncherConsole</RootNamespace>
+    <AssemblyName>CruncherConsole</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleConfiguration.cs" />
+    <Compile Include="CrunchTargetType.cs" />
+    <Compile Include="FileHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceStrings.Designer.cs">

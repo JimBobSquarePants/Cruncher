@@ -118,6 +118,18 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Usage" xml:space="preserve">
-    <value />
+    <value>Usage:
+cruncherconsole.exe &lt;operation switch&gt; -t:&lt;type&gt; -in:&lt;inputPath&gt; -out:&lt;outputPath&gt;
+
+Parameters
+
+  -m : Minifies files in the set.
+
+  -t: specifies the output type of the file (css or javascript).
+  
+  -in : Input path. This can be a single file or a folder. If it is a folder, all files within will be processed and bundled into one output file.
+
+  -out : Output path. The path to save crunched output to. If left blank then the input file is used as a reference for naming the output.</value>
+    <comment>Instructions for basic usage.</comment>
   </data>
 </root>

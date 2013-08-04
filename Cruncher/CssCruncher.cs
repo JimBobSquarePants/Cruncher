@@ -30,7 +30,7 @@ namespace Cruncher
         /// <summary>
         /// The regular expression to search files for.
         /// </summary>
-        private static readonly Regex ImportsRegex = new Regex(@"((?:@import\s*(url\([""']?)\s*(?<filename>[^.]+\.\w+ss)(\s*[""']?)\s*\))((?<media>([^;]+))?);)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+        private static readonly Regex ImportsRegex = new Regex(@"((?:@import\s*(url\([""']?)\s*(?<filename>[^.]+\.\w+ss)(\s*[""']?)\s*\))((?<media>([^;@]+))?);)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
         #endregion
 
         #region Constructors
@@ -84,7 +84,14 @@ namespace Cruncher
         {
             string contents = base.LoadLocalFile(file);
 
-            return this.ParseImports(contents);
+            contents = this.ParseImports(contents);
+
+            contents = this.PreProcessInput(contents, file);
+
+            // Cache if applicable.
+            this.AddFileMonitor(file, contents);
+
+            return contents;
         }
 
         /// <summary>
@@ -138,17 +145,12 @@ namespace Cruncher
                 }
 
                 // Check and add the @import the match.
-                DirectoryInfo directoryInfo = new DirectoryInfo(this.Options.RootFolder);
-
-                FileInfo fileInfo = directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories)
-                                 .FirstOrDefault(
-                                     f =>
-                                     f.Name.Equals(Path.GetFileName(fileName.ToString()), StringComparison.InvariantCultureIgnoreCase));
+                FileInfo fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName.ToString())));
 
                 string importedCSS = string.Empty;
 
                 // Read the file.
-                if (fileInfo != null)
+                if (fileInfo.Exists)
                 {
                     string file = fileInfo.FullName;
 
@@ -160,8 +162,8 @@ namespace Cruncher
                                           "@media {0}{{{1}{2}{1}}}",
                                           mediaQuery,
                                           Environment.NewLine,
-                                          this.ParseImports(this.PreProcessInput(reader.ReadToEnd(), file)))
-                                      : this.ParseImports(this.PreProcessInput(reader.ReadToEnd(), file));
+                                          this.ParseImports(reader.ReadToEnd()))
+                                      : this.ParseImports(reader.ReadToEnd());
                     }
 
                     // Cache if applicable.

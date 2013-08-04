@@ -63,7 +63,6 @@ namespace Cruncher.Web
 
                 CruncherOptions cruncherOptions = new CruncherOptions
                                                       {
-                                                          RootFolder = context.Server.MapPath("~/"),
                                                           Minify = !string.IsNullOrWhiteSpace(minify) || CruncherConfiguration.Instance.MinifyCSS,
                                                           AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
                                                           RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
@@ -93,7 +92,7 @@ namespace Cruncher.Web
 
                         // We only want the first file.
                         string first = files.FirstOrDefault();
-
+                        cruncherOptions.RootFolder = Path.GetDirectoryName(first);
                         stringBuilder.Append(cssCruncher.Crunch(first));
                     }
                     else

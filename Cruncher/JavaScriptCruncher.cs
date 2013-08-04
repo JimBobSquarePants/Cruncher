@@ -11,6 +11,9 @@
 namespace Cruncher
 {
     #region Using
+
+    using System.Web.UI.WebControls;
+
     using Cruncher.Compression;
     #endregion
 
@@ -32,6 +35,26 @@ namespace Cruncher
 
         #region Methods
         #region Protected
+        /// <summary>
+        /// Loads the local file.
+        /// </summary>
+        /// <param name="file">The file to load.</param>
+        /// <returns>
+        /// The contents of the local file as a string.
+        /// </returns>
+        protected override string LoadLocalFile(string file)
+        {
+            string contents = base.LoadLocalFile(file);
+
+
+            contents = this.PreProcessInput(contents, file);
+
+            // Cache if applicable.
+            this.AddFileMonitor(file, contents);
+
+            return contents;
+        }
+
         /// <summary>
         /// Minifies the specified resource.
         /// </summary>

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AssetCruncher {
+namespace CruncherConsole {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace AssetCruncher {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AssetCruncher.ResourceStrings", typeof(ResourceStrings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CruncherConsole.ResourceStrings", typeof(ResourceStrings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,18 @@ namespace AssetCruncher {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Usage:
+        ///cruncherconsole.exe &lt;operation switch&gt; -t:&lt;type&gt; -in:&lt;inputPath&gt; -out:&lt;outputPath&gt;
+        ///
+        ///Parameters
+        ///
+        ///  -m : Minifies files in the set.
+        ///
+        ///  -t: specifies the output type of the file (css or javascript).
+        ///  
+        ///  -in : Input path. This can be a single file or a folder. If it is a folder, all files within will be processed and bundled into one output file.
+        ///
+        ///  -out : Output path. The path to save crunched output to. If left blank then the input file is used as a reference for naming the output..
         /// </summary>
         internal static string Usage {
             get {

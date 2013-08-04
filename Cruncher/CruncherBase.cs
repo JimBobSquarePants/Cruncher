@@ -98,7 +98,7 @@ namespace Cruncher
                 contents = this.Minify(stringBuilder.ToString());
 
                 // Cache if applicable.
-                this.AddItemToCache(resource, contents);
+                this.AddItemToCache(resource.ToMD5Fingerprint(), contents);
             }
 
             return contents;
@@ -129,11 +129,6 @@ namespace Cruncher
                     contents = streamReader.ReadToEnd();
                 }
             }
-
-            contents = this.PreProcessInput(contents, file);
-
-            // Cache if applicable.
-            this.AddFileMonitor(file, contents);
 
             return contents;
         }
@@ -265,7 +260,7 @@ namespace Cruncher
         /// </returns>
         private bool IsValidPath(string resource)
         {
-            return resource.Contains("/") && resource.IsValidPathName() && Directory.Exists(resource);
+            return resource.Contains("\\") && Directory.Exists(resource);
         }
 
         /// <summary>
