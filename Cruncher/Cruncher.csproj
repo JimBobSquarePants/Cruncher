@@ -54,6 +54,7 @@
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Helpers\ResponseType.cs" />
     <Compile Include="JavaScriptCruncher.cs" />
+    <Compile Include="Preprocessors\DotLessPathResolver.cs" />
     <Compile Include="Preprocessors\DotLessPreprocessor.cs" />
     <Compile Include="Preprocessors\PreprocessorManager.cs" />
     <Compile Include="CruncherBase.cs" />

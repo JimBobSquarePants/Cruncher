@@ -1,10 +1,22 @@
-﻿namespace Cruncher.Preprocessors
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DotLessPreprocessor.cs" company="James South">
+//   Copyright (c) James South.
+//   Licensed under the Apache License, Version 2.0.
+// </copyright>
+// <summary>
+//   Provides methods to convert LESS into CSS.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Cruncher.Preprocessors
 {
     #region Using
-    using System.Globalization;
     using System.Text.RegularExpressions;
     using dotless.Core;
     using dotless.Core.configuration;
+    using dotless.Core.Importers;
+    using dotless.Core.Input;
+    using dotless.Core.Parser;
     #endregion
 
     /// <summary>
@@ -24,13 +36,13 @@
         private static readonly DotlessConfiguration Config = new DotlessConfiguration
         {
             CacheEnabled = false,
-            MinifyOutput = false
+            MinifyOutput = false,
         };
 
         /// <summary>
         /// The Engine Factory that will perform the preprocessing.
         /// </summary>
-        private static readonly EngineFactory EngineFactory = new EngineFactory(Config);
+        private static readonly ILessEngine Engine = new EngineFactory(Config).GetEngine();
         #endregion
 
         #region Properties
@@ -54,27 +66,15 @@
         /// <returns>The transformed CSS string.</returns>
         public string Transform(string input, string path)
         {
-            try
-            {
-                return EngineFactory.GetEngine().TransformToCss(input, path);
-            }
-            catch
-            {
-                // Replace the Imports statements as they cause an error as the Preprocessor
-                // tries to import them when in native .less format. They will get processed
-                // down the line in the CSS handler.
-                foreach (Match match in ImportsRegex.Matches(input))
-                {
-                    // Parse the CSS for imports.
-                    GroupCollection groups = match.Groups;
-                    Capture fileName = groups["filename"].Captures[0];
-                    string normalizedCss = string.Format(CultureInfo.InvariantCulture, "@import url({0});", fileName);
+            // The standard engine returns a FileNotFoundExecption so I've rolled my own path resolver.
+            Parser parser = new Parser();
+            DotLessPathResolver dotLessPathResolver = new DotLessPathResolver(path);
+            FileReader fileReader = new FileReader(dotLessPathResolver);
+            parser.Importer = new Importer(fileReader);
 
-                    input = input.Replace(match.Value, normalizedCss);
-                }
+            ILessEngine lessEngine = new LessEngine(parser);
 
-                return input;
-            }
+            return lessEngine.TransformToCss(input, path);
         }
     }
 }
