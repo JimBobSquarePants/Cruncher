@@ -120,7 +120,7 @@ namespace Cruncher.Web
                 else
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    context.Response.Status = HttpStatusCode.NotFound.ToString();
+                    context.Response.StatusDescription = HttpStatusCode.NotFound.ToString();
                 }
             }
         }
