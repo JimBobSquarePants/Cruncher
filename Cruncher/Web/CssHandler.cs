@@ -15,7 +15,6 @@ namespace Cruncher.Web
     using System.IO;
     using System.Linq;
     using System.Net;
-    using System.Runtime.Remoting.Channels;
     using System.Text;
     using System.Web;
     using Cruncher.Helpers;
@@ -72,11 +71,11 @@ namespace Cruncher.Web
                 cruncherOptions.CacheFiles = cruncherOptions.Minify;
                 cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
 
+                CssCruncher cssCruncher = new CssCruncher(cruncherOptions);
+
                 // Loop through and process each file.
                 foreach (string cssFile in cssFiles)
                 {
-                    CssCruncher cssCruncher = new CssCruncher(cruncherOptions);
-
                     // Local files.
                     if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(cssFile))
                     {
@@ -103,7 +102,7 @@ namespace Cruncher.Web
                     }
                 }
 
-                string combinedCSS = stringBuilder.ToString();
+                string combinedCSS = cssCruncher.Minify(stringBuilder.ToString());
 
                 if (!string.IsNullOrWhiteSpace(combinedCSS))
                 {

@@ -8,7 +8,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Cruncher.Preprocessors
+namespace Cruncher.Preprocessors.Less
 {
     #region Using
     using System;

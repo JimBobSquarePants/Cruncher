@@ -8,10 +8,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Cruncher.Preprocessors
+namespace Cruncher.Preprocessors.Less
 {
     #region Using
-    using System.Text.RegularExpressions;
     using dotless.Core;
     using dotless.Core.configuration;
     using dotless.Core.Importers;
@@ -25,11 +24,6 @@ namespace Cruncher.Preprocessors
     public class DotLessPreprocessor : IPreprocessor
     {
         #region Fields
-        /// <summary>
-        /// The regex for matching import statements.
-        /// </summary>
-        private static readonly Regex ImportsRegex = new Regex(@"@import\s*([-once]?)\s*[\""'](?<filename>[^.]+(\.css|\.less))\s*[\""']\s*;", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
-
         /// <summary>
         /// An instance of the <see cref="DotlessConfiguration"/>.
         /// </summary>
@@ -49,11 +43,11 @@ namespace Cruncher.Preprocessors
         /// <summary>
         /// Gets the extension that this filter processes.
         /// </summary>
-        public string AllowedExtension
+        public string[] AllowedExtensions
         {
             get
             {
-                return ".LESS";
+                return new[] { ".LESS" };
             }
         }
         #endregion

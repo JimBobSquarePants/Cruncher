@@ -16,6 +16,7 @@ namespace Cruncher
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using Cruncher.Caching;
     using Cruncher.Compression;
     using Cruncher.Extensions;
     using Cruncher.Preprocessors;
@@ -45,34 +46,53 @@ namespace Cruncher
         #endregion
 
         #region Methods
-        #region Protected
+        #region Public
         /// <summary>
         /// Minifies the specified resource.
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <returns>The minified resource.</returns>
-        protected override string Minify(string resource)
+        public override string Minify(string resource)
         {
-            CssMinifier minifier;
+            string result = string.Empty;
 
-            if (this.Options.Minify)
+            if (this.Options.CacheFiles)
             {
-                minifier = new CssMinifier
-                {
-                    RemoveWhiteSpace = true
-                };
-            }
-            else
-            {
-                minifier = new CssMinifier
-                {
-                    RemoveWhiteSpace = false
-                };
+                result = (string)CacheManager.GetItem(resource.ToMd5Fingerprint());
             }
 
-            return minifier.Minify(resource);
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                CssMinifier minifier;
+
+                if (this.Options.Minify)
+                {
+                    minifier = new CssMinifier
+                    {
+                        RemoveWhiteSpace = true
+                    };
+                }
+                else
+                {
+                    minifier = new CssMinifier
+                    {
+                        RemoveWhiteSpace = false
+                    };
+                }
+
+                result = minifier.Minify(resource);
+
+                if (this.Options.CacheFiles)
+                {
+                    this.AddItemToCache(resource, result);
+                }
+            }
+
+            return result;
         }
+        #endregion
 
+        #region Protected
         /// <summary>
         /// Loads the local file.
         /// </summary>
@@ -107,7 +127,7 @@ namespace Cruncher
 
             // Run the last filter. This should be the resourcePreprocessor.
             input = PreprocessorManager.Instance.PreProcessors
-                .First(p => string.IsNullOrWhiteSpace(p.AllowedExtension))
+                .First(preprocessor => preprocessor.AllowedExtensions == null)
                 .Transform(input, path);
 
             return input;

@@ -16,10 +16,7 @@ namespace Cruncher.Preprocessors
     using System.Globalization;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Text.RegularExpressions;
-    using System.Web.Hosting;
-
     #endregion
 
     /// <summary>
@@ -38,11 +35,11 @@ namespace Cruncher.Preprocessors
         /// <summary>
         /// Gets the extension that this filter processes.
         /// </summary>
-        public string AllowedExtension
+        public string[] AllowedExtensions
         {
             get
             {
-                return string.Empty;
+                return null;
             }
         }
         #endregion

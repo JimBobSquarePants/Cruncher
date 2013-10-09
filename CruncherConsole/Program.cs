@@ -13,14 +13,9 @@ namespace CruncherConsole
     #region Using
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
     using Cruncher;
-
     #endregion
 
     /// <summary>
@@ -142,11 +137,13 @@ namespace CruncherConsole
                 {
                     CssCruncher cssCruncher = new CssCruncher(options);
                     crunched = cssCruncher.Crunch(actualInputPath);
+                    crunched = cssCruncher.Minify(crunched);
                 }
                 else
                 {
                     JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(options);
                     crunched = javaScriptCruncher.Crunch(actualInputPath);
+                    crunched = javaScriptCruncher.Minify(crunched);
                 }
 
                 FileHelper.WriteFile(outputPath, crunched);
@@ -183,6 +180,9 @@ namespace CruncherConsole
             inputPath = inputPath.Replace(".min.css", ".css");
             inputPath = inputPath.Replace(".min.js", ".js");
             inputPath = inputPath.Replace(".min.less", ".less");
+            inputPath = inputPath.Replace(".min.sass", ".sass");
+            inputPath = inputPath.Replace(".min.scss", ".scss");
+            inputPath = inputPath.Replace(".min.coffee", ".coffee");
 
             if (string.IsNullOrWhiteSpace(outputPath))
             {
@@ -198,6 +198,9 @@ namespace CruncherConsole
             outputPath = outputPath.Replace(".min.css", ".css");
             outputPath = outputPath.Replace(".min.js", ".js");
             outputPath = outputPath.Replace(".min.less", ".less");
+            outputPath = outputPath.Replace(".min.sass", ".sass");
+            outputPath = outputPath.Replace(".min.scss", ".scss");
+            outputPath = outputPath.Replace(".min.coffee", ".coffee");
 
             if (Path.IsPathRooted(outputPath) && Path.HasExtension(outputPath))
             {

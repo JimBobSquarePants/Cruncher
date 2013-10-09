@@ -4,21 +4,21 @@
 //   Licensed under the Apache License, Version 2.0.
 // </copyright>
 // <summary>
-//   Defines methods to preprocess the file before compression.
+//   Defines methods to pre-process the file before compression.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher.Preprocessors
 {
     /// <summary>
-    /// Defines methods to preprocess the file before compression.
+    /// Defines methods to pre-process the file before compression.
     /// </summary>
     public interface IPreprocessor
     {
         /// <summary>
-        /// Gets the extension that this filter processes.
+        /// Gets the extensions that this filter processes.
         /// </summary>
-        string AllowedExtension { get; }
+        string[] AllowedExtensions { get; }
 
         /// <summary>
         /// Transforms the content of the given string. 

@@ -75,7 +75,7 @@ namespace Cruncher
 
             if (this.Options.CacheFiles)
             {
-                contents = (string)CacheManager.GetItem(resource.ToMD5Fingerprint());
+                contents = (string)CacheManager.GetItem(resource.ToMd5Fingerprint());
             }
 
             if (string.IsNullOrWhiteSpace(contents))
@@ -98,21 +98,21 @@ namespace Cruncher
                 contents = this.Minify(stringBuilder.ToString());
 
                 // Cache if applicable.
-                this.AddItemToCache(resource.ToMD5Fingerprint(), contents);
+                this.AddItemToCache(resource.ToMd5Fingerprint(), contents);
             }
 
             return contents;
         }
-        #endregion
 
-        #region Protected
         /// <summary>
         /// Minifies the specified resource.
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <returns>The minified resource.</returns>
-        protected abstract string Minify(string resource);
+        public abstract string Minify(string resource);
+        #endregion
 
+        #region Protected
         /// <summary>
         /// Loads the local file.
         /// </summary>
@@ -144,8 +144,8 @@ namespace Cruncher
             string extension = path.Substring(path.LastIndexOf('.')).ToUpperInvariant();
 
             input = PreprocessorManager.Instance.PreProcessors
-                .Where(preprocessor => extension.Equals(preprocessor.AllowedExtension, StringComparison.OrdinalIgnoreCase))
-                .Aggregate(input, (current, preprocessor) => preprocessor.Transform(current, path));
+                .Where(p => p.AllowedExtensions != null && p.AllowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+                .Aggregate(input, (current, p) => p.Transform(current, path));
 
             return input;
         }
@@ -162,7 +162,7 @@ namespace Cruncher
         protected void AddFileMonitor(string file, string contents)
         {
             // Cache if applicable.
-            if (this.Options.Minify && !string.IsNullOrWhiteSpace(contents))
+            if (this.Options.CacheFiles && !string.IsNullOrWhiteSpace(contents))
             {
                 this.FileMonitors.Add(file);
             }
@@ -190,7 +190,7 @@ namespace Cruncher
                     cacheItemPolicy.ChangeMonitors.Add(new HostFileChangeMonitor(this.FileMonitors));
                 }
 
-                CacheManager.AddItem(filename.ToMD5Fingerprint(), contents, cacheItemPolicy);
+                CacheManager.AddItem(filename.ToMd5Fingerprint(), contents, cacheItemPolicy);
             }
         }
 

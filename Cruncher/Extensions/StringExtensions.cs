@@ -43,8 +43,13 @@ namespace Cruncher.Extensions
         /// </summary>
         /// <param name="expression">The <see cref="T:System.String">String</see> instance that this method extends.</param>
         /// <returns>An MD5 fingerprint of the String.</returns>
-        public static string ToMD5Fingerprint(this string expression)
+        public static string ToMd5Fingerprint(this string expression)
         {
+            if (string.IsNullOrWhiteSpace(expression))
+            {
+                return string.Empty;
+            }
+
             byte[] bytes = Encoding.Unicode.GetBytes(expression.ToCharArray());
 
             using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())

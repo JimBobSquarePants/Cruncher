@@ -32,11 +32,38 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AjaxMin">
-      <HintPath>..\packages\AjaxMin.4.97.4951.28483\lib\net40\AjaxMin.dll</HintPath>
+      <HintPath>..\packages\AjaxMin.5.2.5021.15814\lib\net40\AjaxMin.dll</HintPath>
     </Reference>
     <Reference Include="dotless.Core, Version=1.3.1.0, Culture=neutral, PublicKeyToken=96b446c9e63eae34, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\dotless.1.3.1.0\lib\dotless.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby, Version=1.1.3.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\IronRuby.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby.Libraries, Version=1.1.3.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\IronRuby.Libraries.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby.Libraries.Yaml, Version=1.1.3.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\IronRuby.Libraries.Yaml.dll</HintPath>
+    </Reference>
+    <Reference Include="Jurassic">
+      <HintPath>..\packages\Jurassic.2.1.1\lib\Jurassic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Metadata, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -54,8 +81,10 @@
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Helpers\ResponseType.cs" />
     <Compile Include="JavaScriptCruncher.cs" />
-    <Compile Include="Preprocessors\DotLessPathResolver.cs" />
-    <Compile Include="Preprocessors\DotLessPreprocessor.cs" />
+    <Compile Include="Preprocessors\Coffee\CoffeeScriptCompiler.cs" />
+    <Compile Include="Preprocessors\Coffee\CoffeeScriptPreprocessor.cs" />
+    <Compile Include="Preprocessors\Less\DotLessPathResolver.cs" />
+    <Compile Include="Preprocessors\Less\DotLessPreprocessor.cs" />
     <Compile Include="Preprocessors\PreprocessorManager.cs" />
     <Compile Include="CruncherBase.cs" />
     <Compile Include="CruncherOptions.cs" />
@@ -67,6 +96,11 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Preprocessors\ResourcePreprocessor.cs" />
     <Compile Include="Preprocessors\IPreprocessor.cs" />
+    <Compile Include="Preprocessors\Sass\ResourceAwarePlatformAdaptationLayer.cs" />
+    <Compile Include="Preprocessors\Sass\ResourceAwareScriptHost.cs" />
+    <Compile Include="Preprocessors\Sass\SassCompiler.cs" />
+    <Compile Include="Preprocessors\Sass\SassPreprocessor.cs" />
+    <Compile Include="Preprocessors\Sass\Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\CompressionModule.cs" />
     <Compile Include="Web\Configuration\CruncherCacheSection.cs" />
@@ -80,9 +114,34 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\digest.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\digest\md5.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\digest\sha1.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\enumerator.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\etc.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\rbconfig.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\stringio.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\strscan.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\zlib.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\fileutils.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\pathname.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\set.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri.rb" />
+    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\common.rb" />
+    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ftp.rb" />
+    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\generic.rb" />
+    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\http.rb" />
+    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\https.rb" />
+    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ldap.rb" />
+    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ldaps.rb" />
+    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\mailto.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\sass_in_one.rb" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Configuration\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Preprocessors\Coffee\coffee-script.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -74,11 +74,11 @@ namespace Cruncher.Web
                 cruncherOptions.CacheFiles = cruncherOptions.Minify;
                 cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
 
+                JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(cruncherOptions);
+
                 // Loop through and process each file.
                 foreach (string javaScriptFile in javaScriptFiles)
                 {
-                    JavaScriptCruncher cssCruncher = new JavaScriptCruncher(cruncherOptions);
-
                     // Local files.
                     if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(javaScriptFile))
                     {
@@ -94,17 +94,19 @@ namespace Cruncher.Web
                         // We only want the first file.
                         string first = files.FirstOrDefault();
                         cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                        stringBuilder.Append(cssCruncher.Crunch(first));
+                        stringBuilder.Append(javaScriptCruncher.Crunch(first));
                     }
                     else
                     {
                         // Remote files.
                         string remoteFile = this.GetUrlFromToken(javaScriptFile).ToString();
-                        stringBuilder.Append(cssCruncher.Crunch(remoteFile));
+                        stringBuilder.Append(javaScriptCruncher.Crunch(remoteFile));
                     }
                 }
 
-                string combinedJavaScript = stringBuilder.ToString();
+                // Minify and fix any missing semicolons between IIFE's
+                string combinedJavaScript = javaScriptCruncher.Minify(stringBuilder.ToString())
+                    .Replace(")(function(", ");(function(");
 
                 if (!string.IsNullOrWhiteSpace(combinedJavaScript))
                 {

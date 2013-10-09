@@ -96,11 +96,14 @@ namespace Cruncher.Preprocessors
 
             foreach (IPreprocessor preprocessor in this.PreProcessors)
             {
-                string extension = preprocessor.AllowedExtension;
+                string[] extensions = preprocessor.AllowedExtensions;
 
-                if (!string.IsNullOrWhiteSpace(extension))
+                if (extensions != null)
                 {
-                    stringBuilder.AppendFormat(@"\{0}|", extension.ToUpperInvariant());
+                    foreach (string extension in extensions)
+                    {
+                        stringBuilder.AppendFormat(@"\{0}|", extension.ToUpperInvariant());
+                    }
                 }
             }
 

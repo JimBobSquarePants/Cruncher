@@ -11,10 +11,9 @@
 namespace Cruncher
 {
     #region Using
-
-    using System.Web.UI.WebControls;
-
+    using Cruncher.Caching;
     using Cruncher.Compression;
+    using Cruncher.Extensions;
     #endregion
 
     /// <summary>
@@ -34,6 +33,56 @@ namespace Cruncher
         #endregion
 
         #region Methods
+        #region Public
+        /// <summary>
+        /// Minifies the specified resource.
+        /// </summary>
+        /// <param name="resource">The resource.</param>
+        /// <returns>
+        /// The minified resource.
+        /// </returns>
+        public override string Minify(string resource)
+        {
+            string result = string.Empty;
+
+            if (this.Options.CacheFiles)
+            {
+                result = (string)CacheManager.GetItem(resource.ToMd5Fingerprint());
+            }
+
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                JavaScriptMinifier minifier;
+
+                if (this.Options.Minify)
+                {
+                    minifier = new JavaScriptMinifier
+                    {
+                        VariableMinification = VariableMinification.LocalVariablesAndFunctionArguments
+                    };
+                }
+                else
+                {
+                    minifier = new JavaScriptMinifier
+                    {
+                        VariableMinification = VariableMinification.None,
+                        PreserveFunctionNames = true,
+                        RemoveWhiteSpace = false
+                    };
+                }
+
+                result = minifier.Minify(resource);
+
+                if (this.Options.CacheFiles)
+                {
+                    this.AddItemToCache(resource, result);
+                }
+            }
+
+            return result;
+        }
+        #endregion
+
         #region Protected
         /// <summary>
         /// Loads the local file.
@@ -46,44 +95,12 @@ namespace Cruncher
         {
             string contents = base.LoadLocalFile(file);
 
-
             contents = this.PreProcessInput(contents, file);
 
             // Cache if applicable.
             this.AddFileMonitor(file, contents);
 
             return contents;
-        }
-
-        /// <summary>
-        /// Minifies the specified resource.
-        /// </summary>
-        /// <param name="resource">The resource.</param>
-        /// <returns>
-        /// The minified resource.
-        /// </returns>
-        protected override string Minify(string resource)
-        {
-            JavaScriptMinifier minifier;
-
-            if (this.Options.Minify)
-            {
-                minifier = new JavaScriptMinifier
-                {
-                    VariableMinification = VariableMinification.LocalVariablesAndFunctionArguments
-                };
-            }
-            else
-            {
-                minifier = new JavaScriptMinifier
-                {
-                    VariableMinification = VariableMinification.None,
-                    PreserveFunctionNames = true,
-                    RemoveWhiteSpace = false
-                };
-            }
-
-            return minifier.Minify(resource);
         }
         #endregion
         #endregion
