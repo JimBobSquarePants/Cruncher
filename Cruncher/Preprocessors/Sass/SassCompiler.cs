@@ -90,7 +90,8 @@ namespace Cruncher.Preprocessors.Sass
 
             engine.SetSearchPaths(new List<string> { @"R:\lib\ironruby", @"R:\lib\ruby\1.9.1" });
 
-            ScriptSource source = engine.CreateScriptSourceFromString(Utils.ResourceAsString("Cruncher.Preprocessors.Sass.lib.sass_in_one.rb"), SourceCodeKind.File);
+            string resouce = Utils.ResourceAsString("Cruncher.Preprocessors.Sass.lib.sass_in_one.rb");
+            ScriptSource source = engine.CreateScriptSourceFromString(resouce, SourceCodeKind.File);
             ScriptScope scope = engine.CreateScope();
 
             source.Execute(scope);

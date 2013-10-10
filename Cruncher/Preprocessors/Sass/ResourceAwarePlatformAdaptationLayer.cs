@@ -13,6 +13,8 @@ namespace Cruncher.Preprocessors.Sass
     #region Using
     using System.IO;
     using System.Reflection;
+
+    using Microsoft.Ajax.Utilities.Configuration;
     using Microsoft.Scripting;
     #endregion
 
@@ -57,7 +59,9 @@ namespace Cruncher.Preprocessors.Sass
         /// </returns>
         public override bool FileExists(string path)
         {
-            if (Assembly.GetExecutingAssembly().GetManifestResourceInfo(this.PathToResourceName(path)) != null)
+            string resourcePath = this.PathToResourceName(path);
+
+            if (Assembly.GetExecutingAssembly().GetManifestResourceInfo(resourcePath) != null)
             {
                 return true;
             }
@@ -77,6 +81,7 @@ namespace Cruncher.Preprocessors.Sass
         private string PathToResourceName(string path)
         {
             return path
+                .Replace("1.9.1", "_1._9._1")
                 .Replace('\\', '.')
                 .Replace('/', '.')
                 .Replace("R:", "Cruncher.Preprocessors.Sass");

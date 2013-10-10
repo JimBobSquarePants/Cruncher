@@ -1,11 +1,12 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
-// <copyright file="JavaScriptMinifier.cs" company="James South">
-//     Copyright (c) James South.
-//     Licensed under the Apache License, Version 2.0.
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="JavascriptMinifier.cs" company="James South">
+//   Copyright (c) James South.
+//   Licensed under the Apache License, Version 2.0.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Helper class for performing minification of JavaScript.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher.Compression
 {

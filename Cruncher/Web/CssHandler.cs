@@ -23,7 +23,7 @@ namespace Cruncher.Web
     #endregion
 
     /// <summary>
-    /// The css handler.
+    /// The CSS handler.
     /// </summary>
     public class CssHandler : HandlerBase
     {

@@ -26,7 +26,7 @@ namespace Cruncher.Web
     #endregion
 
     /// <summary>
-    /// The javascript handler.
+    /// The JavaScript handler.
     /// </summary>
     public class JavaScriptHandler : HandlerBase
     {

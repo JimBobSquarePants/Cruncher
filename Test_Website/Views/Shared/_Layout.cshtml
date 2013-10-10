@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
     @* <link rel="stylesheet" href="/css.axd?path=style.css" />*@
-    <link rel="stylesheet" href="/css.axd?path=style.less" />
-    @*    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")*@
+    <link rel="stylesheet" href="/css.axd?path=style.less|style.scss" />
 </head>
 <body>
     @RenderBody()
 
-    @*    @Scripts.Render("~/bundles/jquery")
-    @RenderSection("scripts", required: false)*@
-    <script src="/js.axd?path=jquery-1.8.2.min.js|test.coffee|test.js"></script>
+    <script src="/js.axd?path=jquery-2.0.3.js|test.coffee|test.js"></script>
 </body>
 </html>

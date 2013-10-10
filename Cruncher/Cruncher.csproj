@@ -127,19 +127,17 @@
     <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\pathname.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\set.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri.rb" />
-    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\common.rb" />
-    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ftp.rb" />
-    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\generic.rb" />
-    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\http.rb" />
-    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\https.rb" />
-    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ldap.rb" />
-    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ldaps.rb" />
-    <None Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\mailto.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\common.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ftp.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\generic.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\http.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\https.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ldap.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ldaps.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\mailto.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\lib\sass_in_one.rb" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Configuration\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Preprocessors\Coffee\coffee-script.js" />
   </ItemGroup>
