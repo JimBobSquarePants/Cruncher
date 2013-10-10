@@ -17,6 +17,8 @@ namespace Cruncher.Web
     using System.Net;
     using System.Text;
     using System.Web;
+    using Cruncher.Caching;
+    using Cruncher.Extensions;
     using Cruncher.Helpers;
     using Cruncher.Preprocessors;
     using Cruncher.Web.Configuration;
@@ -53,61 +55,71 @@ namespace Cruncher.Web
         {
             HttpRequest request = context.Request;
             string path = request.QueryString["path"];
-            string minify = request.QueryString["minify"];
+            bool fallback;
+            bool minify = bool.TryParse(request.QueryString["minify"], out fallback);
 
             if (!string.IsNullOrWhiteSpace(path))
             {
-                string[] cssFiles = path.Split('|');
-                StringBuilder stringBuilder = new StringBuilder();
+                string combinedCSS = (string)CacheManager.GetItem(path.ToMd5Fingerprint());
 
-                CruncherOptions cruncherOptions = new CruncherOptions
-                                                      {
-                                                          Minify = !string.IsNullOrWhiteSpace(minify) || CruncherConfiguration.Instance.MinifyCSS,
-                                                          AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
-                                                          RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
-                                                          RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
-                                                      };
-
-                cruncherOptions.CacheFiles = cruncherOptions.Minify;
-                cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
-
-                CssCruncher cssCruncher = new CssCruncher(cruncherOptions);
-
-                // Loop through and process each file.
-                foreach (string cssFile in cssFiles)
+                if (string.IsNullOrWhiteSpace(combinedCSS))
                 {
-                    // Local files.
-                    if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(cssFile))
-                    {
-                        // Get the path from the server.
-                        // Loop through each possible directory.
-                        List<string> files =
-                            CruncherConfiguration.Instance.CSSPaths.SelectMany(
-                                cssFolder =>
-                                Directory.GetFiles(
-                                    HttpContext.Current.Server.MapPath(cssFolder),
-                                    cssFile,
-                                    SearchOption.AllDirectories)).ToList();
 
-                        // We only want the first file.
-                        string first = files.FirstOrDefault();
-                        cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                        stringBuilder.Append(cssCruncher.Crunch(first));
-                    }
-                    else
+                    string[] cssFiles = path.Split('|');
+                    StringBuilder stringBuilder = new StringBuilder();
+
+                    CruncherOptions cruncherOptions = new CruncherOptions
+                                                          {
+                                                              MinifyCacheKey = path,
+                                                              Minify = minify || CruncherConfiguration.Instance.MinifyCSS,
+                                                              AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
+                                                              RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
+                                                              RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
+                                                          };
+
+                    cruncherOptions.CacheFiles = cruncherOptions.Minify;
+                    cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
+                    minify = cruncherOptions.Minify;
+
+                    CssCruncher cssCruncher = new CssCruncher(cruncherOptions);
+
+                    // Loop through and process each file.
+                    foreach (string cssFile in cssFiles)
                     {
-                        // Remote files.
-                        string remoteFile = this.GetUrlFromToken(cssFile).ToString();
-                        stringBuilder.Append(cssCruncher.Crunch(remoteFile));
+                        // Local files.
+                        if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(cssFile))
+                        {
+                            // Get the path from the server.
+                            // Loop through each possible directory.
+                            List<string> files =
+                                CruncherConfiguration.Instance.CSSPaths.SelectMany(
+                                    cssFolder =>
+                                    Directory.GetFiles(
+                                        HttpContext.Current.Server.MapPath(cssFolder),
+                                        cssFile,
+                                        SearchOption.AllDirectories)).ToList();
+
+                            // We only want the first file.
+                            string first = files.FirstOrDefault();
+                            cruncherOptions.RootFolder = Path.GetDirectoryName(first);
+                            stringBuilder.Append(cssCruncher.Crunch(first));
+                        }
+                        else
+                        {
+                            // Remote files.
+                            string remoteFile = this.GetUrlFromToken(cssFile).ToString();
+                            stringBuilder.Append(cssCruncher.Crunch(remoteFile));
+                        }
                     }
+
+                    combinedCSS = cssCruncher.Minify(stringBuilder.ToString());
+
                 }
-
-                string combinedCSS = cssCruncher.Minify(stringBuilder.ToString());
 
                 if (!string.IsNullOrWhiteSpace(combinedCSS))
                 {
                     // Configure response headers
-                    this.SetHeaders(combinedCSS.GetHashCode(), context, ResponseType.Css, cruncherOptions.Minify);
+                    this.SetHeaders(combinedCSS.GetHashCode(), context, ResponseType.Css, minify);
                     context.Response.Write(combinedCSS);
 
                     // Compress the response if applicable.

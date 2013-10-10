@@ -11,9 +11,7 @@
 namespace Cruncher
 {
     #region Using
-    using Cruncher.Caching;
     using Cruncher.Compression;
-    using Cruncher.Extensions;
     #endregion
 
     /// <summary>
@@ -43,40 +41,30 @@ namespace Cruncher
         /// </returns>
         public override string Minify(string resource)
         {
-            string result = string.Empty;
+            JavaScriptMinifier minifier;
+
+            if (this.Options.Minify)
+            {
+                minifier = new JavaScriptMinifier
+                {
+                    VariableMinification = VariableMinification.LocalVariablesAndFunctionArguments
+                };
+            }
+            else
+            {
+                minifier = new JavaScriptMinifier
+                {
+                    VariableMinification = VariableMinification.None,
+                    PreserveFunctionNames = true,
+                    RemoveWhiteSpace = false
+                };
+            }
+
+            string result = minifier.Minify(resource);
 
             if (this.Options.CacheFiles)
             {
-                result = (string)CacheManager.GetItem(resource.ToMd5Fingerprint());
-            }
-
-            if (string.IsNullOrWhiteSpace(result))
-            {
-                JavaScriptMinifier minifier;
-
-                if (this.Options.Minify)
-                {
-                    minifier = new JavaScriptMinifier
-                    {
-                        VariableMinification = VariableMinification.LocalVariablesAndFunctionArguments
-                    };
-                }
-                else
-                {
-                    minifier = new JavaScriptMinifier
-                    {
-                        VariableMinification = VariableMinification.None,
-                        PreserveFunctionNames = true,
-                        RemoveWhiteSpace = false
-                    };
-                }
-
-                result = minifier.Minify(resource);
-
-                if (this.Options.CacheFiles)
-                {
-                    this.AddItemToCache(resource, result);
-                }
+                this.AddItemToCache(this.Options.MinifyCacheKey, result);
             }
 
             return result;

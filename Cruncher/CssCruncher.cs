@@ -16,7 +16,6 @@ namespace Cruncher
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Cruncher.Caching;
     using Cruncher.Compression;
     using Cruncher.Extensions;
     using Cruncher.Preprocessors;
@@ -54,38 +53,28 @@ namespace Cruncher
         /// <returns>The minified resource.</returns>
         public override string Minify(string resource)
         {
-            string result = string.Empty;
+            CssMinifier minifier;
+
+            if (this.Options.Minify)
+            {
+                minifier = new CssMinifier
+                {
+                    RemoveWhiteSpace = true
+                };
+            }
+            else
+            {
+                minifier = new CssMinifier
+                {
+                    RemoveWhiteSpace = false
+                };
+            }
+
+            string result = minifier.Minify(resource);
 
             if (this.Options.CacheFiles)
             {
-                result = (string)CacheManager.GetItem(resource.ToMd5Fingerprint());
-            }
-
-            if (string.IsNullOrWhiteSpace(result))
-            {
-                CssMinifier minifier;
-
-                if (this.Options.Minify)
-                {
-                    minifier = new CssMinifier
-                    {
-                        RemoveWhiteSpace = true
-                    };
-                }
-                else
-                {
-                    minifier = new CssMinifier
-                    {
-                        RemoveWhiteSpace = false
-                    };
-                }
-
-                result = minifier.Minify(resource);
-
-                if (this.Options.CacheFiles)
-                {
-                    this.AddItemToCache(resource, result);
-                }
+                this.AddItemToCache(this.Options.MinifyCacheKey, result);
             }
 
             return result;
@@ -128,7 +117,7 @@ namespace Cruncher
             // Run the last filter. This should be the resourcePreprocessor.
             input = PreprocessorManager.Instance.PreProcessors
                 .First(preprocessor => preprocessor.AllowedExtensions == null)
-                .Transform(input, path);
+                .Transform(input, path, this);
 
             return input;
         }
@@ -155,47 +144,118 @@ namespace Cruncher
             {
                 // Recursively parse the css for imports.
                 GroupCollection groups = match.Groups;
-                Capture fileName = groups["filename"].Captures[0];
-                CaptureCollection mediaQueries = groups["media"].Captures;
-                Capture mediaQuery = null;
+                CaptureCollection fileCaptures = groups["filename"].Captures;
 
-                if (mediaQueries.Count > 0)
+                if (fileCaptures.Count > 0)
                 {
-                    mediaQuery = mediaQueries[0];
-                }
+                    string fileName = fileCaptures[0].ToString();
+                    CaptureCollection mediaQueries = groups["media"].Captures;
+                    Capture mediaQuery = null;
 
-                // Check and add the @import the match.
-                FileInfo fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName.ToString())));
-
-                string importedCSS = string.Empty;
-
-                // Read the file.
-                if (fileInfo.Exists)
-                {
-                    string file = fileInfo.FullName;
-
-                    using (StreamReader reader = new StreamReader(file))
+                    if (mediaQueries.Count > 0)
                     {
-                        importedCSS = mediaQuery != null
-                                      ? string.Format(
-                                          CultureInfo.InvariantCulture,
-                                          "@media {0}{{{1}{2}{1}}}",
-                                          mediaQuery,
-                                          Environment.NewLine,
-                                          this.ParseImports(reader.ReadToEnd()))
-                                      : this.ParseImports(reader.ReadToEnd());
+                        mediaQuery = mediaQueries[0];
                     }
 
-                    // Cache if applicable.
-                    this.AddFileMonitor(file, importedCSS);
-                }
+                    string importedCSS = string.Empty;
 
-                // Replace the regex match with the full qualified css.
-                css = css.Replace(match.Value, importedCSS);
+                    if (!fileName.Contains("://"))
+                    {
+                        // Check and add the @import the match.
+                        FileInfo fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+
+                        // Read the file.
+                        if (fileInfo.Exists)
+                        {
+                            string file = fileInfo.FullName;
+
+                            using (StreamReader reader = new StreamReader(file))
+                            {
+                                // Parse the children.
+                                importedCSS = mediaQuery != null
+                                                  ? string.Format(
+                                                      CultureInfo.InvariantCulture,
+                                                      "@media {0}{{{1}{2}{1}}}",
+                                                      mediaQuery,
+                                                      Environment.NewLine,
+                                                      this.ParseImports(reader.ReadToEnd()))
+                                                  : this.ParseImports(reader.ReadToEnd());
+                            }
+
+                            // Cache if applicable.
+                            this.AddFileMonitor(file, importedCSS);
+                        }
+
+                        // Replace the regex match with the full qualified css.
+                        css = css.Replace(match.Value, importedCSS);
+                    }
+                }
             }
 
             return css;
         }
+
+        ///// <summary>
+        ///// Parses the string for CSS imports and replaces them with the referenced CSS.
+        ///// </summary>
+        ///// <param name="css">
+        ///// The CSS to parse for import statements.
+        ///// </param>
+        ///// <returns>The CSS file parsed for imports.</returns>
+        //private string ParseImports(string css)
+        //{
+        //    // Check for imports and parse if necessary.
+        //    if (!css.Contains("@import", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        return css;
+        //    }
+
+        //    // Recursively parse the css for imports.
+        //    foreach (Match match in ImportsRegex.Matches(css))
+        //    {
+        //        // Recursively parse the css for imports.
+        //        GroupCollection groups = match.Groups;
+        //        Capture fileName = groups["filename"].Captures[0];
+        //        CaptureCollection mediaQueries = groups["media"].Captures;
+        //        Capture mediaQuery = null;
+
+        //        if (mediaQueries.Count > 0)
+        //        {
+        //            mediaQuery = mediaQueries[0];
+        //        }
+
+        //        // Check and add the @import the match.
+        //        FileInfo fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName.ToString())));
+
+        //        string importedCSS = string.Empty;
+
+        //        // Read the file.
+        //        if (fileInfo.Exists)
+        //        {
+        //            string file = fileInfo.FullName;
+
+        //            using (StreamReader reader = new StreamReader(file))
+        //            {
+        //                importedCSS = mediaQuery != null
+        //                              ? string.Format(
+        //                                  CultureInfo.InvariantCulture,
+        //                                  "@media {0}{{{1}{2}{1}}}",
+        //                                  mediaQuery,
+        //                                  Environment.NewLine,
+        //                                  this.ParseImports(reader.ReadToEnd()))
+        //                              : this.ParseImports(reader.ReadToEnd());
+        //            }
+
+        //            // Cache if applicable.
+        //            this.AddFileMonitor(file, importedCSS);
+        //        }
+
+        //        // Replace the regex match with the full qualified css.
+        //        css = css.Replace(match.Value, importedCSS);
+        //    }
+
+        //    return css;
+        //}
         #endregion
         #endregion
     }

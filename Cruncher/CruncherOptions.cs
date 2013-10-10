@@ -21,6 +21,11 @@ namespace Cruncher
         public bool Minify { get; set; }
 
         /// <summary>
+        /// Gets or sets the minify cache key.
+        /// </summary>
+        public string MinifyCacheKey { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether to cache files.
         /// </summary>
         public bool CacheFiles { get; set; }

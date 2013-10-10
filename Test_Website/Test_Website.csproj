@@ -126,6 +126,9 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Content Include="Content\style.min.css">
+      <DependentUpon>style.less</DependentUpon>
+    </Content>
     <Content Include="Content\style2.scss" />
     <None Include="Content\style.scss" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -136,7 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\style.less" />
-    <None Include="Content\style2.less" />
+    <None Include="Content\imports\style2.less" />
     <Content Include="Content\style2.css" />
     <Content Include="Content\libs\images\arnie.jpg" />
     <Content Include="Content\style.css" />

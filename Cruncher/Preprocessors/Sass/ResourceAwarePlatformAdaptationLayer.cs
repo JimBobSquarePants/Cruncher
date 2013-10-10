@@ -11,6 +11,8 @@
 namespace Cruncher.Preprocessors.Sass
 {
     #region Using
+
+    using System;
     using System.IO;
     using System.Reflection;
 
@@ -34,10 +36,10 @@ namespace Cruncher.Preprocessors.Sass
         /// </returns>
         public override Stream OpenInputFileStream(string path)
         {
-            var ret = Assembly.GetExecutingAssembly().GetManifestResourceStream(this.PathToResourceName(path));
-            if (ret != null)
+            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(this.PathToResourceName(path));
+            if (stream != null)
             {
-                return ret;
+                return stream;
             }
 
             if (SassCompiler.RootAppPath == null || !path.ToLowerInvariant().StartsWith(SassCompiler.RootAppPath))

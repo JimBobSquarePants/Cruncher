@@ -13,8 +13,12 @@
 namespace Cruncher.Preprocessors.Sass
 {
     #region MyRegion
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
     using System.Text.RegularExpressions;
     using IronRuby;
     using Microsoft.Scripting;
@@ -29,6 +33,7 @@ namespace Cruncher.Preprocessors.Sass
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
     public class SassCompiler
     {
+        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="SassCompiler"/> class.
         /// </summary>
@@ -39,7 +44,9 @@ namespace Cruncher.Preprocessors.Sass
         {
             RootAppPath = rootPath;
         }
+        #endregion
 
+        #region Properties
         /// <summary>
         /// The compiler mode.
         /// </summary>
@@ -61,7 +68,9 @@ namespace Cruncher.Preprocessors.Sass
         /// Gets the root app path.
         /// </summary>
         public static string RootAppPath { get; private set; }
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Gets a string containing the compiled sass output.
         /// </summary>
@@ -83,7 +92,13 @@ namespace Cruncher.Preprocessors.Sass
                 mode = CompilerMode.Sass;
             }
 
-            ScriptRuntimeSetup srs = new ScriptRuntimeSetup { HostType = typeof(ResourceAwareScriptHost) };
+            ResourceAwarePlatformAdaptationLayer resourceAwarePlatform = new ResourceAwarePlatformAdaptationLayer();
+
+            ScriptRuntimeSetup srs = new ScriptRuntimeSetup
+                                         {
+                                             HostType = typeof(ResourceAwareScriptHost),
+                                             HostArguments = new List<object>() { resourceAwarePlatform }
+                                         };
             srs.AddRubySetup();
             ScriptRuntime runtime = Ruby.CreateRuntime(srs);
             ScriptEngine engine = runtime.GetRubyEngine();
@@ -96,13 +111,39 @@ namespace Cruncher.Preprocessors.Sass
 
             source.Execute(scope);
 
+            // Change the executing directory.
+            string statement = string.Format("Dir.chdir '{0}'", Path.GetDirectoryName(fileName));
+            engine.Execute(statement, scope);
+
             dynamic sassMode = mode == CompilerMode.Sass
-                                   ? engine.Execute("{:syntax => :sass}")
-                                   : engine.Execute("{:syntax => :scss}");
+                                   ? engine.Execute("{:cache => false, :syntax => :sass}")
+                                   : engine.Execute("{:cache => false, :syntax => :scss}");
 
             dynamic sassEngine = scope.Engine.Runtime.Globals.GetVariable("Sass");
 
-            return (string)sassEngine.compile(input, sassMode);
+            try
+            {
+                return (string)sassEngine.compile(input, sassMode);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "Sass::SyntaxError")
+                {
+                    const string Empty = "";
+                    dynamic error = ex;
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendFormat("{0}\n\n", error.to_s());
+                    sb.AppendFormat("Backtrace:\n{0}\n\n", error.sass_backtrace_str(fileName) ?? Empty);
+                    sb.AppendFormat("FileName: {0}\n\n", error.sass_filename() ?? fileName);
+                    sb.AppendFormat("MixIn: {0}\n\n", error.sass_mixin() ?? Empty);
+                    sb.AppendFormat("Line Number: {0}\n\n", error.sass_line() ?? Empty);
+                    sb.AppendFormat("Sass Template:\n{0}\n\n", error.sass_template ?? Empty);
+                    throw new Exception(sb.ToString(), ex);
+                }
+
+                throw ex;
+            }
         }
+        #endregion
     }
 }

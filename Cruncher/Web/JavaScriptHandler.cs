@@ -11,18 +11,17 @@
 namespace Cruncher.Web
 {
     #region Using
-    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
     using System.Web;
-
+    using Cruncher.Caching;
+    using Cruncher.Extensions;
     using Cruncher.Helpers;
     using Cruncher.Preprocessors;
     using Cruncher.Web.Configuration;
-
     #endregion
 
     /// <summary>
@@ -56,62 +55,71 @@ namespace Cruncher.Web
         {
             HttpRequest request = context.Request;
             string path = request.QueryString["path"];
-            string minify = request.QueryString["minify"];
+            bool fallback;
+            bool minify = bool.TryParse(request.QueryString["minify"], out fallback);
 
             if (!string.IsNullOrWhiteSpace(path))
             {
-                string[] javaScriptFiles = path.Split('|');
-                StringBuilder stringBuilder = new StringBuilder();
+                string combinedJavaScript = (string)CacheManager.GetItem(path.ToMd5Fingerprint());
 
-                CruncherOptions cruncherOptions = new CruncherOptions
-                                                      {
-                                                          Minify = !string.IsNullOrWhiteSpace(minify) || CruncherConfiguration.Instance.MinifyJavaScript,
-                                                          AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
-                                                          RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
-                                                          RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
-                                                      };
-
-                cruncherOptions.CacheFiles = cruncherOptions.Minify;
-                cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
-
-                JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(cruncherOptions);
-
-                // Loop through and process each file.
-                foreach (string javaScriptFile in javaScriptFiles)
+                if (string.IsNullOrWhiteSpace(combinedJavaScript))
                 {
-                    // Local files.
-                    if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(javaScriptFile))
-                    {
-                        // Get the path from the server.
-                        // Loop through each possible directory.
-                        List<string> files = CruncherConfiguration.Instance.JavaScriptPaths
-                            .SelectMany(cssFolder => Directory.GetFiles(
-                                HttpContext.Current.Server.MapPath(cssFolder),
-                                javaScriptFile,
-                                SearchOption.AllDirectories))
-                            .ToList();
+                    string[] javaScriptFiles = path.Split('|');
+                    StringBuilder stringBuilder = new StringBuilder();
 
-                        // We only want the first file.
-                        string first = files.FirstOrDefault();
-                        cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                        stringBuilder.Append(javaScriptCruncher.Crunch(first));
-                    }
-                    else
+                    CruncherOptions cruncherOptions = new CruncherOptions
+                                                          {
+                                                              MinifyCacheKey = path,
+                                                              Minify = minify || CruncherConfiguration.Instance.MinifyJavaScript,
+                                                              AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
+                                                              RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
+                                                              RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
+                                                          };
+
+                    cruncherOptions.CacheFiles = cruncherOptions.Minify;
+                    cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
+                    minify = cruncherOptions.Minify;
+
+                    JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(cruncherOptions);
+
+                    // Loop through and process each file.
+                    foreach (string javaScriptFile in javaScriptFiles)
                     {
-                        // Remote files.
-                        string remoteFile = this.GetUrlFromToken(javaScriptFile).ToString();
-                        stringBuilder.Append(javaScriptCruncher.Crunch(remoteFile));
+                        // Local files.
+                        if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(javaScriptFile))
+                        {
+                            // Get the path from the server.
+                            // Loop through each possible directory.
+                            List<string> files =
+                                CruncherConfiguration.Instance.JavaScriptPaths.SelectMany(
+                                    cssFolder =>
+                                    Directory.GetFiles(
+                                        HttpContext.Current.Server.MapPath(cssFolder),
+                                        javaScriptFile,
+                                        SearchOption.AllDirectories)).ToList();
+
+                            // We only want the first file.
+                            string first = files.FirstOrDefault();
+                            cruncherOptions.RootFolder = Path.GetDirectoryName(first);
+                            stringBuilder.Append(javaScriptCruncher.Crunch(first));
+                        }
+                        else
+                        {
+                            // Remote files.
+                            string remoteFile = this.GetUrlFromToken(javaScriptFile).ToString();
+                            stringBuilder.Append(javaScriptCruncher.Crunch(remoteFile));
+                        }
                     }
+
+                    // Minify and fix any missing semicolons between IIFE's
+                    combinedJavaScript = javaScriptCruncher.Minify(stringBuilder.ToString())
+                        .Replace(")(function(", ");(function(");
                 }
-
-                // Minify and fix any missing semicolons between IIFE's
-                string combinedJavaScript = javaScriptCruncher.Minify(stringBuilder.ToString())
-                    .Replace(")(function(", ");(function(");
 
                 if (!string.IsNullOrWhiteSpace(combinedJavaScript))
                 {
                     // Configure response headers
-                    this.SetHeaders(combinedJavaScript.GetHashCode(), context, ResponseType.JavaScript, cruncherOptions.Minify);
+                    this.SetHeaders(combinedJavaScript.GetHashCode(), context, ResponseType.JavaScript, minify);
                     context.Response.Write(combinedJavaScript);
 
                     // Compress the response if applicable.

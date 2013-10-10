@@ -90,6 +90,17 @@ namespace Cruncher.Preprocessors.Less
         }
 
         /// <summary>
+        /// Gets the current file directory.
+        /// </summary>
+        public string CurrentFileDirectory
+        {
+            get
+            {
+                return this.currentFileDirectory;
+            }
+        }
+
+        /// <summary>
         /// Returns the full path for the specified file <param name="path"/>.
         /// </summary>
         /// <param name="path">The imported file path.</param>

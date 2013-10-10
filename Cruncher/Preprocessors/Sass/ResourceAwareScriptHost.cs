@@ -12,7 +12,7 @@ namespace Cruncher.Preprocessors.Sass
 {
     #region Using
     using Microsoft.Scripting;
-    using Microsoft.Scripting.Hosting; 
+    using Microsoft.Scripting.Hosting;
     #endregion
 
     /// <summary>
@@ -21,9 +21,20 @@ namespace Cruncher.Preprocessors.Sass
     public class ResourceAwareScriptHost : ScriptHost
     {
         /// <summary>
-        /// The inner pal.
+        /// The inner platform adaptation layer.
         /// </summary>
-        private PlatformAdaptationLayer adaptionLayer;
+        private ResourceAwarePlatformAdaptationLayer adaptionLayer;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceAwareScriptHost"/> class.
+        /// </summary>
+        /// <param name="adaptationLayer">
+        /// The adaptation layer.
+        /// </param>
+        public ResourceAwareScriptHost(ResourceAwarePlatformAdaptationLayer adaptationLayer)
+        {
+            this.adaptionLayer = adaptationLayer;
+        }
 
         /// <summary>
         /// Gets the platform adaptation layer.

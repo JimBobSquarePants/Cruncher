@@ -54,7 +54,7 @@ namespace Cruncher
         /// <summary>
         /// Gets or sets the options containing instructions for the cruncher.
         /// </summary>
-        protected CruncherOptions Options { get; set; }
+        public CruncherOptions Options { get; set; }
 
         /// <summary>
         /// Gets or sets the file monitors.
@@ -95,13 +95,31 @@ namespace Cruncher
                     stringBuilder.Append(this.LoadLocalFile(resource));
                 }
 
-                contents = this.Minify(stringBuilder.ToString());
+                contents = stringBuilder.ToString();
 
                 // Cache if applicable.
-                this.AddItemToCache(resource.ToMd5Fingerprint(), contents);
+                this.AddItemToCache(resource, contents);
             }
 
             return contents;
+        }
+
+        /// <summary>
+        /// Adds a cached file monitor to the list.
+        /// </summary>
+        /// <param name="file">
+        /// The file to add to the monitors list.
+        /// </param>
+        /// <param name="contents">
+        /// The contents of the file.
+        /// </param>
+        public void AddFileMonitor(string file, string contents)
+        {
+            // Cache if applicable.
+            if (this.Options.CacheFiles && !string.IsNullOrWhiteSpace(contents))
+            {
+                this.FileMonitors.Add(file);
+            }
         }
 
         /// <summary>
@@ -145,27 +163,9 @@ namespace Cruncher
 
             input = PreprocessorManager.Instance.PreProcessors
                 .Where(p => p.AllowedExtensions != null && p.AllowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
-                .Aggregate(input, (current, p) => p.Transform(current, path));
+                .Aggregate(input, (current, p) => p.Transform(current, path, this));
 
             return input;
-        }
-
-        /// <summary>
-        /// Adds a cached file monitor to the list.
-        /// </summary>
-        /// <param name="file">
-        /// The file to add to the monitors list.
-        /// </param>
-        /// <param name="contents">
-        /// The contents of the file.
-        /// </param>
-        protected void AddFileMonitor(string file, string contents)
-        {
-            // Cache if applicable.
-            if (this.Options.CacheFiles && !string.IsNullOrWhiteSpace(contents))
-            {
-                this.FileMonitors.Add(file);
-            }
         }
 
         /// <summary>
