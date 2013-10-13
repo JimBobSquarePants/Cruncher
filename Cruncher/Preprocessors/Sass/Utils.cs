@@ -10,12 +10,11 @@
 
 namespace Cruncher.Preprocessors.Sass
 {
-    using System;
-    using System.Collections.Generic;
+    #region Using
     using System.IO;
-    using System.Linq;
     using System.Reflection;
-    using System.Text;
+    using System.Text; 
+    #endregion
 
     /// <summary>
     /// Utility methods for the sass pre-processor.

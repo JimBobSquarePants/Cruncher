@@ -59,7 +59,7 @@ namespace Cruncher
         /// <summary>
         /// Gets or sets the file monitors.
         /// </summary>
-        protected IList<string> FileMonitors { get; set; }
+        public IList<string> FileMonitors { get; set; }
         #endregion
 
         #region Methods
@@ -185,8 +185,11 @@ namespace Cruncher
                 int days = this.Options.CacheLength;
                 cacheItemPolicy.AbsoluteExpiration = DateTime.UtcNow.AddDays(days != 0 ? days : -1);
 
+                string key = filename.ToMd5Fingerprint();
+
                 if (this.FileMonitors.Any())
                 {
+                    CacheManager.AddItem(key + "_FILE_MONITORS", this.FileMonitors, cacheItemPolicy);
                     cacheItemPolicy.ChangeMonitors.Add(new HostFileChangeMonitor(this.FileMonitors));
                 }
 

@@ -18,7 +18,7 @@ namespace Cruncher.Preprocessors.Sass
     /// <summary>
     /// The resource aware script host.
     /// </summary>
-    public class ResourceAwareScriptHost : ScriptHost
+    internal sealed class ResourceAwareScriptHost : ScriptHost
     {
         /// <summary>
         /// The inner platform adaptation layer.

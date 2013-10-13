@@ -11,20 +11,21 @@
 namespace Cruncher.Preprocessors.Sass
 {
     #region Using
-
-    using System;
     using System.IO;
     using System.Reflection;
-
-    using Microsoft.Ajax.Utilities.Configuration;
     using Microsoft.Scripting;
     #endregion
 
     /// <summary>
     /// The resource aware platform adaptation layer.
     /// </summary>
-    public class ResourceAwarePlatformAdaptationLayer : PlatformAdaptationLayer
+    internal sealed class ResourceAwarePlatformAdaptationLayer : PlatformAdaptationLayer
     {
+        /// <summary>
+        /// The resources namespace.
+        /// </summary>
+        private const string ResourcesNamespace = "Cruncher.Preprocessors.Sass";
+
         /// <summary>
         /// Gets the stream containing the specified manifest resource.
         /// </summary>
@@ -40,11 +41,6 @@ namespace Cruncher.Preprocessors.Sass
             if (stream != null)
             {
                 return stream;
-            }
-
-            if (SassCompiler.RootAppPath == null || !path.ToLowerInvariant().StartsWith(SassCompiler.RootAppPath))
-            {
-                return null;
             }
 
             return base.OpenInputFileStream(path);
@@ -86,7 +82,7 @@ namespace Cruncher.Preprocessors.Sass
                 .Replace("1.9.1", "_1._9._1")
                 .Replace('\\', '.')
                 .Replace('/', '.')
-                .Replace("R:", "Cruncher.Preprocessors.Sass");
+                .Replace("R:", ResourcesNamespace);
         }
     }
 }

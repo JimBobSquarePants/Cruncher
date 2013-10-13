@@ -21,9 +21,14 @@ namespace Cruncher.Preprocessors.Coffee
     /// <summary>
     /// The CoffeeScript compiler.
     /// </summary>
-    public class CoffeeScriptCompiler
+    internal sealed class CoffeeScriptCompiler
     {
         #region Fields
+        /// <summary>
+        /// The synchronization root.
+        /// </summary>
+        private static readonly object SyncRoot = new object();
+
         /// <summary>
         /// The CoffeeScript resource.
         /// </summary>
@@ -56,7 +61,7 @@ namespace Cruncher.Preprocessors.Coffee
             {
                 if (scriptEngine == null)
                 {
-                    lock (typeof(CoffeeScriptCompiler))
+                    lock (SyncRoot)
                     {
                         ScriptEngine engine = new ScriptEngine { ForceStrictMode = true };
                         engine.Execute(Compiler);

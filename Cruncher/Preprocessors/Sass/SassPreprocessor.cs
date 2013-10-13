@@ -56,7 +56,7 @@ namespace Cruncher.Preprocessors.Sass
                 this.AddImportsToFileMonitors(input, cruncher);
             }
 
-            SassCompiler compiler = new SassCompiler(string.Empty);
+            SassCompiler compiler = new SassCompiler();
             return compiler.CompileSass(input, path);
         }
 

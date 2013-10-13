@@ -12,9 +12,12 @@ namespace Cruncher.Web
 {
     #region Using
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
+    using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Text;
     using System.Web;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
@@ -55,32 +58,55 @@ namespace Cruncher.Web
         /// in its cache and thereby improve performance.
         /// See http://en.wikipedia.org/wiki/HTTP_ETag
         /// </summary>
-        /// <param name="hash">The hash number to apply to the eTag.</param>
+        /// <param name="path">
+        /// The combined path to the items.
+        /// </param>
         /// <param name="context">
         /// the <see cref="T:System.Web.HttpContext">HttpContext</see> object that provides 
         /// references to the intrinsic server objects 
         /// </param>
-        /// <param name="responseType">The HTTP MIME type to to send.</param>
-        /// <param name="futureExpire">Whether the response headers should be set to expire in the future.</param>
-        protected void SetHeaders(int hash, HttpContext context, ResponseType responseType, bool futureExpire)
+        /// <param name="responseType">
+        /// The HTTP MIME type to to send.
+        /// </param>
+        /// <param name="futureExpire">
+        /// Whether the response headers should be set to expire in the future.
+        /// </param>
+        /// <param name="fileMonitors">
+        /// The file Monitors.
+        /// </param>
+        protected void SetHeaders(string path, HttpContext context, ResponseType responseType, bool futureExpire, IList<string> fileMonitors)
         {
+            // Generate a hash from the combined last write times of any monitors and
+            // the path.
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(path);
+
+            foreach (string fileMonitor in fileMonitors)
+            {
+                FileInfo fileInfo = new FileInfo(fileMonitor);
+                stringBuilder.AppendFormat("{0}", fileInfo.LastWriteTimeUtc);
+            }
+
+            int hash = stringBuilder.ToString().GetHashCode();
+
             HttpResponse response = context.Response;
-
-            response.ContentType = responseType.ToDescription();
-
             HttpCachePolicy cache = response.Cache;
-
+            response.ContentType = responseType.ToDescription();
             cache.VaryByHeaders["Accept-Encoding"] = true;
 
             if (futureExpire)
             {
                 int maxCacheDays = CruncherConfiguration.Instance.MaxCacheDays;
-                cache.SetExpires(DateTime.Now.ToUniversalTime().AddDays(maxCacheDays));
+
+                cache.SetExpires(DateTime.UtcNow.AddDays(maxCacheDays));
                 cache.SetMaxAge(new TimeSpan(maxCacheDays, 0, 0, 0));
+                response.AddFileDependencies(fileMonitors.ToArray());
+                cache.SetLastModifiedFromFileDependencies();
+                cache.SetValidUntilExpires(false);
             }
             else
             {
-                cache.SetExpires(DateTime.Now.ToUniversalTime());
+                cache.SetExpires(DateTime.UtcNow.AddDays(-1));
                 cache.SetMaxAge(new TimeSpan(0, 0, 0, 0));
             }
 

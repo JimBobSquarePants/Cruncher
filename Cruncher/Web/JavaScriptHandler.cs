@@ -30,6 +30,11 @@ namespace Cruncher.Web
     public class JavaScriptHandler : HandlerBase
     {
         /// <summary>
+        /// The JavaScript cruncher.
+        /// </summary>
+        private JavaScriptCruncher javaScriptCruncher;
+
+        /// <summary>
         /// You will need to configure this handler in the Web.config file of your 
         /// web and register it with IIS before being able to use it. For more information
         /// see the following link: http://go.microsoft.com/?linkid=8101007
@@ -55,12 +60,13 @@ namespace Cruncher.Web
         {
             HttpRequest request = context.Request;
             string path = request.QueryString["path"];
+            string key = path.ToMd5Fingerprint();
             bool fallback;
             bool minify = bool.TryParse(request.QueryString["minify"], out fallback);
 
             if (!string.IsNullOrWhiteSpace(path))
             {
-                string combinedJavaScript = (string)CacheManager.GetItem(path.ToMd5Fingerprint());
+                string combinedJavaScript = (string)CacheManager.GetItem(key);
 
                 if (string.IsNullOrWhiteSpace(combinedJavaScript))
                 {
@@ -80,7 +86,7 @@ namespace Cruncher.Web
                     cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
                     minify = cruncherOptions.Minify;
 
-                    JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(cruncherOptions);
+                    this.javaScriptCruncher = new JavaScriptCruncher(cruncherOptions);
 
                     // Loop through and process each file.
                     foreach (string javaScriptFile in javaScriptFiles)
@@ -101,25 +107,37 @@ namespace Cruncher.Web
                             // We only want the first file.
                             string first = files.FirstOrDefault();
                             cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                            stringBuilder.Append(javaScriptCruncher.Crunch(first));
+                            stringBuilder.Append(this.javaScriptCruncher.Crunch(first));
                         }
                         else
                         {
                             // Remote files.
                             string remoteFile = this.GetUrlFromToken(javaScriptFile).ToString();
-                            stringBuilder.Append(javaScriptCruncher.Crunch(remoteFile));
+                            stringBuilder.Append(this.javaScriptCruncher.Crunch(remoteFile));
                         }
                     }
 
                     // Minify and fix any missing semicolons between IIFE's
-                    combinedJavaScript = javaScriptCruncher.Minify(stringBuilder.ToString())
+                    combinedJavaScript = this.javaScriptCruncher.Minify(stringBuilder.ToString())
                         .Replace(")(function(", ");(function(");
                 }
 
                 if (!string.IsNullOrWhiteSpace(combinedJavaScript))
                 {
+                    IList<string> fileMonitors;
+
                     // Configure response headers
-                    this.SetHeaders(combinedJavaScript.GetHashCode(), context, ResponseType.JavaScript, minify);
+                    if (this.javaScriptCruncher == null)
+                    {
+                        // There should always be a valid list of monitors in the cache.
+                        fileMonitors = (List<string>)CacheManager.GetItem(key + "_FILE_MONITORS");
+                    }
+                    else
+                    {
+                        fileMonitors = this.javaScriptCruncher.FileMonitors;
+                    }
+
+                    this.SetHeaders(path, context, ResponseType.JavaScript, minify, fileMonitors);
                     context.Response.Write(combinedJavaScript);
 
                     // Compress the response if applicable.
