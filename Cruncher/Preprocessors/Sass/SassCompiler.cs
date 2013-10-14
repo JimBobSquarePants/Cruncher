@@ -130,7 +130,7 @@ namespace Cruncher.Preprocessors.Sass
                         sb.AppendFormat("MixIn: {0}\n\n", error.sass_mixin() ?? Empty);
                         sb.AppendFormat("Line Number: {0}\n\n", error.sass_line() ?? Empty);
                         sb.AppendFormat("Sass Template:\n{0}\n\n", error.sass_template ?? Empty);
-                        throw new Exception(sb.ToString(), ex);
+                        throw new SassAndScssCompilingException(sb.ToString(), ex);
                     }
 
                     throw ex;
