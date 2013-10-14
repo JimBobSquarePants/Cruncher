@@ -159,9 +159,9 @@ namespace Cruncher.Preprocessors.Sass
             ScriptRuntime runtime = Ruby.CreateRuntime(srs);
             engine = runtime.GetRubyEngine();
 
-            engine.SetSearchPaths(new List<string> { @"R:\lib\ironruby", @"R:\lib\ruby\1.9.1" });
+            engine.SetSearchPaths(new List<string> { @"R:\Resources\ironruby", @"R:\Resources\ruby\1.9.1" });
 
-            string resouce = Utils.ResourceAsString("Cruncher.Preprocessors.Sass.lib.sass_in_one.rb");
+            string resouce = Utils.ResourceAsString("Cruncher.Preprocessors.Sass.Resources.sass_in_one.rb");
             ScriptSource source = engine.CreateScriptSourceFromString(resouce, SourceCodeKind.File);
             scope = engine.CreateScope();
 

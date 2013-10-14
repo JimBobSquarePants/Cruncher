@@ -1,4 +1,4 @@
-﻿/*
+﻿/*!
  *  https://bundletransformer.codeplex.com/SourceControl/latest#BundleTransformer.CoffeeScript/Resources/cscHelper.js
  */
 

@@ -86,7 +86,7 @@ namespace Cruncher.Preprocessors.Less
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new LessCompilingException(ex.Message, ex.InnerException);
             }
         }
     }

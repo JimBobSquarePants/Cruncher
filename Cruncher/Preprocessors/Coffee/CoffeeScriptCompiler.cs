@@ -15,6 +15,7 @@ namespace Cruncher.Preprocessors.Coffee
 
     using System;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using System.Resources;
     using System.Text;
@@ -35,19 +36,17 @@ namespace Cruncher.Preprocessors.Coffee
         /// <summary>
         /// Name of resource, which contains a CoffeeScript-library
         /// </summary>
-        private const string CoffeeScriptLibraryResource
-            = "Cruncher.Preprocessors.Coffee.coffee-script.min.js";
+        private const string CoffeeScriptLibraryResource = "Cruncher.Preprocessors.Coffee.Resources.coffee-script.min.js";
 
         /// <summary>
         /// Name of resource, which contains a CoffeeScript-compiler helper
         /// </summary>
-        private const string CoffeeScriptHelperResource = "Cruncher.Preprocessors.Coffee.coffee-script-helpers.min.js";
+        private const string CoffeeScriptHelperResource = "Cruncher.Preprocessors.Coffee.Resources.coffee-script-helpers.min.js";
 
         /// <summary>
         /// Template of function call, which is responsible for compilation
         /// </summary>
         private const string CompilationFunctionCallTemplate = @"coffeeScriptHelper.compile({0}, {1});";
-
 
         /// <summary>
         /// The synchronization root.
@@ -57,7 +56,7 @@ namespace Cruncher.Preprocessors.Coffee
         /// <summary>
         /// The CoffeeScript resource.
         /// </summary>
-        private static string coffeescript;
+        private static string coffeescript = string.Empty;
 
         /// <summary>
         /// The <see cref="T:Jurassic.ScriptEngine"/> that processes the CoffeeScript.
@@ -73,7 +72,12 @@ namespace Cruncher.Preprocessors.Coffee
         {
             get
             {
-                return coffeescript ?? (coffeescript = LoadCoffeeScript());
+                if (string.IsNullOrWhiteSpace(coffeescript))
+                {
+                    coffeescript = LoadCoffeeScript();
+                }
+
+                return coffeescript;
             }
         }
 
@@ -126,29 +130,32 @@ namespace Cruncher.Preprocessors.Coffee
         /// </returns>
         public string Compile(string input)
         {
-           // CoffeeScriptEngine.SetGlobalValue("Source", input);
-
-            // Errors go from here straight on to the rendered page; 
-            // we don't want to hide them because they provide valuable feedback
-            // on the location of the error.
-           // string result = CoffeeScriptEngine.Evaluate<string>("CoffeeScript.compile(Source, {bare: false})");
-
-            string compiledInput = string.Empty;
-            string result =
-                CoffeeScriptEngine.Evaluate<string>(
-                    string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), "{bare: false}"));
-            
-            JObject json = JObject.Parse(result);
-
-            JArray errors = json["errors"] != null ? json["errors"] as JArray : null;
-            if (errors != null && errors.Count > 0)
+            string compiledInput;
+            try
             {
-                throw new CoffeeScriptCompilingException(FormatErrorDetails(errors[0], input));
+                string result =
+                    CoffeeScriptEngine.Evaluate<string>(
+                        string.Format(
+                            CompilationFunctionCallTemplate,
+                            JsonConvert.SerializeObject(input),
+                            "{bare: false}"));
+
+                JObject json = JObject.Parse(result);
+                var errors = json["errors"] != null ? json["errors"] as JArray : null;
+
+                if (errors != null && errors.Count > 0)
+                {
+                    throw new CoffeeScriptCompilingException(FormatErrorDetails(errors[0]));
+                }
+
+                compiledInput = json.Value<string>("compiledCode");
+            }
+            catch (Exception ex)
+            {
+                throw new CoffeeScriptCompilingException(ex.Message, ex.InnerException);
             }
 
-            compiledInput = json.Value<string>("compiledCode");
-
-            return result;
+            return compiledInput;
         }
 
         /// <summary>
@@ -165,7 +172,7 @@ namespace Cruncher.Preprocessors.Coffee
         private static string GetAssemblyResource(string resource)
         {
             using (Stream stream = Assembly.GetExecutingAssembly()
-                            .GetManifestResourceStream(CoffeeScriptLibraryResource))
+                            .GetManifestResourceStream(resource))
             {
                 if (stream != null)
                 {
@@ -175,7 +182,7 @@ namespace Cruncher.Preprocessors.Coffee
                     }
                 }
 
-                throw new MissingManifestResourceException(resource.Split(new[] { "Coffee." }, StringSplitOptions.None)[1]);
+                throw new MissingManifestResourceException(resource.Split(new[] { "Resources." }, StringSplitOptions.None)[1]);
             }
         }
 
@@ -183,32 +190,26 @@ namespace Cruncher.Preprocessors.Coffee
         /// Generates a detailed error message
         /// </summary>
         /// <param name="errorDetails">Error details</param>
-        /// <param name="sourceCode">Source code</param>
         /// <returns>Detailed error message</returns>
-        private static string FormatErrorDetails(JToken errorDetails, string sourceCode)
+        private static string FormatErrorDetails(JToken errorDetails)
         {
-            var message = errorDetails.Value<string>("message");
-            var lineNumber = errorDetails.Value<int>("lineNumber");
-            var columnNumber = errorDetails.Value<int>("columnNumber");
-            string sourceFragment = SourceCodeNavigator.GetSourceFragment(sourceCode,
-                new SourceCodeNodeCoordinates(lineNumber, columnNumber));
+            string message = errorDetails.Value<string>("message");
+            int lineNumber = errorDetails.Value<int>("lineNumber");
+            int columnNumber = errorDetails.Value<int>("columnNumber");
 
-            var errorMessage = new StringBuilder();
-            errorMessage.AppendFormatLine("{0}: {1}", CoreStrings.ErrorDetails_Message, message);
+            StringBuilder errorMessage = new StringBuilder();
+            errorMessage.AppendFormat("{0}: {1}", "Message", message);
+            errorMessage.AppendLine();
+
             if (lineNumber > 0)
             {
-                errorMessage.AppendFormatLine("{0}: {1}", CoreStrings.ErrorDetails_LineNumber,
-                    lineNumber.ToString());
+                errorMessage.AppendFormat("{0}: {1}", "Line Number", lineNumber);
+                errorMessage.AppendLine();
             }
+
             if (columnNumber > 0)
             {
-                errorMessage.AppendFormatLine("{0}: {1}", CoreStrings.ErrorDetails_ColumnNumber,
-                    columnNumber.ToString());
-            }
-            if (!string.IsNullOrWhiteSpace(sourceFragment))
-            {
-                errorMessage.AppendFormatLine("{1}:{0}{0}{2}", Environment.NewLine,
-                    CoreStrings.ErrorDetails_SourceError, sourceFragment);
+                errorMessage.AppendFormat("{0}: {1}", "Column Number", columnNumber);
             }
 
             return errorMessage.ToString();
