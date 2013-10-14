@@ -84,6 +84,7 @@
     <Compile Include="Preprocessors\Coffee\CoffeeScriptCompilingException.cs" />
     <Compile Include="Preprocessors\Coffee\CoffeeScriptCompiler.cs" />
     <Compile Include="Preprocessors\Coffee\CoffeeScriptPreprocessor.cs" />
+    <Compile Include="Preprocessors\Less\LessCompilingException.cs" />
     <Compile Include="Preprocessors\Less\DotLessPathResolver.cs" />
     <Compile Include="Preprocessors\Less\DotLessPreprocessor.cs" />
     <Compile Include="Preprocessors\PreprocessorManager.cs" />
@@ -109,6 +110,9 @@
     <Compile Include="Web\Configuration\CruncherConfiguration.cs" />
     <Compile Include="Web\Configuration\CruncherProcessingSection.cs" />
     <Compile Include="Web\Configuration\CruncherSecuritySection.cs" />
+    <Compile Include="Web\CruncherBundler.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Web\JavaScriptHandler.cs" />
     <Compile Include="Web\CssHandler.cs" />
     <Compile Include="Web\HandlerBase.cs" />
@@ -118,38 +122,36 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\digest.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\digest\md5.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\digest\sha1.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\enumerator.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\etc.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\rbconfig.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\stringio.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\strscan.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ironruby\zlib.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\fileutils.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\pathname.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\set.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\common.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ftp.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\generic.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\http.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\https.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ldap.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\ldaps.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\ruby\1.9.1\uri\mailto.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\lib\sass_in_one.rb" />
-    <None Include="Preprocessors\Coffee\coffee-script-helpers.min.js.map">
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\digest.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\digest\md5.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\digest\sha1.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\enumerator.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\etc.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\rbconfig.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\stringio.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\strscan.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\zlib.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\fileutils.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\pathname.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\set.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\common.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\ftp.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\generic.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\http.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\https.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\ldap.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\ldaps.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\mailto.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\sass_in_one.rb" />
+    <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js.map">
       <DependentUpon>coffee-script-helpers.js</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Preprocessors\Coffee\coffee-script-helpers.js" />
-    <EmbeddedResource Include="Preprocessors\Coffee\coffee-script-helpers.min.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Preprocessors\Coffee\coffee-script.min.js" />
+    <Content Include="Preprocessors\Coffee\Resources\coffee-script-helpers.js" />
+    <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js" />
+    <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script.min.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
