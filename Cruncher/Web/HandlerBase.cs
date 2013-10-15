@@ -81,10 +81,13 @@ namespace Cruncher.Web
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append(path);
 
-            foreach (string fileMonitor in fileMonitors)
+            if (fileMonitors != null)
             {
-                FileInfo fileInfo = new FileInfo(fileMonitor);
-                stringBuilder.AppendFormat("{0}", fileInfo.LastWriteTimeUtc);
+                foreach (string fileMonitor in fileMonitors)
+                {
+                    FileInfo fileInfo = new FileInfo(fileMonitor);
+                    stringBuilder.AppendFormat("{0}", fileInfo.LastWriteTimeUtc);
+                }
             }
 
             int hash = stringBuilder.ToString().GetHashCode();
@@ -100,8 +103,12 @@ namespace Cruncher.Web
 
                 cache.SetExpires(DateTime.UtcNow.AddDays(maxCacheDays));
                 cache.SetMaxAge(new TimeSpan(maxCacheDays, 0, 0, 0));
-                response.AddFileDependencies(fileMonitors.ToArray());
-                cache.SetLastModifiedFromFileDependencies();
+                if (fileMonitors != null)
+                {
+                    response.AddFileDependencies(fileMonitors.ToArray());
+                    cache.SetLastModifiedFromFileDependencies();
+                }
+
                 cache.SetValidUntilExpires(false);
             }
             else

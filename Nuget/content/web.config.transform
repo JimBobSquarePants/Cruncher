@@ -10,9 +10,7 @@
 
   <system.web>
     <httpHandlers>
-      <!--The CSS compression HttpHandler-->
       <add verb="*" path="css.axd" type="Cruncher.Web.CssHandler, Cruncher, Culture=neutral" validate="false" />
-      <!--The JavaScipt compression HttpHandler-->
       <add verb="*" path="js.axd" type="Cruncher.Web.JavaScriptHandler, Cruncher, Culture=neutral" validate="false" />
     </httpHandlers>
   </system.web>
@@ -27,26 +25,15 @@
   </system.webServer>
 
   <cruncher>
-    <!-- Whether to allow remote downloads -->
-    <!-- The maximum allowed remote file size in bytes -->
-    <!-- The remote file download timeout in milliseconds -->
     <security allowRemoteDownloads="true" maxBytes="524288" timeout="300000">
-      <!--
-      A list of white-listed urls from which we are allowed to download and process remote files.
-      The token value allows us to add the file reference without the risk of hitting IEs 1024 
-      character url limit.
-      -->
       <whiteList>
         <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.js" />
       </whiteList>
     </security>
     <processing>
-      <!-- Whether to minify the css and js files and whether to compress the http response using gzip.-->
       <compression minifyCSS="true" minifyJS="true" compressResponse="true" />
-      <!-- The comma separated virtual paths to the css and js folders.-->
       <virtualPaths cssPaths="~/content, ~/css" jsPaths="~/scripts, ~/js" />
     </processing>
-    <!-- The number of days to store a client resource in the cache. -->
     <cache maxDays="365" />
   </cruncher>
 </configuration>
