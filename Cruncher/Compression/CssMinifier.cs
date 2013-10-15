@@ -1,11 +1,12 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CssMinifier.cs" company="James South">
-//     Copyright (c) James South.
-//     Licensed under the Apache License, Version 2.0.
+//   Copyright (c) James South.
+//   Licensed under the Apache License, Version 2.0.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Helper class for performing minification of CSS Stylesheets.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher.Compression
 {
@@ -14,7 +15,7 @@ namespace Cruncher.Compression
     #endregion
 
     /// <summary>
-    /// Helper class for performing minification of Css Stylesheets.
+    /// Helper class for performing minification of CSS Stylesheets.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -51,9 +52,9 @@ namespace Cruncher.Compression
         #region Properties
         #region Public
         /// <summary>
-        /// Gets or sets what range of colours the css stylsheet should utilize.
+        /// Gets or sets what range of colors the css stylesheet should utilize.
         /// </summary>
-        /// <value>What range of colours the css stylsheet should utilize</value>
+        /// <value>What range of colors the css stylesheet should utilize</value>
         public ColorNamesRange ColorNamesRange { get; set; }
 
         /// <summary>

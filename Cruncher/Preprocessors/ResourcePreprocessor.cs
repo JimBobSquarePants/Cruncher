@@ -1,11 +1,12 @@
-﻿#region Licence
-// -----------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ResourcePreprocessor.cs" company="James South">
-//     Copyright (c) James South.
-//     Licensed under the Apache License, Version 2.0.
+//   Copyright (c) James South.
+//   Licensed under the Apache License, Version 2.0.
 // </copyright>
-// -----------------------------------------------------------------------
-#endregion
+// <summary>
+//   Provides methods to replace relative resource paths within a stylesheet with absolute paths.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher.Preprocessors
 {
@@ -16,7 +17,6 @@ namespace Cruncher.Preprocessors
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using System.Web.Hosting;
     #endregion
 
     /// <summary>
@@ -33,13 +33,13 @@ namespace Cruncher.Preprocessors
 
         #region Properties
         /// <summary>
-        /// The extension that this filter processes.
+        /// Gets the extension that this filter processes.
         /// </summary>
-        public string AllowedExtension
+        public string[] AllowedExtensions
         {
             get
             {
-                return string.Empty;
+                return null;
             }
         }
         #endregion
@@ -50,25 +50,39 @@ namespace Cruncher.Preprocessors
         /// </summary>
         /// <param name="input">The input string to transform.</param>
         /// <param name="path">The path to the given input string to transform.</param>
+        /// <param name="cruncher">The cruncher that is running the transform.</param>
         /// <returns>The transformed string.</returns>
-        public string Transform(string input, string path)
+        public string Transform(string input, string path, CruncherBase cruncher)
         {
             try
             {
-                return RewritePaths(input, path);
+                return this.RewritePaths(input, path);
             }
             catch
             {
-
                 return input;
             }
         }
 
         /// <summary>
+        /// Replaces the relative paths in the given css content.
+        /// </summary>
+        /// <param name="css">The css within which to replace the paths.</param>
+        /// <param name="oldPath">The path to replace.</param>
+        /// <param name="newPath">The path to replace the old one with.</param>
+        /// <returns>The css content wit the paths replaced.</returns>
+        private static string ReplaceRelativePathsIn(string css, string oldPath, string newPath)
+        {
+            Regex regex = new Regex(@"url\(\s*[""']{0,1}" + Regex.Escape(oldPath) + @"[""']{0,1}\s*\)", RegexOptions.IgnoreCase);
+
+            return regex.Replace(css, match => match.Value.Replace(oldPath, newPath));
+        }
+
+        /// <summary>
         /// Rewrites the relative path as relative to the application root.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="path"></param>
+        /// <param name="input">The css within which to replace the relative paths</param>
+        /// <param name="path">The path to replace.</param>
         /// <returns>The css with the relative paths replaced.</returns>
         private string RewritePaths(string input, string path)
         {
@@ -86,9 +100,9 @@ namespace Cruncher.Preprocessors
                 sourceDirectory = path.Substring(0, directoryIndex + 1);
             }
 
-            string rootDirectory = string.Format(CultureInfo.InvariantCulture,
-                "{0}/",
-                Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath));
+            // Get the currently operating directory.
+            // http://stackoverflow.com/questions/52797/how-do-i-get-the-path-of-the-assembly-the-code-is-in
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             Uri rootUri = new Uri(rootDirectory, UriKind.Absolute);
             IEnumerable<string> relativePaths = this.GetRelativePaths(input);
 
@@ -96,11 +110,11 @@ namespace Cruncher.Preprocessors
             {
                 if (!relativePath.StartsWith("/", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Separate hashes and querystrings.
+                    // Separate hashes and query-strings.
                     int hashQueryIndex = relativePath.IndexOfAny(new[] { '?', '#' });
                     string hashQuery = hashQueryIndex >= 0 ? relativePath.Substring(hashQueryIndex) : string.Empty;
 
-                    // Parse the relative path without the hash/querystrings.
+                    // Parse the relative path without the hash/query-strings.
                     string capturedRelativePath = !string.IsNullOrWhiteSpace(hashQuery)
                                                 ? relativePath.Substring(0, hashQueryIndex)
                                                 : relativePath;
@@ -113,7 +127,12 @@ namespace Cruncher.Preprocessors
                     // Make it relative.
                     string resolvedOutput = rootUri.MakeRelativeUri(resolvedSourcePath).OriginalString;
 
-                    // Add the hash/querystring
+                    if (!resolvedOutput.StartsWith("/"))
+                    {
+                        resolvedOutput = string.Format("/{0}", resolvedOutput);
+                    }
+
+                    // Add the hash/query-string
                     string newRelativePath = string.Format(CultureInfo.InvariantCulture, "{0}{1}", resolvedOutput, hashQuery);
 
                     // Replace.
@@ -132,20 +151,6 @@ namespace Cruncher.Preprocessors
             }
 
             return input;
-        }
-
-        /// <summary>
-        /// Replaces the relative paths in the given css content.
-        /// </summary>
-        /// <param name="css"></param>
-        /// <param name="oldPath">The path to replace.</param>
-        /// <param name="newPath">The path to replace the old one with.</param>
-        /// <returns>The css content wit the paths replaced.</returns>
-        private static string ReplaceRelativePathsIn(string css, string oldPath, string newPath)
-        {
-            Regex regex = new Regex(@"url\(\s*[""']{0,1}" + Regex.Escape(oldPath) + @"[""']{0,1}\s*\)", RegexOptions.IgnoreCase);
-
-            return regex.Replace(css, match => match.Value.Replace(oldPath, newPath));
         }
 
         /// <summary>

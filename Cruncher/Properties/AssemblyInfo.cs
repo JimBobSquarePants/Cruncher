@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Cruncher")]
-[assembly: AssemblyDescription("Cruncher is a C# NET4 library which concatenates and minifies CSS, Less and JavaScript files using Micosoft's AjaxMin library.")]
+[assembly: AssemblyDescription("Cruncher makes optimising your resources easy. Cruncher can bundle unlimited combinations of remote and local CSS, LESS, SASS, SCSS, CoffeScript, and JavaScript files. It combines them, minifies them and caches them in the browser. It can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files. It'll even gzip compress the output.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("James South")]
 [assembly: AssemblyProduct("Cruncher")]
-[assembly: AssemblyCopyright("Copyright ©")]
+[assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("bd6023eb-e8fd-4875-8d16-f63df7b6d080")]
+[assembly: Guid("0871a592-0453-4e70-bb9a-d08780cd63c1")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.4.0.0")]
-[assembly: AssemblyFileVersion("1.4.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]

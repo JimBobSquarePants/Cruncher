@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7FC11A44-21B2-453D-BE58-6E186B9A27B9}</ProjectGuid>
+    <ProjectGuid>{4FAA9BE8-C0DF-40D6-9BBD-435F4E48D0E3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cruncher</RootNamespace>
     <AssemblyName>Cruncher</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,43 +31,127 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AjaxMin, Version=4.91.4875.26877, Culture=neutral, PublicKeyToken=21ef50ce11b5d80f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\AjaxMin.4.91.4875.26882\lib\net40\AjaxMin.dll</HintPath>
+    <Reference Include="AjaxMin">
+      <HintPath>..\packages\AjaxMin.5.2.5021.15814\lib\net40\AjaxMin.dll</HintPath>
     </Reference>
     <Reference Include="dotless.Core, Version=1.3.1.0, Culture=neutral, PublicKeyToken=96b446c9e63eae34, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\dotless.1.3.1.0\lib\dotless.Core.dll</HintPath>
     </Reference>
+    <Reference Include="IronRuby">
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\IronRuby.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby.Libraries">
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\IronRuby.Libraries.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby.Libraries.Yaml">
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\IronRuby.Libraries.Yaml.dll</HintPath>
+    </Reference>
+    <Reference Include="Jurassic">
+      <HintPath>..\packages\Jurassic.2.1.1\lib\Jurassic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Metadata, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\Microsoft.Scripting.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\CruncherConfiguration.cs" />
-    <Compile Include="Config\CruncherProcessingSection.cs" />
-    <Compile Include="Config\CruncherSecuritySection.cs" />
-    <Compile Include="Config\CruncherCacheSection.cs" />
+    <Compile Include="Caching\CacheManager.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Helpers\ResponseType.cs" />
+    <Compile Include="JavaScriptCruncher.cs" />
+    <Compile Include="Preprocessors\Coffee\CoffeeScriptCompilingException.cs" />
+    <Compile Include="Preprocessors\Coffee\CoffeeScriptCompiler.cs" />
+    <Compile Include="Preprocessors\Coffee\CoffeeScriptPreprocessor.cs" />
+    <Compile Include="Preprocessors\Less\LessCompilingException.cs" />
+    <Compile Include="Preprocessors\Less\DotLessPathResolver.cs" />
+    <Compile Include="Preprocessors\Less\DotLessPreprocessor.cs" />
+    <Compile Include="Preprocessors\PreprocessorManager.cs" />
+    <Compile Include="CruncherBase.cs" />
+    <Compile Include="CruncherOptions.cs" />
+    <Compile Include="CssCruncher.cs" />
     <Compile Include="Compression\ColorNamesRange.cs" />
     <Compile Include="Compression\CssMinifier.cs" />
     <Compile Include="Compression\JavascriptMinifier.cs" />
     <Compile Include="Compression\VariableMinification.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Helpers\RemoteFile.cs" />
-    <Compile Include="Helpers\ResponseType.cs" />
-    <Compile Include="HttpHandlers\CssHandler.cs" />
-    <Compile Include="HttpHandlers\HandlerBase.cs" />
-    <Compile Include="HttpHandlers\JavaScriptHandler.cs" />
-    <Compile Include="HttpModules\CompressionModule.cs" />
-    <Compile Include="PreProcessors\IPreProcessor.cs" />
-    <Compile Include="PreProcessors\DotLessPreProcessor.cs" />
-    <Compile Include="PreProcessors\ResourcePreprocessor.cs" />
+    <Compile Include="Preprocessors\ResourcePreprocessor.cs" />
+    <Compile Include="Preprocessors\IPreprocessor.cs" />
+    <Compile Include="Preprocessors\Sass\SassAndScssCompilingException.cs" />
+    <Compile Include="Preprocessors\Sass\ResourceAwarePlatformAdaptationLayer.cs" />
+    <Compile Include="Preprocessors\Sass\ResourceAwareScriptHost.cs" />
+    <Compile Include="Preprocessors\Sass\SassCompiler.cs" />
+    <Compile Include="Preprocessors\Sass\SassPreprocessor.cs" />
+    <Compile Include="Preprocessors\Sass\Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Web\CompressionModule.cs" />
+    <Compile Include="Web\Configuration\CruncherCacheSection.cs" />
+    <Compile Include="Web\Configuration\CruncherConfiguration.cs" />
+    <Compile Include="Web\Configuration\CruncherProcessingSection.cs" />
+    <Compile Include="Web\Configuration\CruncherSecuritySection.cs" />
+    <Compile Include="Web\CruncherBundler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web\JavaScriptHandler.cs" />
+    <Compile Include="Web\CssHandler.cs" />
+    <Compile Include="Web\HandlerBase.cs" />
+    <Compile Include="Web\RemoteFile.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\digest.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\digest\md5.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\digest\sha1.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\enumerator.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\etc.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\rbconfig.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\stringio.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\strscan.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\zlib.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\fileutils.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\pathname.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\set.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\common.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\ftp.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\generic.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\http.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\https.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\ldap.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\ldaps.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri\mailto.rb" />
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\sass_in_one.rb" />
+    <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js.map">
+      <DependentUpon>coffee-script-helpers.js</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.js" />
+    <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js" />
+    <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script.min.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

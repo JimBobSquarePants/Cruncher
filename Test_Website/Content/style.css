@@ -1,0 +1,7 @@
+﻿/*! This comment should be preserved.*/
+.box {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+@import url(style2.css);

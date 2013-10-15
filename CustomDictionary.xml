@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dictionary>
+    <!-- http://msdn.microsoft.com/en-us/library/bb514188.aspx - How to use a custom dictionary in VS2012-->
+    <Words>
+        <Recognized>
+            <!--<Word></Word>-->
+            <Word>Minification</Word>
+        </Recognized>
+    </Words>
+    <Acronyms>
+        <CasingExceptions>
+            <!--<Acronym></Acronym>-->
+            <Acronym>CSS</Acronym>
+            <Acronym>JS</Acronym>
+        </CasingExceptions>
+    </Acronyms>
+</Dictionary>
