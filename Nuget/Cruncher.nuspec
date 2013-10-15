@@ -6,8 +6,8 @@
     <title>Cruncher</title>
     <authors>James South</authors>
     <owners>James South</owners>
-    <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
-    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</licenseUrl>
+    <projectUrl>https://github.com/JimBobSquarePants/Cruncher</projectUrl>
     <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
@@ -19,15 +19,15 @@
       It'll even gzip compress the output.
     </description>
     <releaseNotes>
-      v$version$
+      v2.0.0
 
-      Added: Support for SASS, SCSS, and CoffeScript files.
+      Added: Support for SASS, SCSS, and CoffeeScript files.
       Added: Console Application in Tools for offline bundling.
       Added: Helper methods for Razor to make crunching easier.
       Improved: Better server and browser caching.
       Improved: Better error reporting.
     </releaseNotes>
-    <copyright>Copyright $author$</copyright>
-    <tags>Performance Speed JavaScript CSS LESS SASS SCSS CoffeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
+    <copyright>Copyright James South</copyright>
+    <tags>Performance Speed JavaScript CSS LESS SASS SCSS CoffeeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
   </metadata>
 </package>
