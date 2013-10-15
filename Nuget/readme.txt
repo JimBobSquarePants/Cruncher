@@ -9,7 +9,9 @@
 		cache should any changes be made to any of the referenced files.
 		It'll even gzip compress the output.  
 
+		If you use Cruncher please get in touch on my twitter @james_m_south.
 
+        Feedback is always welcome.
 
 
 		==================================================================================================
