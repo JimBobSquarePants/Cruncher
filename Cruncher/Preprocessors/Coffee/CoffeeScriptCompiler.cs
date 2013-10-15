@@ -12,19 +12,14 @@
 namespace Cruncher.Preprocessors.Coffee
 {
     #region Using
-
     using System;
     using System.IO;
-    using System.Linq;
     using System.Reflection;
     using System.Resources;
     using System.Text;
-
     using Jurassic;
-
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-
     #endregion
 
     /// <summary>

@@ -66,6 +66,7 @@ namespace Cruncher.Web
 
             if (!string.IsNullOrWhiteSpace(path))
             {
+                minify = minify || CruncherConfiguration.Instance.MinifyJavaScript;
                 string combinedJavaScript = (string)CacheManager.GetItem(key);
 
                 if (string.IsNullOrWhiteSpace(combinedJavaScript))
@@ -76,7 +77,7 @@ namespace Cruncher.Web
                     CruncherOptions cruncherOptions = new CruncherOptions
                                                           {
                                                               MinifyCacheKey = path,
-                                                              Minify = minify || CruncherConfiguration.Instance.MinifyJavaScript,
+                                                              Minify = minify,
                                                               AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
                                                               RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
                                                               RemoteFileTimeout = CruncherConfiguration.Instance.Timeout

@@ -182,7 +182,9 @@
     <Content Include="Scripts\jquery-2.0.3.js" />
     <Content Include="Scripts\test.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

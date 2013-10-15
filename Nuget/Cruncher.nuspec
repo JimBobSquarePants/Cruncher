@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Cruncher</id>
+    <version>2.0.0</version>
+    <title>Cruncher</title>
+    <authors>James South</authors>
+    <owners>James South</owners>
+    <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
+    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
+    <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+      A CSS, LESS, SASS, SCSS, CoffeeScript, and JavaScript Preprocessor for ASP.NET
+
+      Cruncher makes optimising your resources easy.
+      Cruncher can bundle unlimited combinations of remote and local CSS, LESS, SASS, SCSS, CoffeeScript, and JavaScript files. It combines them, minifies them and caches them in the browser.
+      It can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files.
+      It'll even gzip compress the output.
+    </description>
+    <releaseNotes>
+      v$version$
+
+      Added: Support for SASS, SCSS, and CoffeScript files.
+      Added: Console Application in Tools for offline bundling.
+      Added: Helper methods for Razor to make crunching easier.
+      Improved: Better server and browser caching.
+      Improved: Better error reporting.
+    </releaseNotes>
+    <copyright>Copyright $author$</copyright>
+    <tags>Performance Speed JavaScript CSS LESS SASS SCSS CoffeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
+  </metadata>
+</package>

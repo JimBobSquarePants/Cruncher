@@ -108,7 +108,7 @@ namespace Cruncher.Web
         public static HtmlString RenderCSS(bool forceUnMinify, HtmlString mediaQuery, params string[] fileNames)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            string minify = forceUnMinify ? "&amp;minify=false" : string.Empty;
+            string minify = forceUnMinify ? "&minify=false" : string.Empty;
 
             foreach (string fileName in fileNames)
             {
@@ -153,7 +153,7 @@ namespace Cruncher.Web
         public static HtmlString RenderJavaScript(bool forceUnMinify, params string[] fileNames)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            string minify = forceUnMinify ? "&amp;minify=false" : string.Empty;
+            string minify = forceUnMinify ? "&minify=false" : string.Empty;
 
             foreach (string fileName in fileNames)
             {
