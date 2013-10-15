@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4FAA9BE8-C0DF-40D6-9BBD-435F4E48D0E3}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -150,7 +150,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Preprocessors\Coffee\Resources\coffee-script-helpers.js" />
+    <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.js" />
     <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js" />
     <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script.min.js" />
   </ItemGroup>

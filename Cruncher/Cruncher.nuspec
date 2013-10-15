@@ -31,8 +31,8 @@
     <tags>Performance Speed JavaScript CSS LESS SASS SCSS CoffeeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
   </metadata>
   <files>
-    <file src="..\Nuget\content\web.config.transform" target="content\net40\web.config.transform" />
-    <file src="..\Nuget\tools\CruncherConsole.exe" target="tools\net40\CruncherConsole.exe" />
-    <file src="readme.txt" target="" />
+    <file src="..\Nuget\content\web.config.transform" target="content\web.config.transform" />
+    <file src="..\Nuget\tools\CruncherConsole.exe" target="tools\CruncherConsole.exe" />
+    <file src="..\Nuget\readme.txt" target="" />
   </files>
 </package>
