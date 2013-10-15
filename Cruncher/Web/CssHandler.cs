@@ -97,13 +97,20 @@ namespace Cruncher.Web
                         {
                             // Get the path from the server.
                             // Loop through each possible directory.
-                            List<string> files =
-                                CruncherConfiguration.Instance.CSSPaths.SelectMany(
-                                    cssFolder =>
-                                    Directory.GetFiles(
-                                        HttpContext.Current.Server.MapPath(cssFolder),
-                                        cssFile,
-                                        SearchOption.AllDirectories)).ToList();
+                            List<string> files = new List<string>();
+
+                            foreach (string cssFolder in CruncherConfiguration.Instance.CSSPaths)
+                            {
+                                if (!string.IsNullOrWhiteSpace(cssFolder) && cssFolder.StartsWith("~/"))
+                                {
+                                    string actual = HttpContext.Current.Server.MapPath(cssFolder);
+
+                                    if (actual != null)
+                                    {
+                                        files.AddRange(Directory.GetFiles(actual, cssFile, SearchOption.AllDirectories));
+                                    }
+                                }
+                            }
 
                             // We only want the first file.
                             string first = files.FirstOrDefault();
