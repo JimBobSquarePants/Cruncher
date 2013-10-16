@@ -93,12 +93,12 @@ Building style.css (single file containing @import statements)
 
 Building and minifying style.css
     
-    cruncherconsole.exe -in:..\..\src\css\style.css -out:..\..\rel\style.min.css -t:css -m
+	cruncherconsole.exe -in:..\..\src\css\style.css -out:..\..\rel\style.min.css -t:css -m
 
 Building a folder of JavaScript files.
 
-    start /b cruncherconsole.exe -in:..\..\src\js -out:..\..\rel\script.js -t:javascript 
+    cruncherconsole.exe -in:..\..\src\js -out:..\..\rel\script.js -t:javascript 
 
 Building and minifying a folder of JavaScript files.
 
-    start /b cruncherconsole.exe -in:..\..\src\js -out:..\..\rel\script.min.js -t:javascript -m
+    cruncherconsole.exe -in:..\..\src\js -out:..\..\rel\script.min.js -t:javascript -m
