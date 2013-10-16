@@ -9,7 +9,7 @@ combining them, minifying them and caching them in the browser. Cruncher can han
 cache should any changes be made to any of the referenced files.
 It'll even gzip compress the output.  
 
-If you use Cruncher please get in touch on my twitter @james_m_south.
+If you use Cruncher please get in touch on my twitter [@james_m_south](https://twitter.com/james_m_south).
 
 Feedback is always welcome.
 
@@ -23,7 +23,8 @@ Installation is simple. A Nuget package is available [here][1].
 Cruncher Web.config Explained.
 ===============================
 
-	<cruncher>
+``` xml
+<cruncher>
 	<!-- Whether to allow remote downloads -->
 	<!-- The maximum allowed remote file size in bytes -->
 	<!-- The remote file download timeout in milliseconds -->
@@ -45,8 +46,8 @@ Cruncher Web.config Explained.
 	</processing>
 	<!-- The number of days to store a client resource in the cache. -->
 	<cache maxDays="365" />
-	</cruncher>
-
+</cruncher>
+```
 
 		
 Cruncher Razor Helpers.
@@ -56,10 +57,11 @@ Cruncher comes with some helpers to make adding methods easier.
 
 Simply add `@using Cruncher.Web` to your view and use the following methods to add resources.
 
-	@CruncherBundler.RenderCSS("style.css", "style.less", "style.scss")
+``` csharp
+@CruncherBundler.RenderCSS("style.css", "style.less", "style.scss")
 
-	@CruncherBundler.RenderJavaScript("jquery-2.0.3.js", "test.coffee", "test.js")
-
+@CruncherBundler.RenderJavaScript("jquery-2.0.3.js", "test.coffee", "test.js")
+```
 
 Cruncher Console Instructions.
 ==============================
@@ -77,9 +79,11 @@ files from within the Visual Studio Package Manager console.
 
 	-t: specifies the output type of the file (css or javascript).
   
-	-in : Input path. This can be a single file or a folder. If it is a folder, all files within will be processed and bundled into one output file.
+	-in : Input path. This can be a single file or a folder. If it is a folder, all files within will be processed 
+	      and bundled into one output file.
 
-	-out : Output path. The path to save crunched output to. If left blank then the input file is used as a reference for naming the output.
+	-out : Output path. The path to save crunched output to. If left blank then the input file is used as a 
+	       reference for naming the output.
 
 **Example:**
 
@@ -89,12 +93,12 @@ Building style.css (single file containing @import statements)
 
 Building and minifying style.css
     
-    cruncherconsole.exe -in:..\..\src\css\style.css -out:..\..\rel\style.min.css -t:css -m
+	cruncherconsole.exe -in:..\..\src\css\style.css -out:..\..\rel\style.min.css -t:css -m
 
 Building a folder of JavaScript files.
 
-    start /b cruncherconsole.exe -in:..\..\src\js -out:..\..\rel\script.js -t:javascript 
+    cruncherconsole.exe -in:..\..\src\js -out:..\..\rel\script.js -t:javascript 
 
 Building and minifying a folder of JavaScript files.
 
-    start /b cruncherconsole.exe -in:..\..\src\js -out:..\..\rel\script.min.js -t:javascript -m
+    cruncherconsole.exe -in:..\..\src\js -out:..\..\rel\script.min.js -t:javascript -m
