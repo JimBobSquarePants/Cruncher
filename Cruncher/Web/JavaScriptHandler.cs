@@ -101,21 +101,24 @@ namespace Cruncher.Web
 
                             foreach (string javaScriptFolder in CruncherConfiguration.Instance.JavaScriptPaths)
                             {
-                                if (!string.IsNullOrWhiteSpace(javaScriptFolder) && javaScriptFolder.StartsWith("~/"))
+                                if (!string.IsNullOrWhiteSpace(javaScriptFolder) && javaScriptFolder.Trim().StartsWith("~/"))
                                 {
-                                    string actual = HttpContext.Current.Server.MapPath(javaScriptFolder);
+                                    DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(javaScriptFolder));
 
-                                    if (actual != null)
+                                    if (directoryInfo.Exists)
                                     {
-                                        files.AddRange(Directory.GetFiles(actual, javaScriptFile, SearchOption.AllDirectories));
+                                        files.AddRange(Directory.GetFiles(directoryInfo.FullName, javaScriptFile, SearchOption.AllDirectories));
                                     }
                                 }
                             }
 
-                            // We only want the first file.
-                            string first = files.FirstOrDefault();
-                            cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                            stringBuilder.Append(this.javaScriptCruncher.Crunch(first));
+                            if (files.Any())
+                            {
+                                // We only want the first file.
+                                string first = files.FirstOrDefault();
+                                cruncherOptions.RootFolder = Path.GetDirectoryName(first);
+                                stringBuilder.Append(this.javaScriptCruncher.Crunch(first));
+                            }
                         }
                         else
                         {

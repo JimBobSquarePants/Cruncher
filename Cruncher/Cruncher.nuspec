@@ -23,13 +23,10 @@
       Feedback is always welcome.
     </description>
     <releaseNotes>
-      v2.0.0
+      v2.0.1
 
-      Added: Support for SASS, SCSS, and CoffeeScript files.
-      Added: Console Application in Tools for offline bundling.
-      Added: Helper methods for Razor to make crunching easier.
-      Improved: Better server and browser caching.
-      Improved: Better error reporting.
+      Updated: dotLess and AjaxMin.
+      Fixed: Directory not found error.
     </releaseNotes>
     <copyright>Copyright $author$</copyright>
     <tags>Performance Speed JavaScript CSS LESS SASS SCSS CoffeeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
