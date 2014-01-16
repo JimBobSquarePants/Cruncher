@@ -101,21 +101,24 @@ namespace Cruncher.Web
 
                             foreach (string cssFolder in CruncherConfiguration.Instance.CSSPaths)
                             {
-                                if (!string.IsNullOrWhiteSpace(cssFolder) && cssFolder.StartsWith("~/"))
+                                if (!string.IsNullOrWhiteSpace(cssFolder) && cssFolder.Trim().StartsWith("~/"))
                                 {
-                                    string actual = HttpContext.Current.Server.MapPath(cssFolder);
+                                    DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(cssFolder));
 
-                                    if (actual != null)
+                                    if (directoryInfo.Exists)
                                     {
-                                        files.AddRange(Directory.GetFiles(actual, cssFile, SearchOption.AllDirectories));
+                                        files.AddRange(Directory.GetFiles(directoryInfo.FullName, cssFile, SearchOption.AllDirectories));
                                     }
                                 }
                             }
 
-                            // We only want the first file.
-                            string first = files.FirstOrDefault();
-                            cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                            stringBuilder.Append(this.cssCruncher.Crunch(first));
+                            if (files.Any())
+                            {
+                                // We only want the first file.
+                                string first = files.FirstOrDefault();
+                                cruncherOptions.RootFolder = Path.GetDirectoryName(first);
+                                stringBuilder.Append(this.cssCruncher.Crunch(first));
+                            }
                         }
                         else
                         {
