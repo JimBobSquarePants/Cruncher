@@ -183,7 +183,7 @@
     </Content>
     <Content Include="Content\libs\images\arnie.jpg" />
     <Content Include="Content\style.css">
-      <DependentUpon>style.less</DependentUpon>
+      <DependentUpon>style.scss</DependentUpon>
     </Content>
     <Content Include="Content\themes\base\jquery-ui.css" />
     <Content Include="Content\themes\base\jquery.ui.accordion.css" />

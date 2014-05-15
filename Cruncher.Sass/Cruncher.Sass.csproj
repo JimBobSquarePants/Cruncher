@@ -85,15 +85,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\digest.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\digest\md5.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\digest\sha1.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\enumerator.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\etc.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\rbconfig.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\stringio.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\strscan.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\Resources\ironruby\zlib.rb" />
-    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\fileutils.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\pathname.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\set.rb" />
     <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\uri.rb" />
@@ -118,6 +114,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Cruncher.Sass.nuspec" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\sass-combined.rb" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\find.rb" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Preprocessors\Sass\Resources\ruby\1.9.1\tsort.rb" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
