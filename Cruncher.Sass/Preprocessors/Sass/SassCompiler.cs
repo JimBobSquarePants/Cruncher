@@ -133,7 +133,7 @@ namespace Cruncher.Preprocessors.Sass
                         throw new SassAndScssCompilingException(sb.ToString(), ex);
                     }
 
-                    throw ex;
+                    throw;
                 }
             }
         }

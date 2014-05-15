@@ -11,11 +11,13 @@
     <iconUrl>https://raw.github.com/JimBobSquarePants/Cruncher/master/Nuget/cruncher.128.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>
-      A CSS, LESS, SASS, SCSS, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
+      A CSS, LESS, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
     </summary>
     <description>
-      Cruncher makes optimising your resources easy. It can bundle unlimited combinations of remote and local CSS, LESS, SASS, SCSS, JavaScript, and CoffeeScript files;
-      combining them, minifying them and caching them in the browser. Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files.
+      Cruncher makes optimising your resources easy. It can bundle unlimited combinations of remote and local CSS, LESS, JavaScript, and CoffeeScript files. 
+      
+      Combining them, minifying them and caching them in the browser, Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files.
+      
       It'll even gzip compress the output.
 
       If you use Cruncher please get in touch on my twitter @james_m_south.
@@ -23,13 +25,15 @@
       Feedback is always welcome.
     </description>
     <releaseNotes>
-      v2.0.1
-
-      Updated: dotLess and AjaxMin.
-      Fixed: Directory not found error.
     </releaseNotes>
     <copyright>Copyright $author$</copyright>
-    <tags>Performance Speed JavaScript CSS LESS SASS SCSS CoffeeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
+    <tags>Performance Speed JavaScript CSS LESS CoffeeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
+    <dependencies>
+      <dependency id="AjaxMin" version="5.9.5229.26438" />
+      <dependency id="dotless" version="1.4.0.0" />
+      <dependency id="Jurassic" version="2.2.0" />
+      <dependency id="Newtonsoft.Json" version="4.5.1" />
+    </dependencies>
   </metadata>
   <files>
     <file src="..\Nuget\content\web.config.transform" target="content\web.config.transform" />

@@ -162,19 +162,29 @@
       <DependentUpon>style.less</DependentUpon>
     </Content>
     <Content Include="Content\style2.scss" />
+    <Content Include="Content\style.css.map">
+      <DependentUpon>style.css</DependentUpon>
+    </Content>
     <None Include="Content\style.scss" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="Content\style2.css.map">
+      <DependentUpon>style2.css</DependentUpon>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\style.less" />
     <None Include="Content\imports\style2.less" />
-    <Content Include="Content\style2.css" />
+    <Content Include="Content\style2.css">
+      <DependentUpon>style2.scss</DependentUpon>
+    </Content>
     <Content Include="Content\libs\images\arnie.jpg" />
-    <Content Include="Content\style.css" />
+    <Content Include="Content\style.css">
+      <DependentUpon>style.less</DependentUpon>
+    </Content>
     <Content Include="Content\themes\base\jquery-ui.css" />
     <Content Include="Content\themes\base\jquery.ui.accordion.css" />
     <Content Include="Content\themes\base\jquery.ui.all.css" />
@@ -239,6 +249,10 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cruncher.Sass\Cruncher.Sass.csproj">
+      <Project>{8764b33f-d124-4b69-8fe5-d339c9415b5f}</Project>
+      <Name>Cruncher.Sass</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cruncher\Cruncher.csproj">
       <Project>{4faa9be8-c0df-40d6-9bbd-435f4e48d0e3}</Project>
       <Name>Cruncher</Name>
