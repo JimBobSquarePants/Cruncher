@@ -133,7 +133,7 @@ namespace Cruncher.Preprocessors.Sass
                         throw new SassAndScssCompilingException(sb.ToString(), ex);
                     }
 
-                    throw ex;
+                    throw;
                 }
             }
         }
@@ -161,7 +161,7 @@ namespace Cruncher.Preprocessors.Sass
 
             engine.SetSearchPaths(new List<string> { @"R:\Resources\ironruby", @"R:\Resources\ruby\1.9.1" });
 
-            string resouce = Utils.ResourceAsString("Cruncher.Preprocessors.Sass.Resources.sass_in_one.rb");
+            string resouce = Utils.ResourceAsString("Cruncher.Preprocessors.Sass.Resources.sass-combined.rb");
             ScriptSource source = engine.CreateScriptSourceFromString(resouce, SourceCodeKind.File);
             scope = engine.CreateScope();
 

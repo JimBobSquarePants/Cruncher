@@ -3,7 +3,6 @@
  */
 
 var coffeeScriptHelper = (function (coffeeScript) {
-
     "use strict";
 
     var exports = {};
