@@ -11,7 +11,12 @@
 namespace Cruncher
 {
     #region Using
+    using System;
+    using System.IO;
+    using System.Text.RegularExpressions;
+    using System.Globalization;
     using Cruncher.Compression;
+    using Cruncher.Extensions;
     #endregion
 
     /// <summary>
@@ -19,6 +24,13 @@ namespace Cruncher
     /// </summary>
     public class JavaScriptCruncher : CruncherBase
     {
+        #region Fields
+        /// <summary>
+        /// The regular expression to search files for.
+        /// </summary>
+        private static readonly Regex ImportsRegex = new Regex(@"(?:@import\s*(url\([""']?)\s*(?<filename>.+\.js)(\s*[""']?)\s*\));", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+        #endregion
+
         #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptCruncher"/> class.
@@ -83,12 +95,69 @@ namespace Cruncher
         {
             string contents = base.LoadLocalFile(file);
 
+            contents = this.ParseImports(contents);
+
             contents = this.PreProcessInput(contents, file);
 
             // Cache if applicable.
             this.AddFileMonitor(file, contents);
 
             return contents;
+        }
+        #endregion
+
+        #region Private
+        /// <summary>
+        /// Parses the string for Javascript imports and replaces them with the referenced Javascript.
+        /// </summary>
+        /// <param name="javascript">
+        /// The Javascript to parse for import statements.
+        /// </param>
+        /// <returns>The Javascript file parsed for imports.</returns>
+        private string ParseImports(string javascript)
+        {
+            // Check for imports and parse if necessary.
+            if (!javascript.Contains("@import", StringComparison.OrdinalIgnoreCase))
+            {
+                return javascript;
+            }
+
+            // Recursively parse the javascript for imports.
+            foreach (Match match in ImportsRegex.Matches(javascript))
+            {
+                // Recursively parse the javascript for imports.
+                GroupCollection groups = match.Groups;
+                CaptureCollection fileCaptures = groups["filename"].Captures;
+
+                if (fileCaptures.Count > 0)
+                {
+                    string fileName = fileCaptures[0].ToString();
+                    string importedJavascript = string.Empty;
+
+                    // Check and add the @import the match.
+                    FileInfo fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+
+                    // Read the file.
+                    if (fileInfo.Exists)
+                    {
+                        string file = fileInfo.FullName;
+
+                        using (StreamReader reader = new StreamReader(file))
+                        {
+                            // Parse the children.
+                            importedJavascript = this.ParseImports(reader.ReadToEnd());
+                        }
+
+                        // Cache if applicable.
+                        this.AddFileMonitor(file, importedJavascript);
+                    }
+
+                    // Replace the regex match with the full qualified javascript.
+                    javascript = javascript.Replace(match.Value, importedJavascript);
+                }
+            }
+
+            return javascript;
         }
         #endregion
         #endregion
