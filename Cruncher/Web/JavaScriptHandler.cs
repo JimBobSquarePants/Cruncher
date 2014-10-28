@@ -95,19 +95,28 @@ namespace Cruncher.Web
                         // Local files.
                         if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(javaScriptFile))
                         {
-                            // Get the path from the server.
-                            // Loop through each possible directory.
                             List<string> files = new List<string>();
 
-                            foreach (string javaScriptFolder in CruncherConfiguration.Instance.JavaScriptPaths)
+                            // Try to get the file using absolute/relative path
+                            string javaScriptFilePath = ResourceHelper.getFilePath(javaScriptFile);
+                            if (File.Exists(javaScriptFilePath))
                             {
-                                if (!string.IsNullOrWhiteSpace(javaScriptFolder) && javaScriptFolder.Trim().StartsWith("~/"))
+                                files.Add(javaScriptFilePath);
+                            }
+                            else
+                            {
+                                // Get the path from the server.
+                                // Loop through each possible directory.
+                                foreach (string javaScriptFolder in CruncherConfiguration.Instance.JavaScriptPaths)
                                 {
-                                    DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(javaScriptFolder));
-
-                                    if (directoryInfo.Exists)
+                                    if (!string.IsNullOrWhiteSpace(javaScriptFolder) && javaScriptFolder.Trim().StartsWith("~/"))
                                     {
-                                        files.AddRange(Directory.GetFiles(directoryInfo.FullName, javaScriptFile, SearchOption.AllDirectories));
+                                        DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(javaScriptFolder));
+
+                                        if (directoryInfo.Exists)
+                                        {
+                                            files.AddRange(Directory.GetFiles(directoryInfo.FullName, javaScriptFile, SearchOption.AllDirectories));
+                                        }
                                     }
                                 }
                             }

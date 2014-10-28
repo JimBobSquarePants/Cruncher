@@ -95,19 +95,28 @@ namespace Cruncher.Web
                         // Local files.
                         if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(cssFile))
                         {
-                            // Get the path from the server.
-                            // Loop through each possible directory.
                             List<string> files = new List<string>();
 
-                            foreach (string cssFolder in CruncherConfiguration.Instance.CSSPaths)
+                            // Try to get the file by absolute/relative path
+                            string cssFilePath = ResourceHelper.getFilePath(cssFile);
+                            if (File.Exists(cssFilePath))
                             {
-                                if (!string.IsNullOrWhiteSpace(cssFolder) && cssFolder.Trim().StartsWith("~/"))
+                                files.Add(cssFilePath);
+                            }
+                            else
+                            {
+                                // Get the path from the server.
+                                // Loop through each possible directory.
+                                foreach (string cssFolder in CruncherConfiguration.Instance.CSSPaths)
                                 {
-                                    DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(cssFolder));
-
-                                    if (directoryInfo.Exists)
+                                    if (!string.IsNullOrWhiteSpace(cssFolder) && cssFolder.Trim().StartsWith("~/"))
                                     {
-                                        files.AddRange(Directory.GetFiles(directoryInfo.FullName, cssFile, SearchOption.AllDirectories));
+                                        DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(cssFolder));
+
+                                        if (directoryInfo.Exists)
+                                        {
+                                            files.AddRange(Directory.GetFiles(directoryInfo.FullName, cssFile, SearchOption.AllDirectories));
+                                        }
                                     }
                                 }
                             }
