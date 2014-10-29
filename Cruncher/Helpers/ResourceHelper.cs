@@ -11,6 +11,11 @@ namespace Cruncher.Helpers
     class ResourceHelper
     {
 
+        public static bool isResourceFilenameOnly(string resource)
+        {
+            return Path.GetFileName(resource) == resource.Trim();
+        }
+
         public static string getFilePath(string resource)
         {
             try

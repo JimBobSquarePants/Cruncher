@@ -166,10 +166,13 @@ namespace Cruncher
                         FileInfo fileInfo = null;
 
                         // Try to get the file by absolute/relative path
-                        string cssFilePath = ResourceHelper.getFilePath(fileName);
-                        if (File.Exists(cssFilePath))
+                        if (!ResourceHelper.isResourceFilenameOnly(fileName))
                         {
-                            fileInfo = new FileInfo(cssFilePath);
+                            string cssFilePath = ResourceHelper.getFilePath(fileName);
+                            if (File.Exists(cssFilePath))
+                            {
+                                fileInfo = new FileInfo(cssFilePath);
+                            }
                         }
                         else
                         {
@@ -177,7 +180,7 @@ namespace Cruncher
                         }
 
                         // Read the file.
-                        if (fileInfo.Exists)
+                        if (fileInfo != null && fileInfo.Exists)
                         {
                             string file = fileInfo.FullName;
 
