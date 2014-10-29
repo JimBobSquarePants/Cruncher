@@ -154,6 +154,19 @@ namespace Cruncher.Web
             return new HtmlString(string.Format(CssTemplate, path, minify, version, mediaQuery));
         }
 
+        public static int CssVersioningNumber(params string[] fileNames)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (string fileName in fileNames)
+            {
+                stringBuilder.AppendFormat("{0}|", fileName);
+            }
+            var path = stringBuilder.ToString().TrimEnd('|');
+
+            CssHandler cssHandler = new CssHandler();
+            return cssHandler.ProcessCssCrunch(path, true).GetHashCode();
+        }
+
         #endregion
 
         #region JavaScript
@@ -228,6 +241,22 @@ namespace Cruncher.Web
 
             return new HtmlString(string.Format(JavaScriptTemplate, path, minify, version));
         }
+
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        public static int JavaScriptVersioningNumber(params string[] fileNames)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (string fileName in fileNames)
+            {
+                stringBuilder.AppendFormat("{0}|", fileName);
+            }
+            var path = stringBuilder.ToString().TrimEnd('|');
+
+            JavaScriptHandler javaScriptHandler = new JavaScriptHandler();
+            return javaScriptHandler.ProcessJavascriptCrunch(path, true).GetHashCode();
+        }
+
+
         #endregion
     }
 }
