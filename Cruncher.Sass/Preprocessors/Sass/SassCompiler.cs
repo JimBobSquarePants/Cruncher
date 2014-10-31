@@ -12,16 +12,13 @@
 
 namespace Cruncher.Preprocessors.Sass
 {
-    #region MyRegion
+    #region Using
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
-    using System.Text;
     using System.Text.RegularExpressions;
-    using IronRuby;
-    using Microsoft.Scripting;
-    using Microsoft.Scripting.Hosting;
+
+    using LibSassNet;
     #endregion
 
     /// <summary>
@@ -34,29 +31,14 @@ namespace Cruncher.Preprocessors.Sass
     {
         #region Fields
         /// <summary>
-        /// The synchronization root.
+        /// The sass compiler.
         /// </summary>
-        private static readonly object SyncRoot = new object();
+        private readonly ISassCompiler compiler = new LibSassNet.SassCompiler();
 
         /// <summary>
-        /// The initialized.
+        /// The sass to scss converter.
         /// </summary>
-        private static bool initialized;
-
-        /// <summary>
-        /// The script engine.
-        /// </summary>
-        private static ScriptEngine engine;
-
-        /// <summary>
-        /// The sass engine.
-        /// </summary>
-        private static dynamic sassEngine;
-
-        /// <summary>
-        /// The scope.
-        /// </summary>
-        private static ScriptScope scope;
+        private readonly ISassToScssConverter converter = new SassToScssConverter();
         #endregion
 
         #region Properties
@@ -93,83 +75,36 @@ namespace Cruncher.Preprocessors.Sass
         /// </returns>
         public string CompileSass(string input, string fileName)
         {
-            lock (SyncRoot)
+            try
             {
-                this.Initialize();
-                try
+                CompilerMode mode = CompilerMode.Scss;
+
+                if (Regex.IsMatch(fileName, @"\.sass$"))
                 {
-                    CompilerMode mode = CompilerMode.Scss;
-
-                    if (Regex.IsMatch(fileName, @"\.sass$"))
-                    {
-                        mode = CompilerMode.Sass;
-                    }
-
-                    // Change the executing directory so imports work.
-                    string statement = string.Format("Dir.chdir '{0}'", Path.GetDirectoryName(fileName));
-                    engine.Execute(statement, scope);
-
-                    dynamic sassMode = mode == CompilerMode.Sass
-                                           ? engine.Execute(
-                                               "{:cache => false, :syntax => :sass, :filename => '" + fileName + "'}")
-                                           : engine.Execute(
-                                               "{:cache => false, :syntax => :scss, :filename => '" + fileName + "'}");
-
-                    return (string)sassEngine.compile(input, sassMode);
+                    mode = CompilerMode.Sass;
                 }
-                catch (Exception ex)
-                {
-                    if (ex.Message == "Sass::SyntaxError")
-                    {
-                        const string Empty = "";
-                        dynamic error = ex;
-                        StringBuilder sb = new StringBuilder();
-                        sb.AppendFormat("{0}\n\n", error.to_s());
-                        sb.AppendFormat("Backtrace:\n{0}\n\n", error.sass_backtrace_str(fileName) ?? Empty);
-                        sb.AppendFormat("FileName: {0}\n\n", error.sass_filename() ?? fileName);
-                        sb.AppendFormat("MixIn: {0}\n\n", error.sass_mixin() ?? Empty);
-                        sb.AppendFormat("Line Number: {0}\n\n", error.sass_line() ?? Empty);
-                        sb.AppendFormat("Sass Template:\n{0}\n\n", error.sass_template ?? Empty);
-                        throw new SassAndScssCompilingException(sb.ToString(), ex);
-                    }
 
-                    throw;
-                }
+                string processedInput = mode == CompilerMode.Scss ? input : this.ConvertToScss(input);
+                return this.compiler.Compile(processedInput, OutputStyle.Nested, false, 5, new[] { Path.GetDirectoryName(fileName) });
+            }
+            catch (Exception ex)
+            {
+                throw new SassAndScssCompilingException(ex.Message, ex);
             }
         }
 
         /// <summary>
-        /// Initializes the Ruby engine.
+        /// Converts sass to scss.
         /// </summary>
-        private void Initialize()
+        /// <param name="input">
+        /// The input string to convert.
+        /// </param>
+        /// <returns>
+        /// The converted <see cref="string"/>.
+        /// </returns>
+        internal string ConvertToScss(string input)
         {
-            if (initialized)
-            {
-                return;
-            }
-
-            ResourceAwarePlatformAdaptationLayer resourceAwarePlatform = new ResourceAwarePlatformAdaptationLayer();
-
-            ScriptRuntimeSetup srs = new ScriptRuntimeSetup
-            {
-                HostType = typeof(ResourceAwareScriptHost),
-                HostArguments = new List<object> { resourceAwarePlatform }
-            };
-            srs.AddRubySetup();
-            ScriptRuntime runtime = Ruby.CreateRuntime(srs);
-            engine = runtime.GetRubyEngine();
-
-            engine.SetSearchPaths(new List<string> { @"R:\Resources\ironruby", @"R:\Resources\ruby\1.9.1" });
-
-            string resouce = Utils.ResourceAsString("Cruncher.Preprocessors.Sass.Resources.sass-combined.rb");
-            ScriptSource source = engine.CreateScriptSourceFromString(resouce, SourceCodeKind.File);
-            scope = engine.CreateScope();
-
-            source.Execute(scope);
-
-            sassEngine = scope.Engine.Runtime.Globals.GetVariable("Sass");
-
-            initialized = true;
+            return this.converter.Convert(input);
         }
         #endregion
     }

@@ -23,7 +23,6 @@ namespace Cruncher.Preprocessors.Sass
     public class SassPreprocessor : IPreprocessor
     {
         #region Fields
-
         /// <summary>
         /// The imports regex.
         /// </summary>

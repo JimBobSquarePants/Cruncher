@@ -29,10 +29,10 @@
     <copyright>Copyright $author$</copyright>
     <tags>Performance Speed JavaScript CSS LESS CoffeeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
     <dependencies>
-      <dependency id="AjaxMin" version="5.9.5229.26438" />
-      <dependency id="dotless" version="1.4.0.0" />
+      <dependency id="AjaxMin" version="5.11.5295.12309" />
+      <dependency id="dotless" version="1.4.1.0" />
       <dependency id="Jurassic" version="2.2.0" />
-      <dependency id="Newtonsoft.Json" version="4.5.1" />
+      <dependency id="Newtonsoft.Json" version="6.0.6" />
     </dependencies>
   </metadata>
   <files>

@@ -30,7 +30,7 @@
     <tags>Performance Speed JavaScript CSS LESS SASS SCSS CoffeeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
     <dependencies>
       <dependency id="Cruncher" version="2.1.0" />
-      <dependency id="IronRuby" version="1.1.3" />
+      <dependency id="libsassnet" version="3.0.1.1" />
     </dependencies>
   </metadata>
 </package>
