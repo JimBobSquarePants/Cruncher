@@ -45,6 +45,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Jurassic.2.2.0\lib\Jurassic.dll</HintPath>
     </Reference>
+    <Reference Include="LibSass.x86">
+      <HintPath>..\packages\libsassnet.3.0.1.1\lib\net40\LibSass.x86.dll</HintPath>
+    </Reference>
+    <Reference Include="libsassnet">
+      <HintPath>..\packages\libsassnet.3.0.1.1\lib\net40\libsassnet.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -84,6 +90,9 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Preprocessors\ResourcePreprocessor.cs" />
     <Compile Include="Preprocessors\IPreprocessor.cs" />
+    <Compile Include="Preprocessors\Sass\SassAndScssCompilingException.cs" />
+    <Compile Include="Preprocessors\Sass\SassCompiler.cs" />
+    <Compile Include="Preprocessors\Sass\SassPreprocessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\CompressionModule.cs" />
     <Compile Include="Web\Configuration\CruncherCacheSection.cs" />

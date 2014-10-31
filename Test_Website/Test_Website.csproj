@@ -245,10 +245,6 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cruncher.Sass\Cruncher.Sass.csproj">
-      <Project>{8764b33f-d124-4b69-8fe5-d339c9415b5f}</Project>
-      <Name>Cruncher.Sass</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Cruncher\Cruncher.csproj">
       <Project>{4faa9be8-c0df-40d6-9bbd-435f4e48d0e3}</Project>
       <Name>Cruncher</Name>
