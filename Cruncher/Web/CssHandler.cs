@@ -98,9 +98,9 @@ namespace Cruncher.Web
                             List<string> files = new List<string>();
 
                             // Try to get the file by absolute/relative path
-                            if (!ResourceHelper.isResourceFilenameOnly(cssFile))
+                            if (!ResourceHelper.IsResourceFilenameOnly(cssFile))
                             {
-                                string cssFilePath = ResourceHelper.getFilePath(cssFile);
+                                string cssFilePath = ResourceHelper.GetFilePath(cssFile);
                                 if (File.Exists(cssFilePath))
                                 {
                                     files.Add(cssFilePath);
