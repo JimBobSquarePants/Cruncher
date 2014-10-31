@@ -14,7 +14,7 @@ namespace Cruncher
     using System;
     using System.IO;
     using System.Text.RegularExpressions;
-    using System.Globalization;
+
     using Cruncher.Compression;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
@@ -139,9 +139,9 @@ namespace Cruncher
                     FileInfo fileInfo = null;
 
                     // Try to get the file by absolute/relative path
-                    if (!ResourceHelper.isResourceFilenameOnly(fileName))
+                    if (!ResourceHelper.IsResourceFilenameOnly(fileName))
                     {
-                        string cssFilePath = ResourceHelper.getFilePath(fileName);
+                        string cssFilePath = ResourceHelper.GetFilePath(fileName);
                         if (File.Exists(cssFilePath))
                         {
                             fileInfo = new FileInfo(cssFilePath);
