@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cruncher", "Cruncher\Cruncher.csproj", "{4FAA9BE8-C0DF-40D6-9BBD-435F4E48D0E3}"
 EndProject
@@ -15,6 +15,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruncherConsole", "CruncherConsole\CruncherConsole.csproj", "{1968E2B0-25B9-4CB5-BC60-FF1C4C51561B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cruncher.Sass", "Cruncher.Sass\Cruncher.Sass.csproj", "{8764B33F-D124-4B69-8FE5-D339C9415B5F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5A54E7D3-F2D8-4068-BA8E-8BF6F7DFFDEB}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
