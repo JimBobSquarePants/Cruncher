@@ -53,21 +53,26 @@ namespace Cruncher.Web
         }
 
         /// <summary>
-        /// Enables processing of HTTP Web requests by a custom HttpHandler that implements the <see cref="T:System.Web.IHttpHandler" /> interface.
+        /// Processes the JavaScript request using cruncher and returns the result.
         /// </summary>
-        /// <param name="context">An <see cref="T:System.Web.HttpContext" /> object that provides references to the intrinsic server objects (for example, Request, Response, Session, and Server) used to service HTTP requests.</param>
-        public override void ProcessRequest(HttpContext context)
+        /// <param name="path">
+        /// The path to the resources to crunch.
+        /// </param>
+        /// <param name="minify">
+        /// Whether to minify the output.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/> representing the processed result.
+        /// </returns>
+        public string ProcessJavascriptCrunch(string path, bool minify)
         {
-            HttpRequest request = context.Request;
-            string path = request.QueryString["path"];
             string key = path.ToMd5Fingerprint();
-            bool fallback;
-            bool minify = bool.TryParse(request.QueryString["minify"], out fallback);
+            string combinedJavaScript = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(path))
             {
                 minify = minify || CruncherConfiguration.Instance.MinifyJavaScript;
-                string combinedJavaScript = (string)CacheManager.GetItem(key);
+                combinedJavaScript = (string)CacheManager.GetItem(key);
 
                 if (string.IsNullOrWhiteSpace(combinedJavaScript))
                 {
@@ -85,7 +90,6 @@ namespace Cruncher.Web
 
                     cruncherOptions.CacheFiles = cruncherOptions.Minify;
                     cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
-                    minify = cruncherOptions.Minify;
 
                     this.javaScriptCruncher = new JavaScriptCruncher(cruncherOptions);
 
@@ -101,6 +105,7 @@ namespace Cruncher.Web
                             if (!ResourceHelper.IsResourceFilenameOnly(javaScriptFile))
                             {
                                 string javaScriptFilePath = ResourceHelper.GetFilePath(javaScriptFile);
+
                                 if (File.Exists(javaScriptFilePath))
                                 {
                                     files.Add(javaScriptFilePath);
@@ -144,6 +149,26 @@ namespace Cruncher.Web
                     combinedJavaScript = this.javaScriptCruncher.Minify(stringBuilder.ToString())
                         .Replace(")(function(", ");(function(");
                 }
+            }
+
+            return combinedJavaScript;
+        }
+
+        /// <summary>
+        /// Enables processing of HTTP Web requests by a custom HttpHandler that implements the <see cref="T:System.Web.IHttpHandler" /> interface.
+        /// </summary>
+        /// <param name="context">An <see cref="T:System.Web.HttpContext" /> object that provides references to the intrinsic server objects (for example, Request, Response, Session, and Server) used to service HTTP requests.</param>
+        public override void ProcessRequest(HttpContext context)
+        {
+            HttpRequest request = context.Request;
+            string path = request.QueryString["path"];
+            string key = path.ToMd5Fingerprint();
+            bool fallback;
+            bool minify = bool.TryParse(request.QueryString["minify"], out fallback);
+
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                string combinedJavaScript = this.ProcessJavascriptCrunch(path, minify);
 
                 if (!string.IsNullOrWhiteSpace(combinedJavaScript))
                 {

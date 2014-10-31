@@ -53,21 +53,26 @@ namespace Cruncher.Web
         }
 
         /// <summary>
-        /// Enables processing of HTTP Web requests by a custom HttpHandler that implements the <see cref="T:System.Web.IHttpHandler" /> interface.
+        /// Processes the css request using cruncher and returns the result.
         /// </summary>
-        /// <param name="context">An <see cref="T:System.Web.HttpContext" /> object that provides references to the intrinsic server objects (for example, Request, Response, Session, and Server) used to service HTTP requests.</param>
-        public override void ProcessRequest(HttpContext context)
+        /// <param name="path">
+        /// The path to the resources to crunch.
+        /// </param>
+        /// <param name="minify">
+        /// Whether to minify the output.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/> representing the processed result.
+        /// </returns>
+        public string ProcessCssCrunch(string path, bool minify)
         {
-            HttpRequest request = context.Request;
-            string path = request.QueryString["path"];
             string key = path.ToMd5Fingerprint();
-            bool fallback;
-            bool minify = bool.TryParse(request.QueryString["minify"], out fallback);
+            string combinedCSS = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(path))
             {
                 minify = minify || CruncherConfiguration.Instance.MinifyCSS;
-                string combinedCSS = (string)CacheManager.GetItem(key);
+                combinedCSS = (string)CacheManager.GetItem(key);
 
                 if (string.IsNullOrWhiteSpace(combinedCSS))
                 {
@@ -75,17 +80,16 @@ namespace Cruncher.Web
                     StringBuilder stringBuilder = new StringBuilder();
 
                     CruncherOptions cruncherOptions = new CruncherOptions
-                                                          {
-                                                              MinifyCacheKey = path,
-                                                              Minify = minify,
-                                                              AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
-                                                              RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
-                                                              RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
-                                                          };
+                    {
+                        MinifyCacheKey = path,
+                        Minify = minify,
+                        AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
+                        RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
+                        RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
+                    };
 
                     cruncherOptions.CacheFiles = cruncherOptions.Minify;
                     cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
-                    minify = cruncherOptions.Minify;
 
                     this.cssCruncher = new CssCruncher(cruncherOptions);
 
@@ -101,6 +105,7 @@ namespace Cruncher.Web
                             if (!ResourceHelper.IsResourceFilenameOnly(cssFile))
                             {
                                 string cssFilePath = ResourceHelper.GetFilePath(cssFile);
+
                                 if (File.Exists(cssFilePath))
                                 {
                                     files.Add(cssFilePath);
@@ -142,6 +147,26 @@ namespace Cruncher.Web
 
                     combinedCSS = this.cssCruncher.Minify(stringBuilder.ToString());
                 }
+            }
+
+            return combinedCSS;
+        }
+
+        /// <summary>
+        /// Enables processing of HTTP Web requests by a custom HttpHandler that implements the <see cref="T:System.Web.IHttpHandler" /> interface.
+        /// </summary>
+        /// <param name="context">An <see cref="T:System.Web.HttpContext" /> object that provides references to the intrinsic server objects (for example, Request, Response, Session, and Server) used to service HTTP requests.</param>
+        public override void ProcessRequest(HttpContext context)
+        {
+            HttpRequest request = context.Request;
+            string path = request.QueryString["path"];
+            string key = path.ToMd5Fingerprint();
+            bool fallback;
+            bool minify = bool.TryParse(request.QueryString["minify"], out fallback);
+
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                string combinedCSS = this.ProcessCssCrunch(path, minify);
 
                 if (!string.IsNullOrWhiteSpace(combinedCSS))
                 {
