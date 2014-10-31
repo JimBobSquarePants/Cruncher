@@ -1,41 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using System.Web;
-using System.IO;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ResourceHelper.cs" company="James South">
+//   Copyright (c) James South.
+//   Licensed under the Apache License, Version 2.0.
+// </copyright>
+// <summary>
+//   Provides a series of helper methods for dealing with resources.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher.Helpers
 {
-    class ResourceHelper
-    {
+    using System;
+    using System.IO;
+    using System.Web;
+    using System.Web.Hosting;
 
-        public static bool isResourceFilenameOnly(string resource)
+    /// <summary>
+    /// Provides a series of helper methods for dealing with resources.
+    /// </summary>
+    public class ResourceHelper
+    {
+        /// <summary>
+        /// Get's a value indicating whether the resource is a filename only.
+        /// </summary>
+        /// <param name="resource">
+        /// The resource to test against.
+        /// </param>
+        /// <returns>
+        /// The <see cref="bool"/> indicating whether the resource is a filename only.
+        /// </returns>
+        public static bool IsResourceFilenameOnly(string resource)
         {
             return Path.GetFileName(resource) == resource.Trim();
         }
 
-        public static string getFilePath(string resource)
+        /// <summary>
+        /// Returns the file path to the specified resource.
+        /// </summary>
+        /// <param name="resource">
+        /// The resource to return the path for.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/> representing the file path to the resource.
+        /// </returns>
+        public static string GetFilePath(string resource)
         {
             try
             {
                 // Check whether this method is invoked in an http request or not
-                if (HttpContext.Current != null && HttpContext.Current.Request != null)
+                if (HttpContext.Current != null)
                 {
                     // Check whether it is a correct uri
                     if (Uri.IsWellFormedUriString(resource, UriKind.RelativeOrAbsolute))
                     {
-
-                        // If the uri contains a scheme delimiter (://) then try to see if the autority is the same as the currrent request
+                        // If the uri contains a scheme delimiter (://) then try to see if the authority is the same as the current request
                         if (resource.Contains(Uri.SchemeDelimiter))
                         {
-                            var requestAuthority = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+                            string requestAuthority = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
                             if (resource.Trim().StartsWith(requestAuthority, StringComparison.CurrentCultureIgnoreCase))
                             {
                                 string path = resource.Substring(requestAuthority.Length);
-                                return HttpContext.Current.Server.MapPath(string.Format("~{0}", path));
+                                return HostingEnvironment.MapPath(string.Format("~{0}", path));
                             }
+
                             return resource;
                         }
 
@@ -43,13 +70,11 @@ namespace Cruncher.Helpers
                         if (!Path.IsPathRooted(resource))
                         {
                             string path = Path.Combine(VirtualPathUtility.GetDirectory(HttpContext.Current.Request.CurrentExecutionFilePath), resource);
-                            return HttpContext.Current.Server.MapPath(string.Format("~{0}", path));
+                            return HostingEnvironment.MapPath(string.Format("~{0}", path));
                         }
-                        else
-                        {
-                            // It is an absolute path
-                            return HttpContext.Current.Server.MapPath(string.Format("~{0}", resource));
-                        }
+
+                        // It is an absolute path
+                        return HostingEnvironment.MapPath(string.Format("~{0}", resource));
                     }
                 }
 
@@ -63,6 +88,7 @@ namespace Cruncher.Helpers
             }
         }
 
+        // TODO: Move this to a tests project
         //public static string Test()
         //{
         //    StringBuilder result = new StringBuilder();

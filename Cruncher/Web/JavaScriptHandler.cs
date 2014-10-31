@@ -98,9 +98,9 @@ namespace Cruncher.Web
                             List<string> files = new List<string>();
 
                             // Try to get the file using absolute/relative path
-                            if (!ResourceHelper.isResourceFilenameOnly(javaScriptFile))
+                            if (!ResourceHelper.IsResourceFilenameOnly(javaScriptFile))
                             {
-                                string javaScriptFilePath = ResourceHelper.getFilePath(javaScriptFile);
+                                string javaScriptFilePath = ResourceHelper.GetFilePath(javaScriptFile);
                                 if (File.Exists(javaScriptFilePath))
                                 {
                                     files.Add(javaScriptFilePath);
