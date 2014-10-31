@@ -19,6 +19,7 @@ namespace Cruncher
     using Cruncher.Compression;
     using Cruncher.Extensions;
     using Cruncher.Preprocessors;
+    using Cruncher.Helpers;
     #endregion
 
     /// <summary>
@@ -162,10 +163,24 @@ namespace Cruncher
                     if (!fileName.Contains("://"))
                     {
                         // Check and add the @import the match.
-                        FileInfo fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+                        FileInfo fileInfo = null;
+
+                        // Try to get the file by absolute/relative path
+                        if (!ResourceHelper.isResourceFilenameOnly(fileName))
+                        {
+                            string cssFilePath = ResourceHelper.getFilePath(fileName);
+                            if (File.Exists(cssFilePath))
+                            {
+                                fileInfo = new FileInfo(cssFilePath);
+                            }
+                        }
+                        else
+                        {
+                            fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+                        }
 
                         // Read the file.
-                        if (fileInfo.Exists)
+                        if (fileInfo != null && fileInfo.Exists)
                         {
                             string file = fileInfo.FullName;
 
