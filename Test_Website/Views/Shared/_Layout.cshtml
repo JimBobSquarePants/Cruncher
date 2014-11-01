@@ -5,13 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
-    @CruncherBundler.RenderCSS("style.css", "style.less", "style.scss")
-    @*    <link rel="stylesheet" href="/css.axd?path=style.css|style.less|style.scss" />*@
+    @CruncherBundler.RenderCSS("css-style.css", "less-style.less", "scss-style.scss")
 </head>
 <body>
-    @RenderBody()
-
+    <main> @RenderBody()</main>
     @CruncherBundler.RenderJavaScript("jquery", "test.coffee", "test.js")
-    @*    <script src="/js.axd?path=jquery-2.0.3.js|test.coffee|test.js"></script>*@
 </body>
 </html>

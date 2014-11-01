@@ -158,7 +158,7 @@ namespace Cruncher
                         mediaQuery = mediaQueries[0];
                     }
 
-                    string importedCSS = string.Empty;
+                    string importedCss = string.Empty;
 
                     if (!fileName.Contains("://"))
                     {
@@ -168,7 +168,7 @@ namespace Cruncher
                         // Try to get the file by absolute/relative path
                         if (!ResourceHelper.IsResourceFilenameOnly(fileName))
                         {
-                            string cssFilePath = ResourceHelper.GetFilePath(fileName);
+                            string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder);
                             if (File.Exists(cssFilePath))
                             {
                                 fileInfo = new FileInfo(cssFilePath);
@@ -187,7 +187,7 @@ namespace Cruncher
                             using (StreamReader reader = new StreamReader(file))
                             {
                                 // Parse the children.
-                                importedCSS = mediaQuery != null
+                                importedCss = mediaQuery != null
                                                   ? string.Format(
                                                       CultureInfo.InvariantCulture,
                                                       "@media {0}{{{1}{2}{1}}}",
@@ -198,11 +198,11 @@ namespace Cruncher
                             }
 
                             // Cache if applicable.
-                            this.AddFileMonitor(file, importedCSS);
+                            this.AddFileMonitor(file, importedCss);
                         }
 
                         // Replace the regex match with the full qualified css.
-                        css = css.Replace(match.Value, importedCSS);
+                        css = css.Replace(match.Value, importedCss);
                     }
                 }
             }

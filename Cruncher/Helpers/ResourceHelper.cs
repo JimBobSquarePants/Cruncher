@@ -40,10 +40,13 @@ namespace Cruncher.Helpers
         /// <param name="resource">
         /// The resource to return the path for.
         /// </param>
+        /// <param name="rootPath">
+        /// The root path for the application.
+        /// </param>
         /// <returns>
         /// The <see cref="string"/> representing the file path to the resource.
         /// </returns>
-        public static string GetFilePath(string resource)
+        public static string GetFilePath(string resource, string rootPath)
         {
             try
             {
@@ -69,12 +72,11 @@ namespace Cruncher.Helpers
                         // If it is a relative path then combines the request's path with the resource's path
                         if (!Path.IsPathRooted(resource))
                         {
-                            string path = Path.Combine(VirtualPathUtility.GetDirectory(HttpContext.Current.Request.CurrentExecutionFilePath), resource);
-                            return HostingEnvironment.MapPath(string.Format("~{0}", path));
+                            return Path.GetFullPath(Path.Combine(rootPath, resource));
                         }
 
                         // It is an absolute path
-                        return HostingEnvironment.MapPath(string.Format("~{0}", resource));
+                        return resource;
                     }
                 }
 

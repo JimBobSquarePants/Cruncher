@@ -104,7 +104,7 @@ namespace Cruncher.Web
                             // Try to get the file by absolute/relative path
                             if (!ResourceHelper.IsResourceFilenameOnly(cssFile))
                             {
-                                string cssFilePath = ResourceHelper.GetFilePath(cssFile);
+                                string cssFilePath = ResourceHelper.GetFilePath(cssFile, cruncherOptions.RootFolder);
 
                                 if (File.Exists(cssFilePath))
                                 {

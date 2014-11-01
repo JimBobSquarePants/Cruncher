@@ -104,7 +104,7 @@ namespace Cruncher.Web
                             // Try to get the file using absolute/relative path
                             if (!ResourceHelper.IsResourceFilenameOnly(javaScriptFile))
                             {
-                                string javaScriptFilePath = ResourceHelper.GetFilePath(javaScriptFile);
+                                string javaScriptFilePath = ResourceHelper.GetFilePath(javaScriptFile, cruncherOptions.RootFolder);
 
                                 if (File.Exists(javaScriptFilePath))
                                 {

@@ -141,7 +141,7 @@ namespace Cruncher
                     // Try to get the file by absolute/relative path
                     if (!ResourceHelper.IsResourceFilenameOnly(fileName))
                     {
-                        string cssFilePath = ResourceHelper.GetFilePath(fileName);
+                        string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder);
                         if (File.Exists(cssFilePath))
                         {
                             fileInfo = new FileInfo(cssFilePath);
