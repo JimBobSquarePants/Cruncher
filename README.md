@@ -4,6 +4,8 @@ Cruncher
 
 A CSS, LESS, SASS, SCSS, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
 
+[![Build status](https://ci.appveyor.com/api/projects/status/57f2i9iij1i5nun9?svg=true)](https://ci.appveyor.com/project/JamesSouth/cruncher)
+
 Cruncher makes optimising your resources easy. It can bundle unlimited combinations of remote and local CSS, LESS, SASS, SCSS, JavaScript, and CoffeeScript files;
 combining them, minifying them and caching them in the browser. Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning 
 cache should any changes be made to any of the referenced files.
