@@ -89,7 +89,7 @@ namespace Cruncher.Preprocessors.Sass
             }
             catch (Exception ex)
             {
-                throw new SassAndScssCompilingException(ex.Message, ex);
+                throw new SassAndScssCompilingException(ex.Message, ex.InnerException);
             }
         }
 

@@ -1,4 +1,6 @@
-﻿html{ height: 100%;}
+﻿html{ 
+    height: 100%;
+}
 
 /*! This comment should be preserved.*/
 @import url('imports/css-style2.css');

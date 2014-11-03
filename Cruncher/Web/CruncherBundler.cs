@@ -14,6 +14,9 @@ namespace Cruncher.Web
     using System.Diagnostics.CodeAnalysis;
     using System.Text;
     using System.Web;
+
+    using Cruncher.Web.Configuration;
+
     #endregion
 
     /// <summary>
@@ -27,9 +30,29 @@ namespace Cruncher.Web
         private const string CssTemplate = "<link rel=\"stylesheet\" href=\"/css.axd?path={0}{1}{2}\" {3}>";
 
         /// <summary>
-        /// The JavaScript prefix.
+        /// The template for generating css links.
+        /// </summary>
+        private const string CssDebugTemplate = "<link rel=\"stylesheet\" href=\"/css.axd?path={0}{1}\" {2}>";
+
+        /// <summary>
+        /// The template for generating JavaScript links.
         /// </summary>
         private const string JavaScriptTemplate = "<script type=\"text/javascript\" src=\"/js.axd?path={0}{1}{2}\"></script>";
+
+        /// <summary>
+        /// The template for generating JavaScript links.
+        /// </summary>
+        private const string JavaScriptDebugTemplate = "<script type=\"text/javascript\" src=\"/js.axd?path={0}{1}\"></script>";
+
+        /// <summary>
+        /// The CSS handler.
+        /// </summary>
+        private static readonly CssHandler CssHandler = new CssHandler();
+
+        /// <summary>
+        /// The JavaScript handler.
+        /// </summary>
+        private static readonly JavaScriptHandler JavaScriptHandler = new JavaScriptHandler();
 
         #region CSS
         /// <summary>
@@ -42,7 +65,8 @@ namespace Cruncher.Web
         /// <returns>
         /// The <see cref="HtmlString"/> containing the stylesheet link.
         /// </returns>
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly",
+            Justification = "Reviewed. Suppression is OK here.")]
         public static HtmlString RenderCSS(params string[] fileNames)
         {
             return RenderCSS(false, fileNames);
@@ -61,7 +85,8 @@ namespace Cruncher.Web
         /// <returns>
         /// The <see cref="HtmlString"/> containing the stylesheet link.
         /// </returns>
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly",
+            Justification = "Reviewed. Suppression is OK here.")]
         public static HtmlString RenderCSS(bool forceUnMinify, params string[] fileNames)
         {
             return RenderCSS(forceUnMinify, null, fileNames);
@@ -81,7 +106,8 @@ namespace Cruncher.Web
         /// <returns>
         /// The <see cref="HtmlString"/> containing the stylesheet link.
         /// </returns>
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly",
+            Justification = "Reviewed. Suppression is OK here.")]
         public static HtmlString RenderCSS(HtmlString mediaQuery, params string[] fileNames)
         {
             return RenderCSS(false, mediaQuery, fileNames);
@@ -104,7 +130,8 @@ namespace Cruncher.Web
         /// <returns>
         /// The <see cref="HtmlString"/> containing the stylesheet link.
         /// </returns>
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly",
+            Justification = "Reviewed. Suppression is OK here.")]
         public static HtmlString RenderCSS(bool forceUnMinify, HtmlString mediaQuery, params string[] fileNames)
         {
             return RenderCSS(false, mediaQuery, true, fileNames);
@@ -131,53 +158,49 @@ namespace Cruncher.Web
         /// <returns>
         /// The <see cref="HtmlString"/> containing the stylesheet link.
         /// </returns>
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly",
+            Justification = "Reviewed. Suppression is OK here.")]
         public static HtmlString RenderCSS(bool forceUnMinify, HtmlString mediaQuery, bool versioning = true, params string[] fileNames)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            string minify = forceUnMinify ? "&minify=false" : string.Empty;
 
+            if (CruncherConfiguration.Instance.MinifyCSS)
+            {
+                string minify = forceUnMinify ? "&minify=false" : string.Empty;
+
+                foreach (string fileName in fileNames)
+                {
+                    stringBuilder.AppendFormat("{0}|", fileName);
+                }
+
+                string path = stringBuilder.ToString().TrimEnd('|');
+
+                string version = string.Empty;
+                if (versioning)
+                {
+                    int versionNumber = CssHandler.ProcessCssCrunch(path, !forceUnMinify).GetHashCode();
+                    version = string.Format("&v={0}", versionNumber);
+                }
+
+                return new HtmlString(string.Format(CssTemplate, path, minify, version, mediaQuery));
+            }
+
+            // Render them separately for debug mode.
             foreach (string fileName in fileNames)
             {
-                stringBuilder.AppendFormat("{0}|", fileName);
+                string version = string.Empty;
+                if (versioning)
+                {
+                    int versionNumber = CssHandler.ProcessCssCrunch(fileName, false).GetHashCode();
+                    version = string.Format("&v={0}", versionNumber);
+                }
+
+                stringBuilder.AppendFormat(CssDebugTemplate, fileName, version, mediaQuery);
+                stringBuilder.AppendLine();
             }
 
-            string path = stringBuilder.ToString().TrimEnd('|');
-
-            string version = string.Empty;
-            if (versioning)
-            {
-                CssHandler cssHandler = new CssHandler();
-                int versionNumber = cssHandler.ProcessCssCrunch(path, !forceUnMinify).GetHashCode();
-                version = string.Format("&v={0}", versionNumber);
-            }
-
-            return new HtmlString(string.Format(CssTemplate, path, minify, version, mediaQuery));
+            return new HtmlString(stringBuilder.ToString());
         }
-
-        /// <summary>
-        /// Gets the css version number.
-        /// </summary>
-        /// <param name="fileNames">
-        /// The file names.
-        /// </param>
-        /// <returns>
-        /// The <see cref="int"/>.
-        /// </returns>
-        public static int CssVersionNumber(params string[] fileNames)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (string fileName in fileNames)
-            {
-                stringBuilder.AppendFormat("{0}|", fileName);
-            }
-
-            string path = stringBuilder.ToString().TrimEnd('|');
-
-            CssHandler cssHandler = new CssHandler();
-            return cssHandler.ProcessCssCrunch(path, true).GetHashCode();
-        }
-
         #endregion
 
         #region JavaScript
@@ -196,7 +219,6 @@ namespace Cruncher.Web
         {
             return RenderJavaScript(false, fileNames);
         }
-
 
         /// <summary>
         /// Renders the correct html to create a script tag linking to the crunched JavaScript representing the given files.
@@ -238,48 +260,43 @@ namespace Cruncher.Web
         public static HtmlString RenderJavaScript(bool forceUnMinify, bool versioning = true, params string[] fileNames)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            string minify = forceUnMinify ? "&minify=false" : string.Empty;
 
+            if (CruncherConfiguration.Instance.MinifyJavaScript)
+            {
+                string minify = forceUnMinify ? "&minify=false" : string.Empty;
+
+                foreach (string fileName in fileNames)
+                {
+                    stringBuilder.AppendFormat("{0}|", fileName);
+                }
+
+                string path = stringBuilder.ToString().TrimEnd('|');
+
+                string version = string.Empty;
+                if (versioning)
+                {
+                    int versionNumber = JavaScriptHandler.ProcessJavascriptCrunch(path, !forceUnMinify).GetHashCode();
+                    version = string.Format("&v={0}", versionNumber);
+                }
+
+                return new HtmlString(string.Format(JavaScriptTemplate, path, minify, version));
+            }
+
+            // Render them separately for debug mode.
             foreach (string fileName in fileNames)
             {
-                stringBuilder.AppendFormat("{0}|", fileName);
+                string version = string.Empty;
+                if (versioning)
+                {
+                    int versionNumber = JavaScriptHandler.ProcessJavascriptCrunch(fileName, false).GetHashCode();
+                    version = string.Format("&v={0}", versionNumber);
+                }
+
+                stringBuilder.AppendFormat(JavaScriptDebugTemplate, fileName, version);
+                stringBuilder.AppendLine();
             }
 
-            string path = stringBuilder.ToString().TrimEnd('|');
-
-            string version = string.Empty;
-            if (versioning)
-            {
-                JavaScriptHandler javaScriptHandler = new JavaScriptHandler();
-                int versionNumber = javaScriptHandler.ProcessJavascriptCrunch(path, !forceUnMinify).GetHashCode();
-                version = string.Format("&v={0}", versionNumber);
-            }
-
-            return new HtmlString(string.Format(JavaScriptTemplate, path, minify, version));
-        }
-
-        /// <summary>
-        /// Gets the version number for the given request.
-        /// </summary>
-        /// <param name="fileNames">
-        /// The file names.
-        /// </param>
-        /// <returns>
-        /// The <see cref="int"/>.
-        /// </returns>
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
-        public static int JavaScriptVersionNumber(params string[] fileNames)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (string fileName in fileNames)
-            {
-                stringBuilder.AppendFormat("{0}|", fileName);
-            }
-
-            string path = stringBuilder.ToString().TrimEnd('|');
-
-            JavaScriptHandler javaScriptHandler = new JavaScriptHandler();
-            return javaScriptHandler.ProcessJavascriptCrunch(path, true).GetHashCode();
+            return new HtmlString(stringBuilder.ToString());
         }
         #endregion
     }
