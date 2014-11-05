@@ -124,7 +124,7 @@ namespace Cruncher.Preprocessors
 
                     // Parse the Absolute path.
                     Uri resolvedSourcePath = !isExternal
-                                            ? new Uri(this.GetAbsolutePathFromRelative(sourceDirectory, capturedRelativePath))
+                                            ? new Uri(Path.Combine(sourceDirectory, capturedRelativePath))
                                             : new Uri(new Uri(sourceDirectory, UriKind.Absolute), new Uri(capturedRelativePath, UriKind.Relative));
 
                     // Make it relative.
@@ -154,43 +154,6 @@ namespace Cruncher.Preprocessors
             }
 
             return input;
-        }
-
-        /// <summary>
-        /// Returns the absolute path to the relative resource.
-        /// </summary>
-        /// <param name="sourceDirectory">
-        /// The source directory to parse against.
-        /// </param>
-        /// <param name="relativePath">
-        /// The relative path.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/> representing the absolute path to the file.
-        /// </returns>
-        private string GetAbsolutePathFromRelative(string sourceDirectory, string relativePath)
-        {
-            if (!relativePath.StartsWith(".."))
-            {
-                return Path.GetFullPath(Path.Combine(sourceDirectory, relativePath));
-            }
-
-            DirectoryInfo directoryInfo = new DirectoryInfo(sourceDirectory);
-
-            // Path is always propagated.
-            // ReSharper disable once PossibleNullReferenceException
-            string directoryName = Path.GetDirectoryName(relativePath).TrimStart(new[] { '.', '\\' });
-            string fileName = Path.GetFileName(relativePath);
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (DirectoryInfo directory in directoryInfo.EnumerateDirectories(directoryName, SearchOption.AllDirectories))
-            {
-                foreach (FileInfo file in directory.EnumerateFiles(fileName, SearchOption.AllDirectories))
-                {
-                    return file.FullName;
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
