@@ -15,6 +15,7 @@ namespace Cruncher.Web.Configuration
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Runtime.Caching;
     #endregion
 
     /// <summary>
@@ -87,6 +88,16 @@ namespace Cruncher.Web.Configuration
             get
             {
                 return this.GetCruncherCacheSection().MaxDays;
+            }
+        }
+        /// <summary>
+        /// Gets the priority to store items in the cache.
+        /// </summary>
+        public CacheItemPriority CachePriority
+        {
+            get
+            {
+                return this.GetCruncherCacheSection().CachePriority;
             }
         }
         #endregion
