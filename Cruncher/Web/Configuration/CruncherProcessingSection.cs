@@ -41,6 +41,17 @@ namespace Cruncher.Web.Configuration
             get { return (VirtualPathsElement)this["virtualPaths"]; }
             set { this["virtualPaths"] = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="T:Cruncher.Web.Configuration.CruncherProcessingSection.PhysicalFilesElement"/>.
+        /// </summary>
+        /// <value>The <see cref="T:Cruncher.Web.Configuration.CruncherProcessingSection.PhysicalFilesElement"/>.</value>
+        [ConfigurationProperty("physicalFiles", IsRequired = true)]
+        public PhysicalFilesElement PhysicalFiles
+        {
+            get { return (PhysicalFilesElement)this["physicalFiles"]; }
+            set { this["physicalFiles"] = value; }
+        }
         #endregion
 
         #region Methods
@@ -149,5 +160,52 @@ namespace Cruncher.Web.Configuration
                 }
             }
         }
+
+
+        /// <summary>
+        /// Represents a physicalFiles configuration element within the configuration.
+        /// </summary>
+        public class PhysicalFilesElement : ConfigurationElement
+        {
+            /// <summary>
+            /// Gets or sets where to create resource files (css/js)
+            /// </summary>
+            /// <value>The path of the cache folder.</value>
+            [ConfigurationProperty("path", DefaultValue = "~/assetsCruncher", IsRequired = true)]
+            [StringValidator(MinLength = 3, MaxLength = 200)]
+            public string Path
+            {
+                get
+                {
+                    string virtualPath = (string)this["path"];
+                    return virtualPath;
+                }
+
+                set
+                {
+                    this["path"] = value;
+                }
+            }
+
+            /// <summary>
+            /// Gets or sets the number of days to keep old files
+            /// </summary>
+            /// <value>The number of days</value>
+            [ConfigurationProperty("daysBeforeRemoveExpired", DefaultValue = "7", IsRequired = false)]
+            [IntegerValidator(ExcludeRange = false, MinValue = 1)]
+            public int DaysBeforeRemoveExpired
+            {
+                get
+                {
+                    return (int)this["daysBeforeRemoveExpired"];
+                }
+
+                set
+                {
+                    this["daysBeforeRemoveExpired"] = value;
+                }
+            }
+        }
+
     }
 }

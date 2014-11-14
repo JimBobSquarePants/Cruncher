@@ -195,6 +195,29 @@ namespace Cruncher.Web.Configuration
                 return this.GetCruncherProcessingSection().Compression.CompressResources;
             }
         }
+
+        /// <summary>
+        /// Gets the directory's path where to store physical files
+        /// </summary>
+        public string physicalFilesPath
+        {
+            get
+            {
+                return this.GetCruncherProcessingSection().PhysicalFiles.Path;
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of days to keep physical files
+        /// </summary>
+        public int physicalFilesDaysBeforeRemoveExpired
+        {
+            get
+            {
+                return this.GetCruncherProcessingSection().PhysicalFiles.DaysBeforeRemoveExpired;
+            }
+        }
+
         #endregion
         #endregion
 
