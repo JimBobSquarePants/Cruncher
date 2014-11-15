@@ -10,6 +10,10 @@
 
 namespace Cruncher
 {
+    #region Using
+    using System.Runtime.Caching;
+    #endregion
+
     /// <summary>
     /// The cruncher options.
     /// </summary>
@@ -34,6 +38,11 @@ namespace Cruncher
         /// Gets or sets the cache length in days.
         /// </summary>
         public int CacheLength { get; set; }
+
+        /// <summary>
+        /// Gets or sets the cache priority
+        /// </summary>
+        public CacheItemPriority CachePriority { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to allow remote files.

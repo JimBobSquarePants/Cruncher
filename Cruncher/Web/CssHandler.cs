@@ -90,6 +90,7 @@ namespace Cruncher.Web
 
                     cruncherOptions.CacheFiles = cruncherOptions.Minify;
                     cruncherOptions.CacheLength = cruncherOptions.Minify ? CruncherConfiguration.Instance.MaxCacheDays : 0;
+                    cruncherOptions.CachePriority = CruncherConfiguration.Instance.CachePriority;
 
                     this.cssCruncher = new CssCruncher(cruncherOptions);
 
