@@ -199,7 +199,7 @@ namespace Cruncher.Web.Configuration
         /// <summary>
         /// Gets the directory's path where to store physical files
         /// </summary>
-        public string physicalFilesPath
+        public string PhysicalFilesPath
         {
             get
             {
@@ -210,7 +210,7 @@ namespace Cruncher.Web.Configuration
         /// <summary>
         /// Gets the number of days to keep physical files
         /// </summary>
-        public int physicalFilesDaysBeforeRemoveExpired
+        public int PhysicalFilesDaysBeforeRemoveExpired
         {
             get
             {

@@ -165,3 +165,6 @@ pip-log.txt
 #Nuget
 
 *.nupkg
+
+# Test Files
+assets-cruncher/

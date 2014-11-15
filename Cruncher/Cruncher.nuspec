@@ -27,12 +27,12 @@
     <releaseNotes>
     </releaseNotes>
     <copyright>Copyright $author$</copyright>
-    <tags>Performance Speed JavaScript CSS LESS CoffeeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
+    <tags>Performance Speed JavaScript CSS LESS CoffeeScript JS JavaScript Minify Compiler Combine Optimization Min Ajax Bundle</tags>
     <dependencies>
       <dependency id="AjaxMin" version="5.11.5295.12309" />
       <dependency id="dotless" version="1.4.1.0" />
       <dependency id="Jurassic" version="2.2.0" />
-      <dependency id="libsassnet" version="3.0.1.1" />
+      <dependency id="libsassnet.x64" version="3.0.1.1" />
       <dependency id="Newtonsoft.Json" version="6.0.6" />
     </dependencies>
   </metadata>

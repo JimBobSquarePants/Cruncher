@@ -161,17 +161,16 @@ namespace Cruncher.Web.Configuration
             }
         }
 
-
         /// <summary>
         /// Represents a physicalFiles configuration element within the configuration.
         /// </summary>
         public class PhysicalFilesElement : ConfigurationElement
         {
             /// <summary>
-            /// Gets or sets where to create resource files (css/js)
+            /// Gets or sets where to create resource files (css/javascript)
             /// </summary>
             /// <value>The path of the cache folder.</value>
-            [ConfigurationProperty("path", DefaultValue = "~/assetsCruncher", IsRequired = true)]
+            [ConfigurationProperty("path", DefaultValue = "~/assets-cruncher", IsRequired = true)]
             [StringValidator(MinLength = 3, MaxLength = 200)]
             public string Path
             {
@@ -206,6 +205,5 @@ namespace Cruncher.Web.Configuration
                 }
             }
         }
-
     }
 }

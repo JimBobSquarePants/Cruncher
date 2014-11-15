@@ -184,6 +184,7 @@ namespace Cruncher
                 CacheItemPolicy cacheItemPolicy = new CacheItemPolicy();
                 int days = this.Options.CacheLength;
                 cacheItemPolicy.AbsoluteExpiration = DateTime.UtcNow.AddDays(days != 0 ? days : -1);
+                cacheItemPolicy.Priority = CacheItemPriority.NotRemovable;
 
                 string key = filename.ToMd5Fingerprint();
 
