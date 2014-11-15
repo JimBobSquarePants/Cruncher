@@ -29,7 +29,7 @@
 			  character url limit.
 			  -->
 			  <whiteList>
-				<add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.js" />
+				<add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.js" />
 			  </whiteList>
 			</security>
 			<processing>
@@ -37,7 +37,9 @@
 			  <compression minifyCSS="true" minifyJS="true" compressResponse="true" />
 			  <!-- The comma separated virtual paths to the css and js folders.-->
 			  <virtualPaths cssPaths="~/content" jsPaths="~/scripts" />
-			</processing>
+                          <!-- Where to store crunched files in the application and how long to keep expired ones.-->
+                          <physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7"/>			
+                        </processing>
 			<!-- The number of days to store a client resource in the cache. -->
 			<cache maxDays="365" />
 		  </cruncher>

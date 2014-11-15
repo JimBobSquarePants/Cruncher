@@ -17,9 +17,7 @@
 
   <system.webServer>
     <handlers>
-      <!--The CSS compression HttpHandler-->
       <add name="CssHandler" verb="*" path="css.axd" type="Cruncher.Web.CssHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode" />
-      <!--The JavaScipt compression HttpHandler-->
       <add name="JavaScript" verb="*" path="js.axd" type="Cruncher.Web.JavaScriptHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode" />
     </handlers>
   </system.webServer>
@@ -27,12 +25,13 @@
   <cruncher>
     <security allowRemoteDownloads="true" maxBytes="524288" timeout="300000">
       <whiteList>
-        <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.js" />
+        <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.js" />
       </whiteList>
     </security>
     <processing>
       <compression minifyCSS="true" minifyJS="true" compressResponse="true" />
       <virtualPaths cssPaths="~/content, ~/css" jsPaths="~/scripts, ~/js" />
+      <physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7"/>
     </processing>
     <cache maxDays="365" />
   </cruncher>
