@@ -474,7 +474,7 @@ namespace Cruncher.Web
                         // If the file's last write datetime is older that xx days then delete it
                         if (fileInfo.LastWriteTimeUtc.AddDays(CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired) > DateTime.UtcNow)
                         {
-                            break;
+                            continue;
                         }
 
                         // Delete the file
