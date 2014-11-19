@@ -145,6 +145,10 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Content Include="Content\css-style.css" />
+    <Content Include="Content\imports\css-style5.css" />
+    <Content Include="Content\imports\import.css" />
+    <Content Include="Content\imports\css-style4.css" />
+    <Content Include="Content\imports\css-style3.css" />
     <Content Include="Content\less-style.css">
       <DependentUpon>less-style.less</DependentUpon>
     </Content>
@@ -152,6 +156,7 @@
       <DependentUpon>less-style.css</DependentUpon>
     </Content>
     <Content Include="Content\libs\images\arnie-conan.jpg" />
+	<Content Include="Content\libs\images\css_image.jpg" />
     <Content Include="Content\scss-style.css">
       <DependentUpon>scss-style.scss</DependentUpon>
     </Content>
