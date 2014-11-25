@@ -1,0 +1,4 @@
+﻿.test-absolute-relative-path-image2 {
+    background-image: url('../libs/images/css_image.jpg');
+    height: 60px;
+}

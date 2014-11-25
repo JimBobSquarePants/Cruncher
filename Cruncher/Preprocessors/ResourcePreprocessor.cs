@@ -175,6 +175,14 @@ namespace Cruncher.Preprocessors
                 return Path.GetFullPath(Path.Combine(sourceDirectory, relativePath));
             }
 
+            // Check whether the file could be reached directly by combining source directory and relative path
+            string absolutePath = Path.GetFullPath(Path.Combine(sourceDirectory, relativePath));
+            if (File.Exists(absolutePath))
+            {
+                return absolutePath;
+            }
+
+            // Reached this point it is necessary to tterate through source directory's sub-directories looking for the relavite path
             DirectoryInfo directoryInfo = new DirectoryInfo(sourceDirectory);
 
             // Path is always propagated.

@@ -380,8 +380,12 @@ namespace Cruncher.Web
         /// </returns>
         private static string CreateResourcePhysicalFile(string fileName, string fileContent)
         {
+            // Cache item to ensure that checking file's creation date is performed only every xx hours
             string cacheIdCheckCreationDate = string.Format("_CruncherCheckFileCreationDate_{0}", fileName);
             const int CheckCreationDateFrequencyHours = 6;
+
+            // Cache item to ensure that checking whether the file exists is performed only every xx hours
+            string cacheIdCheckFileExists = string.Format("_CruncherCheckFileExists_{0}", fileName);
 
             string fileVirtualPath = VirtualPathUtility.AppendTrailingSlash(CruncherConfiguration.Instance.PhysicalFilesPath) + fileName;
             string filePath = HostingEnvironment.MapPath(fileVirtualPath);
@@ -393,6 +397,18 @@ namespace Cruncher.Web
             // Check whether the resource file already exists
             if (filePath != null)
             {
+                // In order to avoid checking whether the file exists for every request (for a very busy site could be be thousands of requests per minute)
+                // a new cache item that will expire in a minute is created. That means that if the file is deleted (what should never happen) then it will be recreated after one minute.
+                // With this improvement IO operations are reduced to one per minute for already existing files
+                if (CacheManager.GetItem(cacheIdCheckFileExists) == null)
+                {
+                    CacheItemPolicy policycacheIdCheckFileExists = new CacheItemPolicy
+                    {
+                        SlidingExpiration = TimeSpan.FromMinutes(1),
+                        Priority = CacheItemPriority.NotRemovable
+                    };
+                    CacheManager.AddItem(cacheIdCheckFileExists, "1", policycacheIdCheckFileExists);
+
                 FileInfo fileInfo = new FileInfo(filePath);
                 if (fileInfo.Exists)
                 {
@@ -404,13 +420,13 @@ namespace Cruncher.Web
                     {
                         File.SetLastWriteTimeUtc(filePath, DateTime.UtcNow);
 
-                        CacheItemPolicy policy = new CacheItemPolicy
+                            CacheItemPolicy policyCheckCreationDate = new CacheItemPolicy
                         {
                             SlidingExpiration = TimeSpan.FromHours(CheckCreationDateFrequencyHours),
                             Priority = CacheItemPriority.NotRemovable
                         };
 
-                        CacheManager.AddItem(cacheIdCheckCreationDate, "1", policy);
+                            CacheManager.AddItem(cacheIdCheckCreationDate, "1", policyCheckCreationDate);
                     }
                 }
                 else
@@ -429,6 +445,7 @@ namespace Cruncher.Web
                     }
 
                     File.WriteAllText(filePath, fileContent);
+                    }
                 }
             }
 
