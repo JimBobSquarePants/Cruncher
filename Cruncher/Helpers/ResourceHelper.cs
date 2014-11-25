@@ -11,15 +11,27 @@
 namespace Cruncher.Helpers
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using System.Runtime.Caching;
+    using System.Text.RegularExpressions;
     using System.Web;
     using System.Web.Hosting;
+
+    using Cruncher.Caching;
+    using Cruncher.Web.Configuration;
 
     /// <summary>
     /// Provides a series of helper methods for dealing with resources.
     /// </summary>
     public class ResourceHelper
     {
+        /// <summary>
+        /// The physical file regex.
+        /// </summary>
+        private static readonly Regex PhysicalFileRegex = new Regex(@"^(-)?[0-9]+\.(css|js)$", RegexOptions.IgnoreCase);
+
         /// <summary>
         /// Get's a value indicating whether the resource is a filename only.
         /// </summary>
@@ -72,8 +84,7 @@ namespace Cruncher.Helpers
                         // If it is a relative path then combines the request's path with the resource's path
                         if (!Path.IsPathRooted(resource))
                         {
-                            string path = Path.GetFullPath(Path.Combine(rootPath, resource));
-                            return HostingEnvironment.MapPath(string.Format("~{0}", path));
+                            return Path.GetFullPath(Path.Combine(rootPath, resource));
                         }
 
                         // It is an absolute path
@@ -88,6 +99,146 @@ namespace Cruncher.Helpers
             {
                 // If there is an error then the method returns the original resource path since the method doesn't know how to process it
                 return resource;
+            }
+        }
+
+        /// <summary>
+        /// The create resource physical file.
+        /// </summary>
+        /// <param name="fileName">
+        /// The file name.
+        /// </param>
+        /// <param name="fileContent">
+        /// The file content.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public static string CreateResourcePhysicalFile(string fileName, string fileContent)
+        {
+            // Cache item to ensure that checking file's creation date is performed only every xx hours
+            string cacheIdCheckCreationDate = string.Format("_CruncherCheckFileCreationDate_{0}", fileName);
+            const int CheckCreationDateFrequencyHours = 6;
+
+            // Cache item to ensure that checking whether the file exists is performed only every xx hours
+            string cacheIdCheckFileExists = string.Format("_CruncherCheckFileExists_{0}", fileName);
+
+            string fileVirtualPath = VirtualPathUtility.AppendTrailingSlash(CruncherConfiguration.Instance.PhysicalFilesPath) + fileName;
+            string filePath = HostingEnvironment.MapPath(fileVirtualPath);
+
+            // Trims the physical files folder ensuring that it does not contains files older than xx days 
+            // This is performed before creating the physical resource file
+            TrimPhysicalFilesFolder(HostingEnvironment.MapPath(CruncherConfiguration.Instance.PhysicalFilesPath));
+
+            // Check whether the resource file already exists
+            if (filePath != null)
+            {
+                // In order to avoid checking whether the file exists for every request (for a very busy site could be be thousands of requests per minute)
+                // a new cache item is added that will expire in a minute is created. That means that if the file is deleted (what should never happen) then it will be recreated after one minute.
+                // With this improvement IO operations are reduced to one per minute for already existing files
+                if (CacheManager.GetItem(cacheIdCheckFileExists) == null)
+                {
+                    CacheItemPolicy policycacheIdCheckFileExists = new CacheItemPolicy
+                    {
+                        SlidingExpiration = TimeSpan.FromMinutes(1),
+                        Priority = CacheItemPriority.NotRemovable
+                    };
+                    CacheManager.AddItem(cacheIdCheckFileExists, "1", policycacheIdCheckFileExists);
+
+                    FileInfo fileInfo = new FileInfo(filePath);
+                    if (fileInfo.Exists)
+                    {
+                        // The resource file exists but it is necessary from time to time to update the file creation date 
+                        // in order to avoid the file to be deleted by the clean up process.
+                        // To know whether the check has been performed (in order to avoid executing this check everytime) creates 
+                        // a cache item that will expire in 12 hours.
+                        if (CacheManager.GetItem(cacheIdCheckCreationDate) == null)
+                        {
+                            File.SetLastWriteTimeUtc(filePath, DateTime.UtcNow);
+
+                            CacheItemPolicy policyCheckCreationDate = new CacheItemPolicy
+                            {
+                                SlidingExpiration = TimeSpan.FromHours(CheckCreationDateFrequencyHours),
+                                Priority = CacheItemPriority.NotRemovable
+                            };
+
+                            CacheManager.AddItem(cacheIdCheckCreationDate, "1", policyCheckCreationDate);
+                        }
+                    }
+                    else
+                    {
+                        // The resource file doesn't exist 
+                        // Make sure that the directory exists
+                        string directoryPath = HostingEnvironment.MapPath(CruncherConfiguration.Instance.PhysicalFilesPath);
+                        if (directoryPath != null)
+                        {
+                            DirectoryInfo directoryInfo = new DirectoryInfo(directoryPath);
+                            if (!directoryInfo.Exists)
+                            {
+                                // Don't swallow any errors. We want to know if this doesn't work.
+                                Directory.CreateDirectory(directoryPath);
+                            }
+                        }
+
+                        File.WriteAllText(filePath, fileContent);
+                    }
+                }
+            }
+
+            // Return the url absolute path
+            return fileVirtualPath.TrimStart('~');
+        }
+
+        /// <summary>
+        /// Trims the physical files folder ensuring that it does not contains files older than xx days 
+        /// </summary>
+        /// <param name="path">
+        /// The path to the folder.
+        /// </param>
+        public static void TrimPhysicalFilesFolder(string path)
+        {
+            const string CacheIdTrimPhysicalFilesFolder = "_CruncherTrimPhysicalFilesFolder";
+            const int TrimPhysicalFilesFolderFrequencyHours = 6;
+
+            // To know whether the trim process has already been performed 
+            // (in order to avoid executing this process everytime) creates a cache item that will expire in 12 hours.
+            if (CacheManager.GetItem(CacheIdTrimPhysicalFilesFolder) != null)
+            {
+                return;
+            }
+
+            CacheItemPolicy policy = new CacheItemPolicy
+            {
+                SlidingExpiration = TimeSpan.FromHours(TrimPhysicalFilesFolderFrequencyHours),
+                Priority = CacheItemPriority.NotRemovable
+            };
+
+            CacheManager.AddItem(CacheIdTrimPhysicalFilesFolder, "1", policy);
+            if (!string.IsNullOrWhiteSpace(path) && Directory.Exists(path))
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo(path);
+
+                // Regular expression to get resource files which names match Cruncher's filename pattern.
+                IEnumerable<FileInfo> files = directoryInfo.EnumerateFiles().Where(f => PhysicalFileRegex.IsMatch(Path.GetFileName(f.Name))).OrderBy(f => f.CreationTimeUtc);
+                foreach (FileInfo fileInfo in files)
+                {
+                    try
+                    {
+                        // If the file's last write datetime is older that xx days then delete it
+                        if (fileInfo.LastWriteTimeUtc.AddDays(CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired) > DateTime.UtcNow)
+                        {
+                            continue;
+                        }
+
+                        // Delete the file
+                        fileInfo.Delete();
+                    }
+                    // ReSharper disable once EmptyGeneralCatchClause
+                    catch
+                    {
+                        // Do nothing; skip to the next file.
+                    }
+                }
             }
         }
 
@@ -120,6 +271,5 @@ namespace Cruncher.Helpers
         //    Console.WriteLine(result.ToString());
         //    return result.ToString();
         //}
-
     }
 }

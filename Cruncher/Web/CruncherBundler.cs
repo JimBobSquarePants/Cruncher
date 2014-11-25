@@ -10,18 +10,11 @@
 
 namespace Cruncher.Web
 {
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.Caching;
     using System.Text;
-    using System.Text.RegularExpressions;
     using System.Web;
-    using System.Web.Hosting;
 
-    using Cruncher.Caching;
+    using Cruncher.Helpers;
     using Cruncher.Web.Configuration;
 
     /// <summary>
@@ -48,11 +41,6 @@ namespace Cruncher.Web
         /// The template for generating JavaScript links pointing to a physical file
         /// </summary>
         private const string JavaScriptTemplatePhysicalFile = "<script type=\"text/javascript\" src=\"{0}\"></script>";
-
-        /// <summary>
-        /// The physical file regex.
-        /// </summary>
-        private static readonly Regex PhysicalFileRegex = new Regex(@"^(-)?[0-9]+\.(css|js)$", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// The CSS handler.
@@ -86,7 +74,7 @@ namespace Cruncher.Web
         /// Renders the correct html to create a stylesheet link to the crunched css representing the given files.
         /// </summary>
         /// <param name="forceUnMinify">
-        /// Whether to force cruncher to output the crunched css in an unminified state.
+        /// Whether to force cruncher to output the crunched css in an un-minified state.
         /// </param>
         /// <param name="fileNames">
         /// The file names, without the directory path, to link to. These can be .css, .less, .sass, and .scss files or an extension-less token representing an
@@ -127,7 +115,7 @@ namespace Cruncher.Web
         /// Renders the correct html to create a stylesheet link to the crunched css representing the given files.
         /// </summary>
         /// <param name="forceUnMinify">
-        /// Whether to force cruncher to output the crunched css in an unminified state.
+        /// Whether to force cruncher to output the crunched css in an un-minified state.
         /// </param>
         /// <param name="mediaQuery">
         /// The media query to apply to the link. For reference see:
@@ -151,7 +139,7 @@ namespace Cruncher.Web
         /// Renders the correct html to create a stylesheet link to the crunched css representing the given files.
         /// </summary>
         /// <param name="forceUnMinify">
-        /// Whether to force cruncher to output the crunched css in an unminified state.
+        /// Whether to force cruncher to output the crunched css in an un-minified state.
         /// </param>
         /// <param name="mediaQuery">
         /// The media query to apply to the link. For reference see:
@@ -200,7 +188,7 @@ namespace Cruncher.Web
                 {
                     string fileContent = CssHandler.ProcessCssCrunch(path, !forceUnMinify);
                     string fileName = string.Format("{0}.css", fileContent.GetHashCode());
-                    return new HtmlString(string.Format(CssTemplatePhysicalFile, CreateResourcePhysicalFile(fileName, fileContent), mediaQuery));
+                    return new HtmlString(string.Format(CssTemplatePhysicalFile, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), mediaQuery));
                 }
 
                 string cssVersion = string.Empty;
@@ -262,7 +250,7 @@ namespace Cruncher.Web
         /// Renders the correct html to create a script tag linking to the crunched JavaScript representing the given files.
         /// </summary>
         /// <param name="forceUnMinify">
-        /// Whether to force cruncher to output the crunched css in an unminified state.
+        /// Whether to force cruncher to output the crunched css in an un-minified state.
         /// </param>
         /// <param name="fileNames">
         /// The file names, without the directory path, to link to. These can be .js, and .coffee files or an extension-less token representing an
@@ -281,7 +269,7 @@ namespace Cruncher.Web
         /// Renders the correct html to create a script tag linking to the crunched JavaScript representing the given files.
         /// </summary>
         /// <param name="forceUnMinify">
-        /// Whether to force cruncher to output the crunched css in an unminified state.
+        /// Whether to force cruncher to output the crunched css in an un-minified state.
         /// </param>
         /// <param name="createPhysicalFile">
         /// If true it will create a physical file for the crunched javascript
@@ -325,7 +313,7 @@ namespace Cruncher.Web
                 {
                     string fileContent = JavaScriptHandler.ProcessJavascriptCrunch(path, !forceUnMinify);
                     string fileName = string.Format("{0}.js", fileContent.GetHashCode());
-                    return new HtmlString(string.Format(JavaScriptTemplatePhysicalFile, CreateResourcePhysicalFile(fileName, fileContent)));
+                    return new HtmlString(string.Format(JavaScriptTemplatePhysicalFile, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent)));
                 }
 
                 string javaScriptVersion = string.Empty;
@@ -345,7 +333,7 @@ namespace Cruncher.Web
                 {
                     string fileContent = JavaScriptHandler.ProcessJavascriptCrunch(fileName, false);
                     string filename = string.Format("{0}.js", fileContent.GetHashCode());
-                    stringBuilder.AppendFormat(JavaScriptTemplatePhysicalFile, CreateResourcePhysicalFile(filename, fileContent));
+                    stringBuilder.AppendFormat(JavaScriptTemplatePhysicalFile, ResourceHelper.CreateResourcePhysicalFile(filename, fileContent));
                     stringBuilder.AppendLine();
                 }
                 else
@@ -365,145 +353,5 @@ namespace Cruncher.Web
             return new HtmlString(stringBuilder.ToString());
         }
         #endregion
-
-        /// <summary>
-        /// The create resource physical file.
-        /// </summary>
-        /// <param name="fileName">
-        /// The file name.
-        /// </param>
-        /// <param name="fileContent">
-        /// The file content.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        private static string CreateResourcePhysicalFile(string fileName, string fileContent)
-        {
-            // Cache item to ensure that checking file's creation date is performed only every xx hours
-            string cacheIdCheckCreationDate = string.Format("_CruncherCheckFileCreationDate_{0}", fileName);
-            const int CheckCreationDateFrequencyHours = 6;
-
-            // Cache item to ensure that checking whether the file exists is performed only every xx hours
-            string cacheIdCheckFileExists = string.Format("_CruncherCheckFileExists_{0}", fileName);
-
-            string fileVirtualPath = VirtualPathUtility.AppendTrailingSlash(CruncherConfiguration.Instance.PhysicalFilesPath) + fileName;
-            string filePath = HostingEnvironment.MapPath(fileVirtualPath);
-
-            // Trims the physical files folder ensuring that it does not contains files older than xx days 
-            // This is performed before creating the physical resource file
-            TrimPhysicalFilesFolder(HostingEnvironment.MapPath(CruncherConfiguration.Instance.PhysicalFilesPath));
-
-            // Check whether the resource file already exists
-            if (filePath != null)
-            {
-                // In order to avoid checking whether the file exists for every request (for a very busy site could be be thousands of requests per minute)
-                // a new cache item that will expire in a minute is created. That means that if the file is deleted (what should never happen) then it will be recreated after one minute.
-                // With this improvement IO operations are reduced to one per minute for already existing files
-                if (CacheManager.GetItem(cacheIdCheckFileExists) == null)
-                {
-                    CacheItemPolicy policycacheIdCheckFileExists = new CacheItemPolicy
-                    {
-                        SlidingExpiration = TimeSpan.FromMinutes(1),
-                        Priority = CacheItemPriority.NotRemovable
-                    };
-                    CacheManager.AddItem(cacheIdCheckFileExists, "1", policycacheIdCheckFileExists);
-
-                FileInfo fileInfo = new FileInfo(filePath);
-                if (fileInfo.Exists)
-                {
-                    // The resource file exists but it is necessary from time to time to update the file creation date 
-                    // in order to avoid the file to be deleted by the clean up process.
-                    // To know whether the check has been performed (in order to avoid executing this check everytime) creates 
-                    // a cache item that will expire in 12 hours.
-                    if (CacheManager.GetItem(cacheIdCheckCreationDate) == null)
-                    {
-                        File.SetLastWriteTimeUtc(filePath, DateTime.UtcNow);
-
-                            CacheItemPolicy policyCheckCreationDate = new CacheItemPolicy
-                        {
-                            SlidingExpiration = TimeSpan.FromHours(CheckCreationDateFrequencyHours),
-                            Priority = CacheItemPriority.NotRemovable
-                        };
-
-                            CacheManager.AddItem(cacheIdCheckCreationDate, "1", policyCheckCreationDate);
-                    }
-                }
-                else
-                {
-                    // The resource file doesn't exist 
-                    // Make sure that the directory exists
-                    string directoryPath = HostingEnvironment.MapPath(CruncherConfiguration.Instance.PhysicalFilesPath);
-                    if (directoryPath != null)
-                    {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(directoryPath);
-                        if (!directoryInfo.Exists)
-                        {
-                            // Don't swallow any errors. We want to know if this doesn't work.
-                            Directory.CreateDirectory(directoryPath);
-                        }
-                    }
-
-                    File.WriteAllText(filePath, fileContent);
-                    }
-                }
-            }
-
-            // Return the url absolute path
-            return fileVirtualPath.TrimStart('~');
-        }
-
-        /// <summary>
-        /// Trims the physical files folder ensuring that it does not contains files older than xx days 
-        /// </summary>
-        /// <param name="path">
-        /// The path to the folder.
-        /// </param>
-        private static void TrimPhysicalFilesFolder(string path)
-        {
-            const string CacheIdTrimPhysicalFilesFolder = "_CruncherTrimPhysicalFilesFolder";
-            const int TrimPhysicalFilesFolderFrequencyHours = 6;
-
-            // To know whether the trim process has already been performed 
-            // (in order to avoid executing this process everytime) creates a cache item that will expire in 12 hours.
-            if (CacheManager.GetItem(CacheIdTrimPhysicalFilesFolder) != null)
-            {
-                return;
-            }
-
-            CacheItemPolicy policy = new CacheItemPolicy
-            {
-                SlidingExpiration = TimeSpan.FromHours(TrimPhysicalFilesFolderFrequencyHours),
-                Priority = CacheItemPriority.NotRemovable
-            };
-
-            CacheManager.AddItem(CacheIdTrimPhysicalFilesFolder, "1", policy);
-            if (!string.IsNullOrWhiteSpace(path) && Directory.Exists(path))
-            {
-                DirectoryInfo directoryInfo = new DirectoryInfo(path);
-
-                // Regular expression to get resource files which names match Cruncher's filename pattern.
-                IEnumerable<FileInfo> files = directoryInfo.EnumerateFiles().Where(f => PhysicalFileRegex.IsMatch(Path.GetFileName(f.Name))).OrderBy(f => f.CreationTimeUtc);
-                foreach (FileInfo fileInfo in files)
-                {
-                    try
-                    {
-                        // If the file's last write datetime is older that xx days then delete it
-                        if (fileInfo.LastWriteTimeUtc.AddDays(CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired) > DateTime.UtcNow)
-                        {
-                            continue;
-                        }
-
-                        // Delete the file
-                        fileInfo.Delete();
-                    }
-                    // ReSharper disable once EmptyGeneralCatchClause
-                    catch
-                    {
-                        // Do nothing; skip to the next file.
-                    }
-                }
-            }
-        }
     }
 }

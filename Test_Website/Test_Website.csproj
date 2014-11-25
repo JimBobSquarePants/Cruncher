@@ -49,12 +49,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Jurassic.2.1.1\lib\Jurassic.dll</HintPath>
     </Reference>
-    <Reference Include="LibSass.x64">
+    <Reference Include="LibSass.x64, Version=0.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\libsassnet.x64.3.0.1.1\lib\net40\LibSass.x64.dll</HintPath>
     </Reference>
-    <Reference Include="libsassnet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="libsassnet">
       <HintPath>..\packages\libsassnet.x64.3.0.1.1\lib\net40\libsassnet.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -156,7 +157,7 @@
       <DependentUpon>less-style.css</DependentUpon>
     </Content>
     <Content Include="Content\libs\images\arnie-conan.jpg" />
-	<Content Include="Content\libs\images\css_image.jpg" />
+    <Content Include="Content\libs\images\css_image.jpg" />
     <Content Include="Content\scss-style.css">
       <DependentUpon>scss-style.scss</DependentUpon>
     </Content>

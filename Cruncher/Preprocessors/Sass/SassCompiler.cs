@@ -4,9 +4,7 @@
 //   Licensed under the Apache License, Version 2.0.
 // </copyright>
 // <summary>
-//   The sass compiler.
-//   Much thanks here to Paul Betts' SassAndCoffee project (https://github.com/xpaulbettsx/SassAndCoffee)
-//   and Justin Etheridge's SquishIt project https://github.com/jetheredge/SquishIt
+//   The sass compiler for processing and compiling sass and scss files.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -22,9 +20,7 @@ namespace Cruncher.Preprocessors.Sass
     #endregion
 
     /// <summary>
-    /// The sass compiler.
-    /// Much thanks here to Paul Betts' SassAndCoffee project (https://github.com/xpaulbettsx/SassAndCoffee)
-    /// and Justin Etheridge's SquishIt project https://github.com/jetheredge/SquishIt
+    /// The sass compiler for processing and compiling sass and scss files.
     /// </summary>
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
     internal sealed class SassCompiler

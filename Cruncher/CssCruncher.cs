@@ -11,15 +11,18 @@
 namespace Cruncher
 {
     #region Using
+
     using System;
     using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+
     using Cruncher.Compression;
     using Cruncher.Extensions;
-    using Cruncher.Preprocessors;
     using Cruncher.Helpers;
+    using Cruncher.Preprocessors;
+
     #endregion
 
     /// <summary>
@@ -163,16 +166,13 @@ namespace Cruncher
                     if (!fileName.Contains("://"))
                     {
                         // Check and add the @import the match.
-                        FileInfo fileInfo = null;
+                        FileInfo fileInfo;
 
                         // Try to get the file by absolute/relative path
                         if (!ResourceHelper.IsResourceFilenameOnly(fileName))
                         {
                             string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder);
-                            if (File.Exists(cssFilePath))
-                            {
-                                fileInfo = new FileInfo(cssFilePath);
-                            }
+                            fileInfo = new FileInfo(cssFilePath);
                         }
                         else
                         {
@@ -180,7 +180,7 @@ namespace Cruncher
                         }
 
                         // Read the file.
-                        if (fileInfo != null && fileInfo.Exists)
+                        if (fileInfo.Exists)
                         {
                             string file = fileInfo.FullName;
 
