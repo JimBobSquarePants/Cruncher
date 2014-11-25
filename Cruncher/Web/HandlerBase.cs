@@ -12,7 +12,9 @@ namespace Cruncher.Web
 {
     #region Using
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -56,7 +58,7 @@ namespace Cruncher.Web
         /// <summary>
         /// This will make the browser and server keep the output
         /// in its cache and thereby improve performance.
-        /// See http://en.wikipedia.org/wiki/HTTP_ETag
+        /// <see href="http://en.wikipedia.org/wiki/HTTP_ETag"/>
         /// </summary>
         /// <param name="path">
         /// The combined path to the items.
@@ -74,7 +76,7 @@ namespace Cruncher.Web
         /// <param name="fileMonitors">
         /// The file Monitors.
         /// </param>
-        protected void SetHeaders(string path, HttpContext context, ResponseType responseType, bool futureExpire, IList<string> fileMonitors)
+        protected void SetHeaders(string path, HttpContext context, ResponseType responseType, bool futureExpire, ConcurrentBag<string> fileMonitors)
         {
             // Generate a hash from the combined last write times of any monitors and
             // the path.

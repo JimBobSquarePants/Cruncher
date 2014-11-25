@@ -163,7 +163,7 @@ namespace Cruncher
 
                     string importedCss = string.Empty;
 
-                    if (!fileName.Contains("://"))
+                    if (!fileName.Contains(Uri.SchemeDelimiter))
                     {
                         // Check and add the @import the match.
                         FileInfo fileInfo;

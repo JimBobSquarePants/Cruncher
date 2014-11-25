@@ -12,7 +12,7 @@ namespace Cruncher
 {
     #region Using
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.IO;
     using System.Linq;
     using System.Runtime.Caching;
@@ -23,7 +23,6 @@ namespace Cruncher
     using Cruncher.Extensions;
     using Cruncher.Preprocessors;
     using Cruncher.Web;
-
     #endregion
 
     /// <summary>
@@ -46,7 +45,7 @@ namespace Cruncher
         protected CruncherBase(CruncherOptions options)
         {
             this.Options = options;
-            this.FileMonitors = new List<string>();
+            this.FileMonitors = new ConcurrentBag<string>();
         }
         #endregion
 
@@ -59,7 +58,7 @@ namespace Cruncher
         /// <summary>
         /// Gets or sets the file monitors.
         /// </summary>
-        public IList<string> FileMonitors { get; set; }
+        public ConcurrentBag<string> FileMonitors { get; set; }
         #endregion
 
         #region Methods
@@ -191,7 +190,7 @@ namespace Cruncher
                 if (this.FileMonitors.Any())
                 {
                     CacheManager.AddItem(key + "_FILE_MONITORS", this.FileMonitors, cacheItemPolicy);
-                    cacheItemPolicy.ChangeMonitors.Add(new HostFileChangeMonitor(this.FileMonitors));
+                    cacheItemPolicy.ChangeMonitors.Add(new HostFileChangeMonitor(this.FileMonitors.ToList()));
                 }
 
                 CacheManager.AddItem(filename.ToMd5Fingerprint(), contents, cacheItemPolicy);
@@ -231,10 +230,10 @@ namespace Cruncher
             if (this.Options.AllowRemoteFiles)
             {
                 RemoteFile remoteFile = new RemoteFile(new Uri(url))
-                                            {
-                                                MaxDownloadSize = this.Options.RemoteFileMaxBytes,
-                                                TimeoutLength = this.Options.RemoteFileTimeout
-                                            };
+                {
+                    MaxDownloadSize = this.Options.RemoteFileMaxBytes,
+                    TimeoutLength = this.Options.RemoteFileTimeout
+                };
 
                 // Return the preprocessed css.
                 contents = this.PreProcessInput(remoteFile.GetFileAsString(), url);

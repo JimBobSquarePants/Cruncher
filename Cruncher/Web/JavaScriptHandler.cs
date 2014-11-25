@@ -11,6 +11,8 @@
 namespace Cruncher.Web
 {
     #region Using
+
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -172,13 +174,13 @@ namespace Cruncher.Web
 
                 if (!string.IsNullOrWhiteSpace(combinedJavaScript))
                 {
-                    IList<string> fileMonitors;
+                    ConcurrentBag<string> fileMonitors;
 
                     // Configure response headers
                     if (this.javaScriptCruncher == null)
                     {
                         // There should always be a valid list of monitors in the cache.
-                        fileMonitors = (List<string>)CacheManager.GetItem(key + "_FILE_MONITORS");
+                        fileMonitors = (ConcurrentBag<string>)CacheManager.GetItem(key + "_FILE_MONITORS");
                     }
                     else
                     {
