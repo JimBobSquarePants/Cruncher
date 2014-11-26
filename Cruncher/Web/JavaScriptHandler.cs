@@ -12,13 +12,11 @@ namespace Cruncher.Web
 {
     #region Using
 
-    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net;
-    using System.Runtime.Caching;
     using System.Text;
     using System.Web;
     using Cruncher.Caching;
@@ -97,10 +95,6 @@ namespace Cruncher.Web
 
                     this.javaScriptCruncher = new JavaScriptCruncher(cruncherOptions);
 
-                    // When there is more than one file it is necessary to keep track of the cache Key for every file in order to allow 
-                    // allow the cache manager to retrieve all cached FileMonitors.
-                    ConcurrentBag<string> resourceFilesKeys = new ConcurrentBag<string>();
-
                     // Loop through and process each file.
                     foreach (string javaScriptFile in javaScriptFiles)
                     {
@@ -143,9 +137,6 @@ namespace Cruncher.Web
                                 string first = files.FirstOrDefault();
                                 cruncherOptions.RootFolder = Path.GetDirectoryName(first);
                                 stringBuilder.Append(this.javaScriptCruncher.Crunch(first));
-
-                                // Store the file's key
-                                resourceFilesKeys.Add(first.ToMd5Fingerprint());
                             }
                         }
                         else
@@ -153,20 +144,7 @@ namespace Cruncher.Web
                             // Remote files.
                             string remoteFile = this.GetUrlFromToken(javaScriptFile).ToString();
                             stringBuilder.Append(this.javaScriptCruncher.Crunch(remoteFile));
-
-                            // Store the file's key
-                            resourceFilesKeys.Add(remoteFile.ToMd5Fingerprint());
                         }
-                    }
-
-                    // Store in cache the Resource Files Keys
-                    if (resourceFilesKeys.Count > 1)
-                    {
-                        CacheItemPolicy cacheItemPolicy = new CacheItemPolicy();
-                        int days = cruncherOptions.CacheLength;
-                        cacheItemPolicy.AbsoluteExpiration = DateTime.UtcNow.AddDays(days != 0 ? days : -1);
-                        cacheItemPolicy.Priority = CacheItemPriority.NotRemovable;
-                        CacheManager.AddItem(key + "_FILE_MONITOR_KEYS", resourceFilesKeys, cacheItemPolicy);
                     }
 
                     // Minify and fix any missing semicolons between IIFE's
