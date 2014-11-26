@@ -17,7 +17,9 @@ namespace Cruncher.Preprocessors.Coffee
     using System.Reflection;
     using System.Resources;
     using System.Text;
-    using Jurassic;
+
+    using Microsoft.ClearScript.Windows;
+
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     #endregion
@@ -44,19 +46,9 @@ namespace Cruncher.Preprocessors.Coffee
         private const string CompilationFunctionCallTemplate = @"coffeeScriptHelper.compile({0}, {1});";
 
         /// <summary>
-        /// The synchronization root.
-        /// </summary>
-        private static readonly object SyncRoot = new object();
-
-        /// <summary>
         /// The CoffeeScript resource.
         /// </summary>
         private static string coffeescript = string.Empty;
-
-        /// <summary>
-        /// The <see cref="T:Jurassic.ScriptEngine"/> that processes the CoffeeScript.
-        /// </summary>
-        private static ScriptEngine scriptEngine;
         #endregion
 
         #region Properties
@@ -73,27 +65,6 @@ namespace Cruncher.Preprocessors.Coffee
                 }
 
                 return coffeescript;
-            }
-        }
-
-        /// <summary>
-        /// Gets the coffee script engine.
-        /// </summary>
-        public static ScriptEngine CoffeeScriptEngine
-        {
-            get
-            {
-                if (scriptEngine == null)
-                {
-                    lock (SyncRoot)
-                    {
-                        ScriptEngine engine = new ScriptEngine { ForceStrictMode = true };
-                        engine.Execute(Compiler);
-                        scriptEngine = engine;
-                    }
-                }
-
-                return scriptEngine;
             }
         }
         #endregion
@@ -128,15 +99,16 @@ namespace Cruncher.Preprocessors.Coffee
             string compiledInput;
             try
             {
-                string result =
-                    CoffeeScriptEngine.Evaluate<string>(
-                        string.Format(
-                            CompilationFunctionCallTemplate,
-                            JsonConvert.SerializeObject(input),
-                            "{bare: false}"));
+                string result;
+                using (JScriptEngine engine = new JScriptEngine(WindowsScriptEngineFlags.EnableStandardsMode))
+                {
+                    engine.Execute(Compiler);
+                    string expression = string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), "{bare: false}");
+                    result = engine.Evaluate(expression).ToString();
+                }
 
                 JObject json = JObject.Parse(result);
-                var errors = json["errors"] != null ? json["errors"] as JArray : null;
+                JArray errors = json["errors"] != null ? json["errors"] as JArray : null;
 
                 if (errors != null && errors.Count > 0)
                 {
@@ -166,8 +138,7 @@ namespace Cruncher.Preprocessors.Coffee
         /// </exception>
         private static string GetAssemblyResource(string resource)
         {
-            using (Stream stream = Assembly.GetExecutingAssembly()
-                            .GetManifestResourceStream(resource))
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
             {
                 if (stream != null)
                 {

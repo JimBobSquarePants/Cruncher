@@ -4,18 +4,16 @@
 //   Licensed under the Apache License, Version 2.0.
 // </copyright>
 // <summary>
-//   Defines the CruncherBase type.
+//   The cruncher base. Inherit from this to implement your own cruncher. 
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher
 {
-    #region Using
     using System;
     using System.Collections.Concurrent;
     using System.IO;
     using System.Linq;
-    using System.Runtime.Caching;
     using System.Text;
     using System.Text.RegularExpressions;
 
@@ -23,21 +21,17 @@ namespace Cruncher
     using Cruncher.Extensions;
     using Cruncher.Preprocessors;
     using Cruncher.Web;
-    #endregion
 
     /// <summary>
-    /// The cruncher base.
+    /// The cruncher base. Inherit from this to implement your own cruncher. 
     /// </summary>
     public abstract class CruncherBase
     {
-        #region Fields
         /// <summary>
         /// The remote regex.
         /// </summary>
         private static readonly Regex RemoteRegex = new Regex(@"^http(s?)://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="CruncherBase"/> class.
         /// </summary>
@@ -47,9 +41,7 @@ namespace Cruncher
             this.Options = options;
             this.FileMonitors = new ConcurrentBag<string>();
         }
-        #endregion
 
-        #region Properties
         /// <summary>
         /// Gets or sets the options containing instructions for the cruncher.
         /// </summary>
@@ -59,7 +51,6 @@ namespace Cruncher
         /// Gets or sets the file monitors.
         /// </summary>
         public ConcurrentBag<string> FileMonitors { get; set; }
-        #endregion
 
         #region Methods
         #region Public
@@ -70,37 +61,22 @@ namespace Cruncher
         /// <returns>The minified resource.</returns>
         public string Crunch(string resource)
         {
-            string contents = string.Empty;
+            StringBuilder stringBuilder = new StringBuilder();
 
-            if (this.Options.CacheFiles)
+            if (this.IsRemoteFile(resource))
             {
-                contents = (string)CacheManager.GetItem(resource.ToMd5Fingerprint());
+                stringBuilder.Append(this.LoadRemoteFile(resource));
+            }
+            else if (this.IsValidPath(resource))
+            {
+                stringBuilder.Append(this.LoadLocalFolder(resource));
+            }
+            else
+            {
+                stringBuilder.Append(this.LoadLocalFile(resource));
             }
 
-            if (string.IsNullOrWhiteSpace(contents))
-            {
-                StringBuilder stringBuilder = new StringBuilder();
-
-                if (this.IsRemoteFile(resource))
-                {
-                    stringBuilder.Append(this.LoadRemoteFile(resource));
-                }
-                else if (this.IsValidPath(resource))
-                {
-                    stringBuilder.Append(this.LoadLocalFolder(resource));
-                }
-                else
-                {
-                    stringBuilder.Append(this.LoadLocalFile(resource));
-                }
-
-                contents = stringBuilder.ToString();
-
-                // Cache if applicable.
-                this.AddItemToCache(resource, contents);
-            }
-
-            return contents;
+            return stringBuilder.ToString();
         }
 
         /// <summary>
@@ -166,37 +142,6 @@ namespace Cruncher
 
             return input;
         }
-
-        /// <summary>
-        /// Adds a resource to the cache.
-        /// </summary>
-        /// <param name="filename">
-        /// The filename of the item to add.
-        /// </param>
-        /// <param name="contents">
-        /// The contents of the file to cache.
-        /// </param>
-        protected void AddItemToCache(string filename, string contents)
-        {
-            if (this.Options.Minify && !string.IsNullOrWhiteSpace(contents))
-            {
-                CacheItemPolicy cacheItemPolicy = new CacheItemPolicy();
-                int days = this.Options.CacheLength;
-                cacheItemPolicy.AbsoluteExpiration = DateTime.UtcNow.AddDays(days != 0 ? days : -1);
-                cacheItemPolicy.Priority = CacheItemPriority.NotRemovable;
-
-                string key = filename.ToMd5Fingerprint();
-
-                if (this.FileMonitors.Any())
-                {
-                    CacheManager.AddItem(key + "_FILE_MONITORS", this.FileMonitors, cacheItemPolicy);
-                    cacheItemPolicy.ChangeMonitors.Add(new HostFileChangeMonitor(this.FileMonitors.ToList()));
-                }
-
-                CacheManager.AddItem(filename.ToMd5Fingerprint(), contents, cacheItemPolicy);
-            }
-        }
-
         #endregion
 
         #region Private

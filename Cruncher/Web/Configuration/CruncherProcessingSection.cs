@@ -10,9 +10,7 @@
 
 namespace Cruncher.Web.Configuration
 {
-    #region Using
     using System.Configuration;
-    #endregion
 
     /// <summary>
     /// Represents a CruncherProcessingSection within a configuration file.
@@ -20,17 +18,6 @@ namespace Cruncher.Web.Configuration
     public class CruncherProcessingSection : ConfigurationSection
     {
         #region Properties
-        /// <summary>
-        /// Gets or sets the <see cref="T:Cruncher.Web.Configuration.CruncherProcessingSection.CompressionElement"/>.
-        /// </summary>
-        /// <value>The <see cref="T:Cruncher.Web.Configuration.CruncherProcessingSection.CompressionElement"/>.</value>
-        [ConfigurationProperty("compression", IsRequired = true)]
-        public CompressionElement Compression
-        {
-            get { return (CompressionElement)this["compression"]; }
-            set { this["compression"] = value; }
-        }
-
         /// <summary>
         /// Gets or sets the <see cref="T:Cruncher.Web.Configuration.CruncherProcessingSection.VirtualPathsElement"/>.
         /// </summary>
@@ -71,45 +58,6 @@ namespace Cruncher.Web.Configuration
             return new CruncherProcessingSection();
         }
         #endregion
-
-        /// <summary>
-        /// Represents a relativeRoot configuration element within the configuration.
-        /// </summary>
-        public class CompressionElement : ConfigurationElement
-        {
-            /// <summary>
-            /// Gets or sets a value indicating whether the current application is allowed to minify css files.
-            /// </summary>
-            /// <value><see langword="true"/> if the current application is allowed to minify css files; otherwise, <see langword="false"/>.</value>
-            [ConfigurationProperty("minifyCSS", DefaultValue = false, IsRequired = true)]
-            public bool MinifyCSS
-            {
-                get { return (bool)this["minifyCSS"]; }
-                set { this["minifyCSS"] = value; }
-            }
-
-            /// <summary>
-            /// Gets or sets a value indicating whether the current application is allowed to minify JavaScript files.
-            /// </summary>
-            /// <value><see langword="true"/> if the current application is allowed to minify JavaScript files; otherwise, <see langword="false"/>.</value>
-            [ConfigurationProperty("minifyJS", DefaultValue = false, IsRequired = true)]
-            public bool MinifyJS
-            {
-                get { return (bool)this["minifyJS"]; }
-                set { this["minifyJS"] = value; }
-            }
-
-            /// <summary>
-            /// Gets or sets a value indicating whether the current application is allowed to compress client resource files.
-            /// </summary>
-            /// <value><see langword="true"/> if the current application is allowed to minify JavaScript files; otherwise, <see langword="false"/>.</value>
-            [ConfigurationProperty("compressResponse", DefaultValue = false, IsRequired = true)]
-            public bool CompressResources
-            {
-                get { return (bool)this["compressResponse"]; }
-                set { this["compressResponse"] = value; }
-            }
-        }
 
         /// <summary>
         /// Represents a virtualPaths configuration element within the configuration.
@@ -191,7 +139,7 @@ namespace Cruncher.Web.Configuration
             /// </summary>
             /// <value>The number of days</value>
             [ConfigurationProperty("daysBeforeRemoveExpired", DefaultValue = "7", IsRequired = false)]
-            [IntegerValidator(ExcludeRange = false, MinValue = 1)]
+            [IntegerValidator(ExcludeRange = false)]
             public int DaysBeforeRemoveExpired
             {
                 get

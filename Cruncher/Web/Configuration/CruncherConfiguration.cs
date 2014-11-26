@@ -32,11 +32,6 @@ namespace Cruncher.Web.Configuration
                         new Lazy<CruncherConfiguration>(() => new CruncherConfiguration());
 
         /// <summary>
-        /// Represents a CruncherCacheSection within a configuration file.
-        /// </summary>
-        private CruncherCacheSection cacheSection;
-
-        /// <summary>
         /// Represents a CruncherSecuritySection within a configuration file.
         /// </summary>
         private CruncherSecuritySection securitySection;
@@ -77,19 +72,6 @@ namespace Cruncher.Web.Configuration
                 return Lazy.Value;
             }
         }
-
-        #region Caching
-        /// <summary>
-        /// Gets the maximum number of days to store files in the cache.
-        /// </summary>
-        public int MaxCacheDays
-        {
-            get
-            {
-                return this.GetCruncherCacheSection().MaxDays;
-            }
-        }
-        #endregion
 
         #region Security
         /// <summary>
@@ -164,39 +146,6 @@ namespace Cruncher.Web.Configuration
         }
 
         /// <summary>
-        /// Gets a value indicating whether the current application is allowed to minify css files.
-        /// </summary>
-        public bool MinifyCSS
-        {
-            get
-            {
-                return this.GetCruncherProcessingSection().Compression.MinifyCSS;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the current application is allowed to minify JavaScript files.
-        /// </summary>
-        public bool MinifyJavaScript
-        {
-            get
-            {
-                return this.GetCruncherProcessingSection().Compression.MinifyJS;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the current application is allowed to compress client resource files.
-        /// </summary>
-        public bool CompressResources
-        {
-            get
-            {
-                return this.GetCruncherProcessingSection().Compression.CompressResources;
-            }
-        }
-
-        /// <summary>
         /// Gets the directory's path where to store physical files
         /// </summary>
         public string PhysicalFilesPath
@@ -222,16 +171,6 @@ namespace Cruncher.Web.Configuration
         #endregion
 
         #region Methods
-        #region Configuration
-        /// <summary>
-        /// Retrieves the caching configuration section from the current application configuration. 
-        /// </summary>
-        /// <returns>The caching configuration section from the current application configuration. </returns>
-        private CruncherCacheSection GetCruncherCacheSection()
-        {
-            return this.cacheSection ?? (this.cacheSection = CruncherCacheSection.GetConfiguration());
-        }
-
         /// <summary>
         /// Retrieves the security configuration section from the current application configuration. 
         /// </summary>
@@ -249,7 +188,6 @@ namespace Cruncher.Web.Configuration
         {
             return this.processingSection ?? (this.processingSection = CruncherProcessingSection.GetConfiguration());
         }
-        #endregion
         #endregion
     }
 }

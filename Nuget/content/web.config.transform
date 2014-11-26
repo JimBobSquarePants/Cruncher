@@ -4,22 +4,13 @@
     <sectionGroup name="cruncher">
       <section name="security" requirePermission="false" type="Cruncher.Web.Configuration.CruncherSecuritySection, Cruncher, Culture=neutral" />
       <section name="processing" requirePermission="false" type="Cruncher.Web.Configuration.CruncherProcessingSection, Cruncher, Culture=neutral" />
-      <section name="cache" requirePermission="false" type="Cruncher.Web.Configuration.CruncherCacheSection, Cruncher, Culture=neutral" />
     </sectionGroup>
   </configSections>
 
-  <system.web>
-    <httpHandlers>
-      <add verb="*" path="css.axd" type="Cruncher.Web.CssHandler, Cruncher, Culture=neutral" validate="false" />
-      <add verb="*" path="js.axd" type="Cruncher.Web.JavaScriptHandler, Cruncher, Culture=neutral" validate="false" />
-    </httpHandlers>
-  </system.web>
-
   <system.webServer>
-    <handlers>
-      <add name="CssHandler" verb="*" path="css.axd" type="Cruncher.Web.CssHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode" />
-      <add name="JavaScript" verb="*" path="js.axd" type="Cruncher.Web.JavaScriptHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode" />
-    </handlers>
+    <staticContent>
+        <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
+    </staticContent>
   </system.webServer>
 
   <cruncher>
@@ -29,10 +20,8 @@
       </whiteList>
     </security>
     <processing>
-      <compression minifyCSS="true" minifyJS="true" compressResponse="true" />
       <virtualPaths cssPaths="~/content, ~/css" jsPaths="~/scripts, ~/js" />
       <physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7"/>
     </processing>
-    <cache maxDays="365" />
   </cruncher>
 </configuration>

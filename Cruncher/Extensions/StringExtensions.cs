@@ -10,15 +10,11 @@
 
 namespace Cruncher.Extensions
 {
-    #region Using
     using System;
     using System.Globalization;
-    using System.IO;
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
-    using System.Text.RegularExpressions;
-    #endregion
 
     /// <summary>
     /// Encapsulates a series of time saving extension methods to <see cref="T:System.String">String</see>s.
@@ -37,7 +33,6 @@ namespace Cruncher.Extensions
             return expression.IndexOf(value, comparisonType) >= 0;
         }
 
-        #region Cryptography
         /// <summary>
         /// Creates an MD5 fingerprint of the String.
         /// </summary>
@@ -63,9 +58,7 @@ namespace Cruncher.Extensions
                     .ToString().ToLowerInvariant();
             }
         }
-        #endregion
 
-        #region Files and Paths
         /// <summary>
         /// Checks the string to see whether the value is a valid virtual path name.
         /// </summary>
@@ -77,6 +70,5 @@ namespace Cruncher.Extensions
 
             return Uri.TryCreate(expression, UriKind.Relative, out uri) && uri.IsWellFormedOriginalString();
         }
-        #endregion
     }
 }

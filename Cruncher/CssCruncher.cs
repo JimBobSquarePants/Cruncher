@@ -10,8 +10,6 @@
 
 namespace Cruncher
 {
-    #region Using
-
     using System;
     using System.Globalization;
     using System.IO;
@@ -23,21 +21,16 @@ namespace Cruncher
     using Cruncher.Helpers;
     using Cruncher.Preprocessors;
 
-    #endregion
-
     /// <summary>
     /// The css cruncher.
     /// </summary>
     public class CssCruncher : CruncherBase
     {
-        #region Fields
         /// <summary>
         /// The regular expression to search files for.
         /// </summary>
         private static readonly Regex ImportsRegex = new Regex(@"((?:@import\s*(url\([""']?)\s*(?<filename>.*\.\w+ss)(\s*[""']?)\s*\))((?<media>([^;@]+))?);)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="CssCruncher"/> class.
         /// </summary>
@@ -46,7 +39,6 @@ namespace Cruncher
             : base(options)
         {
         }
-        #endregion
 
         #region Methods
         #region Public
@@ -74,14 +66,7 @@ namespace Cruncher
                 };
             }
 
-            string result = minifier.Minify(resource);
-
-            if (this.Options.CacheFiles)
-            {
-                this.AddItemToCache(this.Options.MinifyCacheKey, result);
-            }
-
-            return result;
+            return minifier.Minify(resource);
         }
         #endregion
 

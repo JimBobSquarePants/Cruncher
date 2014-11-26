@@ -31,11 +31,6 @@ namespace Cruncher
         public bool CacheFiles { get; set; }
 
         /// <summary>
-        /// Gets or sets the cache length in days.
-        /// </summary>
-        public int CacheLength { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to allow remote files.
         /// </summary>
         public bool AllowRemoteFiles { get; set; }

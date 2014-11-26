@@ -73,14 +73,7 @@ namespace Cruncher
                 };
             }
 
-            string result = minifier.Minify(resource);
-
-            if (this.Options.CacheFiles)
-            {
-                this.AddItemToCache(this.Options.MinifyCacheKey, result);
-            }
-
-            return result;
+            return minifier.Minify(resource);
         }
         #endregion
 
