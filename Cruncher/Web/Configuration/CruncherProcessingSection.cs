@@ -191,7 +191,7 @@ namespace Cruncher.Web.Configuration
             /// </summary>
             /// <value>The number of days</value>
             [ConfigurationProperty("daysBeforeRemoveExpired", DefaultValue = "7", IsRequired = false)]
-            [IntegerValidator(ExcludeRange = false, MinValue = 1)]
+            [IntegerValidator(ExcludeRange = false)]
             public int DaysBeforeRemoveExpired
             {
                 get
