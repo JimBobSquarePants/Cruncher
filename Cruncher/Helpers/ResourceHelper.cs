@@ -197,23 +197,46 @@ namespace Cruncher.Helpers
         /// </param>
         public static void TrimPhysicalFilesFolder(string path)
         {
-            const string CacheIdTrimPhysicalFilesFolder = "_CruncherTrimPhysicalFilesFolder";
-            const int TrimPhysicalFilesFolderFrequencyHours = 6;
+            // If PhysicalFilesDaysBeforeRemoveExpired is 0 or negative then the trim process is not performed
+            if (CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired < 1)
+                return;
 
-            // To know whether the trim process has already been performed 
-            // (in order to avoid executing this process everytime) creates a cache item that will expire in 12 hours.
-            if (CacheManager.GetItem(CacheIdTrimPhysicalFilesFolder) != null)
+            // Settings for the clean up process
+            const string cacheIdTrimPhysicalFilesFolder = "_CruncherTrimPhysicalFilesFolder";
+            const string cacheIdTrimPhysicalFilesFolderAppPoolRecycled = "_CruncherTrimPhysicalFilesFolderAppPoolRecycled";
+            const int trimPhysicalFilesFolderDelayedExecutionMin = 5;
+            const int trimPhysicalFilesFolderFrequencyHours = 7;
+
+            CacheItemPolicy policy = new CacheItemPolicy
+            {
+                Priority = CacheItemPriority.NotRemovable
+            };
+
+            // To know whether the trim process has already been performed (in order to avoid executing this process everytime) creates 
+            // a cache item that will expire in 12 hours. 
+            // To avoid that the cleanup process is run just after an APPPool Recycle (or cache recycle) it uses another cache item that will never expire
+            // The main reason is because after an AppPool reset there are a lot of things going on and it is not the optimal moment to perform many I/O ops
+            if (CacheManager.GetItem(cacheIdTrimPhysicalFilesFolderAppPoolRecycled) == null)
+            {
+                // Creates the cache item that will expire first
+                policy.SlidingExpiration = TimeSpan.FromMinutes(trimPhysicalFilesFolderDelayedExecutionMin);
+                CacheManager.AddItem(cacheIdTrimPhysicalFilesFolder, "1", policy);
+
+                // Creates the cache item that will never expire
+                policy.SlidingExpiration = TimeSpan.FromDays(365);
+                CacheManager.AddItem(cacheIdTrimPhysicalFilesFolderAppPoolRecycled, "1", policy);
+
+                return;
+            }
+
+            if (CacheManager.GetItem(cacheIdTrimPhysicalFilesFolder) != null)
             {
                 return;
             }
 
-            CacheItemPolicy policy = new CacheItemPolicy
-            {
-                SlidingExpiration = TimeSpan.FromHours(TrimPhysicalFilesFolderFrequencyHours),
-                Priority = CacheItemPriority.NotRemovable
-            };
+            policy.SlidingExpiration = TimeSpan.FromHours(trimPhysicalFilesFolderFrequencyHours);
+            CacheManager.AddItem(cacheIdTrimPhysicalFilesFolder, "1", policy);
 
-            CacheManager.AddItem(CacheIdTrimPhysicalFilesFolder, "1", policy);
             if (!string.IsNullOrWhiteSpace(path) && Directory.Exists(path))
             {
                 DirectoryInfo directoryInfo = new DirectoryInfo(path);
