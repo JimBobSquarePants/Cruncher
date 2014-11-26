@@ -72,6 +72,9 @@ namespace Cruncher
         {
             string contents = string.Empty;
 
+            // It is necessary to empty the static FileMonitors collection in order to avoid adding old FileMonitors to the current resource
+            this.FileMonitors = new ConcurrentBag<string>();
+
             if (this.Options.CacheFiles)
             {
                 contents = (string)CacheManager.GetItem(resource.ToMd5Fingerprint());
@@ -178,6 +181,29 @@ namespace Cruncher
         /// </param>
         protected void AddItemToCache(string filename, string contents)
         {
+            // The filename could be only one file or multiple files. In this latest case it is necessary to retrieve previously created FileMonitors and 
+            // add them to the current FileMonitors collection in order to remove the cache item if any of the files changes
+            // In first place retrieves the key for each file from the resource in order to be able to retrieve the FileMonitors 
+            ConcurrentBag<string> resourceFilesKeys = (ConcurrentBag<string>)CacheManager.GetItem(filename.ToMd5Fingerprint() + "_FILE_MONITOR_KEYS");
+            if (resourceFilesKeys != null && !resourceFilesKeys.IsEmpty)
+            {
+                // It is necessary to empty the static FileMonitors collection in order to avoid adding old FileMonitors 
+                this.FileMonitors = new ConcurrentBag<string>();
+
+                foreach (string fileKey in resourceFilesKeys)
+                {
+                    // Retrieve the FileMonitors for every file and add them to the current FileMonitor collection
+                    ConcurrentBag<string> fileMonitors = (ConcurrentBag<string>)CacheManager.GetItem(fileKey + "_FILE_MONITORS");
+                    if (fileMonitors != null && !fileMonitors.IsEmpty)
+                    {
+                        foreach (string fileMonitor in fileMonitors.ToList())
+                        {
+                            this.FileMonitors.Add(fileMonitor);
+                        }
+                    }
+                }
+            }
+
             if (this.Options.Minify && !string.IsNullOrWhiteSpace(contents))
             {
                 CacheItemPolicy cacheItemPolicy = new CacheItemPolicy();
