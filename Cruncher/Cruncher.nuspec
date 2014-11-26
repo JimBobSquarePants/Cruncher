@@ -14,25 +14,18 @@
       A CSS, LESS, Sass, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
     </summary>
     <description>
-      Cruncher makes optimizing your resources easy. It can bundle unlimited combinations of remote and local CSS, LESS, JavaScript, and CoffeeScript files. 
-      
-      Combining them, minifying them and caching them in the browser, Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files.
-      
-      If you use Cruncher please get in touch on my twitter @james_m_south.
+Cruncher makes optimizing your resources easy. It can bundle unlimited combinations of remote and local CSS, LESS, JavaScript, and CoffeeScript files.
 
-      Feedback is always welcome.
+Combining them, minifying them, and caching them in the browser, Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files.
+
+If you use Cruncher please get in touch on my twitter @james_m_south.
+
+Feedback is always welcome.
     </description>
     <releaseNotes>
     </releaseNotes>
     <copyright>Copyright $author$</copyright>
     <tags>CSS LESS CoffeeScript Sass JavaScript Minify Preprocessor Combine Optimization Bundle Performance</tags>
-    <dependencies>
-      <dependency id="AjaxMin" version="5.12.5436.22734" />
-      <dependency id="dotless" version="1.4.1.0" />
-      <dependency id="ClearScript" version="5.3.11.0" />
-      <dependency id="libsassnet.x64" version="3.0.1.1" />
-      <dependency id="Newtonsoft.Json" version="6.0.6" />
-    </dependencies>
   </metadata>
   <files>
     <file src="..\Nuget\content\web.config.transform" target="content\web.config.transform" />

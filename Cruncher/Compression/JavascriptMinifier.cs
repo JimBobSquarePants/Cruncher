@@ -10,12 +10,9 @@
 
 namespace Cruncher.Compression
 {
-    #region Using
-
     using System.Diagnostics.CodeAnalysis;
 
     using Microsoft.Ajax.Utilities;
-    #endregion
 
     /// <summary>
     /// Helper class for performing minification of JavaScript.

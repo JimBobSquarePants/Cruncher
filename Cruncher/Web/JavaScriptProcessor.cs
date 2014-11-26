@@ -120,8 +120,12 @@ namespace Cruncher.Web
                     if (minify)
                     {
                         // Minify and fix any missing semicolons between function expressions.
-                        combinedJavaScript = javaScriptCruncher.Minify(combinedJavaScript)
-                            .Replace(")(function(", ");(function(");
+                        combinedJavaScript = javaScriptCruncher.Minify(combinedJavaScript);
+
+                        if (!combinedJavaScript.EndsWith(";"))
+                        {
+                            combinedJavaScript += ";";
+                        }
                         
                         this.AddItemToCache(key, combinedJavaScript, javaScriptCruncher.FileMonitors);
                     }
