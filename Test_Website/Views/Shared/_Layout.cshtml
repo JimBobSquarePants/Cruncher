@@ -9,6 +9,6 @@
 </head>
 <body>
     <main> @RenderBody()</main>
-    @CruncherBundler.RenderJavaScript("jquery", "test.coffee", "test.js")
+    @CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Async, "jquery", "test.coffee", "test.js")
 </body>
 </html>

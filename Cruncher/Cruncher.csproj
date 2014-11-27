@@ -99,6 +99,7 @@
     <Compile Include="Web\CruncherBundler.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Web\JavaScriptLoadBehaviour.cs" />
     <Compile Include="Web\JavaScriptProcessor.cs" />
     <Compile Include="Web\CssProcessor.cs" />
     <Compile Include="Web\ProcessorBase.cs" />
@@ -125,10 +126,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Preprocessors\Coffee\Resources\coffee-script.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Exports\CallbackManager.h" />
-    <Content Include="Exports\VersionSymbols.h" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

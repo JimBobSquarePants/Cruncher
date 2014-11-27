@@ -1,6 +1,7 @@
 <StyleCopSettings Version="105">
   <GlobalSettings>
     <CollectionProperty Name="RecognizedWords">
+      <Value>behaviour</Value>
       <Value>css</Value>
       <Value>Enum</Value>
       <Value>Enums</Value>
