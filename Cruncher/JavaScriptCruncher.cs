@@ -10,7 +10,6 @@
 
 namespace Cruncher
 {
-    #region Using
     using System;
     using System.IO;
     using System.Text.RegularExpressions;
@@ -18,21 +17,17 @@ namespace Cruncher
     using Cruncher.Compression;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
-    #endregion
 
     /// <summary>
     /// The JavaScript cruncher.
     /// </summary>
     public class JavaScriptCruncher : CruncherBase
     {
-        #region Fields
         /// <summary>
         /// The regular expression to search files for.
         /// </summary>
         private static readonly Regex ImportsRegex = new Regex(@"(?:import\s*([""']?)\s*(?<filename>.+\.js)(\s*[""']?)\s*);", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptCruncher"/> class.
         /// </summary>
@@ -41,10 +36,7 @@ namespace Cruncher
             : base(options)
         {
         }
-        #endregion
 
-        #region Methods
-        #region Public
         /// <summary>
         /// Minifies the specified resource.
         /// </summary>
@@ -75,9 +67,7 @@ namespace Cruncher
 
             return minifier.Minify(resource);
         }
-        #endregion
 
-        #region Protected
         /// <summary>
         /// Loads the local file.
         /// </summary>
@@ -98,9 +88,7 @@ namespace Cruncher
 
             return contents;
         }
-        #endregion
 
-        #region Private
         /// <summary>
         /// Parses the string for Javascript imports and replaces them with the referenced Javascript.
         /// </summary>
@@ -167,7 +155,5 @@ namespace Cruncher
 
             return javascript;
         }
-        #endregion
-        #endregion
     }
 }

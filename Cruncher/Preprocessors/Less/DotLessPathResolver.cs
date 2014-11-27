@@ -10,19 +10,16 @@
 
 namespace Cruncher.Preprocessors.Less
 {
-    #region Using
     using System;
     using System.Web;
     using System.Web.Hosting;
     using dotless.Core.Input;
-    #endregion
 
     /// <summary>
     /// The dot less path resolver.
     /// </summary>
     public class DotLessPathResolver : IPathResolver
     {
-        #region Fields
         /// <summary>
         /// The current file directory.
         /// </summary>
@@ -32,9 +29,7 @@ namespace Cruncher.Preprocessors.Less
         /// The current file path.
         /// </summary>
         private string currentFilePath;
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DotLessPathResolver"/> class.
         /// </summary>
@@ -53,9 +48,7 @@ namespace Cruncher.Preprocessors.Less
 
             this.CurrentFilePath = currentFilePath;
         }
-        #endregion
 
-        #region Properties
         /// <summary>
         /// Gets or sets the path to the currently processed file.
         /// </summary>
@@ -119,6 +112,5 @@ namespace Cruncher.Preprocessors.Less
 
             return HostingEnvironment.MapPath(VirtualPathUtility.Combine(this.currentFileDirectory, path));
         }
-        #endregion
     }
 }

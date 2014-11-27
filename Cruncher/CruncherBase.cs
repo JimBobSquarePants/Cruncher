@@ -17,8 +17,6 @@ namespace Cruncher
     using System.Text;
     using System.Text.RegularExpressions;
 
-    using Cruncher.Caching;
-    using Cruncher.Extensions;
     using Cruncher.Preprocessors;
     using Cruncher.Web;
 

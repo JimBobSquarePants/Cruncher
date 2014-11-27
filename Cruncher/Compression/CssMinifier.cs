@@ -10,9 +10,9 @@
 
 namespace Cruncher.Compression
 {
-    #region Using
+    using System.Diagnostics.CodeAnalysis;
+
     using Microsoft.Ajax.Utilities;
-    #endregion
 
     /// <summary>
     /// Helper class for performing minification of CSS Stylesheets.
@@ -20,8 +20,8 @@ namespace Cruncher.Compression
     /// <remarks>
     /// <para>
     /// This class is basically a wrapper for the AjaxMin library(lib/AjaxMin.dll).
-    /// http://ajaxmin.codeplex.com/
-    /// http://www.asp.net/ajaxlibrary/AjaxMinDLL.ashx
+    /// <see href="http://ajaxmin.codeplex.com/"/>
+    /// <see href="http://www.asp.net/ajaxlibrary/AjaxMinDLL.ashx"/>
     /// </para>
     /// <para>
     /// There are no symbols that come with the AjaxMin dll, so this class gives a bit of intellisense 
@@ -29,16 +29,14 @@ namespace Cruncher.Compression
     /// everyone's encouraged to use it directly if they want to.
     /// </para>
     /// </remarks>
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
     public sealed class CssMinifier
     {
-        #region Fields
         /// <summary>
         /// The instance of the <see cref="T:Microsoft.Ajax.Utilities.Minifier">Minifer</see> to use.
         /// </summary>
         private readonly Minifier ajaxMinifier = new Minifier();
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Cruncher.Compression.CssMinifier">CssMinifier</see> class. 
         /// </summary>
@@ -47,10 +45,7 @@ namespace Cruncher.Compression
             this.RemoveWhiteSpace = true;
             this.ColorNamesRange = ColorNamesRange.W3CStrict;
         }
-        #endregion
 
-        #region Properties
-        #region Public
         /// <summary>
         /// Gets or sets what range of colors the css stylesheet should utilize.
         /// </summary>
@@ -64,8 +59,7 @@ namespace Cruncher.Compression
         /// <see langword="true"/> if whitespace should be removed from the stylesheet; otherwise, <see langword="false"/>.
         /// </value>
         public bool RemoveWhiteSpace { get; set; }
-        #endregion
-        #region Private
+
         /// <summary>
         /// Gets a value indicating whether this instance of the minifier should perform the minification.
         /// </summary>
@@ -75,11 +69,6 @@ namespace Cruncher.Compression
             get { return this.RemoveWhiteSpace; }
         }
 
-        #endregion
-        #endregion
-
-        #region Methods
-        #region Public
         /// <summary>
         /// Gets the minified version of the submitted stylesheet.
         /// </summary>
@@ -100,9 +89,7 @@ namespace Cruncher.Compression
 
             return styleSheet;
         }
-        #endregion
 
-        #region Private
         /// <summary>
         /// Builds the required CssSettings class needed for the Ajax Minifier.
         /// </summary>
@@ -132,7 +119,5 @@ namespace Cruncher.Compression
 
             return cssSettings;
         }
-        #endregion
-        #endregion
     }
 }

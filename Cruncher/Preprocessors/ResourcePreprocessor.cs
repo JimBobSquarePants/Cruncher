@@ -10,7 +10,6 @@
 
 namespace Cruncher.Preprocessors
 {
-    #region Using
     using System;
     using System.Collections.Generic;
     using System.Globalization;
@@ -18,23 +17,16 @@ namespace Cruncher.Preprocessors
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    using Cruncher.Helpers;
-
-    #endregion
-
     /// <summary>
     /// Provides methods to replace relative resource paths within a stylesheet with absolute paths.
     /// </summary>
     public class ResourcePreprocessor : IPreprocessor
     {
-        #region Fields
         /// <summary>
         /// The regular expression for matching resources within a css file.
         /// </summary>
         private static readonly Regex ResourceRegex = new Regex(@"url\(\s*(?:[""']?)(.*?)(?:[""']?)\s*\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        #endregion
 
-        #region Properties
         /// <summary>
         /// Gets the extension that this filter processes.
         /// </summary>
@@ -45,9 +37,7 @@ namespace Cruncher.Preprocessors
                 return null;
             }
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Transforms the content of the given string by replacing relative paths. 
         /// </summary>
@@ -221,6 +211,5 @@ namespace Cruncher.Preprocessors
                     && !p.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
              .Distinct();
         }
-        #endregion
     }
 }

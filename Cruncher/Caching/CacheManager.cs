@@ -10,20 +10,16 @@
 
 namespace Cruncher.Caching
 {
-    #region Using
-
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Runtime.Caching;
-    #endregion
 
     /// <summary>
     /// Encapsulates methods that allow the caching and retrieval of objects.
     /// </summary>
     public static class CacheManager
     {
-        #region Fields
         /// <summary>
         /// The cache
         /// </summary>
@@ -33,9 +29,7 @@ namespace Cruncher.Caching
         /// An internal list of cache keys to allow bulk removal.
         /// </summary>
         private static readonly ConcurrentDictionary<string, string> CacheItems = new ConcurrentDictionary<string, string>();
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Adds an item to the cache.
         /// </summary>
@@ -238,6 +232,5 @@ namespace Cruncher.Caching
 
             return isCleared;
         }
-        #endregion
     }
 }

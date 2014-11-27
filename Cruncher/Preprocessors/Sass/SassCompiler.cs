@@ -10,14 +10,12 @@
 
 namespace Cruncher.Preprocessors.Sass
 {
-    #region Using
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Text.RegularExpressions;
 
     using LibSassNet;
-    #endregion
 
     /// <summary>
     /// The sass compiler for processing and compiling sass and scss files.
@@ -25,7 +23,6 @@ namespace Cruncher.Preprocessors.Sass
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
     internal sealed class SassCompiler
     {
-        #region Fields
         /// <summary>
         /// The sass compiler.
         /// </summary>
@@ -35,9 +32,7 @@ namespace Cruncher.Preprocessors.Sass
         /// The sass to scss converter.
         /// </summary>
         private readonly ISassToScssConverter converter = new SassToScssConverter();
-        #endregion
 
-        #region Properties
         /// <summary>
         /// The compiler mode.
         /// </summary>
@@ -54,9 +49,7 @@ namespace Cruncher.Preprocessors.Sass
             [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
             Scss
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Gets a string containing the compiled sass output.
         /// </summary>
@@ -102,6 +95,5 @@ namespace Cruncher.Preprocessors.Sass
         {
             return this.converter.Convert(input);
         }
-        #endregion
     }
 }

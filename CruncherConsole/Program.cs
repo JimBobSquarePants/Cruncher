@@ -125,11 +125,11 @@ namespace CruncherConsole
                     configuration.Minify);
 
                 CruncherOptions options = new CruncherOptions
-                                              {
-                                                  Minify = configuration.Minify,
-                                                  AllowRemoteFiles = true,
-                                                  RootFolder = Path.GetDirectoryName(actualInputPath)
-                                              };
+                {
+                    Minify = configuration.Minify,
+                    AllowRemoteFiles = true,
+                    RootFolder = Path.GetDirectoryName(actualInputPath)
+                };
 
                 string crunched;
 

@@ -93,7 +93,6 @@
     <Compile Include="Preprocessors\Sass\SassCompiler.cs" />
     <Compile Include="Preprocessors\Sass\SassPreprocessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Web\CompressionModule.cs" />
     <Compile Include="Web\Configuration\CruncherConfiguration.cs" />
     <Compile Include="Web\Configuration\CruncherProcessingSection.cs" />
     <Compile Include="Web\Configuration\CruncherSecuritySection.cs" />

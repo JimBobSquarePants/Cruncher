@@ -10,7 +10,6 @@
 
 namespace Cruncher.Preprocessors
 {
-    #region Using
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -23,23 +22,18 @@ namespace Cruncher.Preprocessors
 
     using Cruncher.Extensions;
 
-    #endregion
-
     /// <summary>
     /// The cruncher configuration.
     /// </summary>
     public class PreprocessorManager
     {
-        #region Fields
         /// <summary>
         /// A new instance Initializes a new instance of the <see cref="T:Cruncher.Preprocessors.PreprocessorManager"/> class.
         /// initialized lazily.
         /// </summary>
         private static readonly Lazy<PreprocessorManager> Lazy =
                         new Lazy<PreprocessorManager>(() => new PreprocessorManager());
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Prevents a default instance of the <see cref="T:Cruncher.Preprocessors.PreprocessorManager"/> class from being created.
         /// </summary>
@@ -48,9 +42,7 @@ namespace Cruncher.Preprocessors
             this.LoadPreprocessors();
             this.CreateAllowedExtensionRegex();
         }
-        #endregion
 
-        #region Properties
         /// <summary>
         /// Gets the current instance of the <see cref="T:Cruncher.Preprocessors.PreprocessorManager"/> class.
         /// </summary>
@@ -71,9 +63,7 @@ namespace Cruncher.Preprocessors
         /// Gets the regular expression for matching allowed file type.
         /// </summary>
         public Regex AllowedExtensionsRegex { get; private set; }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Creates a list, using reflection, of supported preprocessors that Cruncher can run.
         /// </summary>
@@ -191,6 +181,5 @@ namespace Cruncher.Preprocessors
 
             this.AllowedExtensionsRegex = new Regex(stringBuilder.ToString().TrimEnd('|'), RegexOptions.IgnoreCase);
         }
-        #endregion
     }
 }

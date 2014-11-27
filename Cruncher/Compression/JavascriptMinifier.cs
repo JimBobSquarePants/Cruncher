@@ -20,8 +20,8 @@ namespace Cruncher.Compression
     /// <remarks>
     /// <para>
     /// This class is basically a wrapper for the AjaxMin library(lib/AjaxMin.dll).
-    /// http://ajaxmin.codeplex.com/
-    /// http://www.asp.net/ajaxlibrary/AjaxMinDLL.ashx
+    /// <see href="http://ajaxmin.codeplex.com/"/>
+    /// <see href="http://www.asp.net/ajaxlibrary/AjaxMinDLL.ashx"/>
     /// </para>
     /// <para>
     /// There are no symbols that come with the AjaxMin dll, so this class gives a bit of intellisense 
@@ -32,14 +32,11 @@ namespace Cruncher.Compression
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
     public sealed class JavaScriptMinifier
     {
-        #region Fields
         /// <summary>
         /// The instance of the <see cref="T:Microsoft.Ajax.Utilities.Minifier">Minifer</see> to use.
         /// </summary>
         private readonly Minifier ajaxMinifier = new Minifier();
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Cruncher.Compression.JavaScriptMinifier">JavaScriptMinifier</see> class. 
         /// </summary>
@@ -49,9 +46,7 @@ namespace Cruncher.Compression
             this.PreserveFunctionNames = false;
             this.VariableMinification = VariableMinification.LocalVariablesAndFunctionArguments;
         }
-        #endregion
 
-        #region Properties
         /// <summary>
         /// Gets or sets whether this Minifier instance should minify local-scoped variables.
         /// </summary>
@@ -101,10 +96,6 @@ namespace Cruncher.Compression
             get { return this.RemoveWhiteSpace || this.ShouldMinifyCode; }
         }
 
-        #endregion
-
-        #region Methods
-        #region Public
         /// <summary>
         /// Gets the minified version of the submitted script.
         /// </summary>
@@ -124,9 +115,7 @@ namespace Cruncher.Compression
 
             return script;
         }
-        #endregion
 
-        #region Private
         /// <summary>
         /// Builds the required CodeSettings class needed for the Ajax Minifier.
         /// </summary>
@@ -173,7 +162,5 @@ namespace Cruncher.Compression
 
             return codeSettings;
         }
-        #endregion
-        #endregion
     }
 }

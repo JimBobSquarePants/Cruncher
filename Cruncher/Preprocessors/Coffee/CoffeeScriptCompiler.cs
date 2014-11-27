@@ -11,7 +11,6 @@
 
 namespace Cruncher.Preprocessors.Coffee
 {
-    #region Using
     using System;
     using System.IO;
     using System.Reflection;
@@ -22,14 +21,12 @@ namespace Cruncher.Preprocessors.Coffee
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-    #endregion
 
     /// <summary>
     /// The CoffeeScript compiler.
     /// </summary>
     internal sealed class CoffeeScriptCompiler
     {
-        #region Fields
         /// <summary>
         /// Name of resource, which contains a CoffeeScript-library
         /// </summary>
@@ -49,9 +46,7 @@ namespace Cruncher.Preprocessors.Coffee
         /// The CoffeeScript resource.
         /// </summary>
         private static string coffeescript = string.Empty;
-        #endregion
 
-        #region Properties
         /// <summary>
         /// Gets the compiler.
         /// </summary>
@@ -67,9 +62,7 @@ namespace Cruncher.Preprocessors.Coffee
                 return coffeescript;
             }
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Loads the CoffeeScript assembly manifest resource.
         /// </summary>
@@ -180,6 +173,5 @@ namespace Cruncher.Preprocessors.Coffee
 
             return errorMessage.ToString();
         }
-        #endregion
     }
 }
