@@ -2,12 +2,11 @@
 Cruncher
 =========
 
-A CSS, LESS, SASS, SCSS, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
+A CSS, LESS, Sass, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
 
-Cruncher makes optimising your resources easy. It can bundle unlimited combinations of remote and local CSS, LESS, SASS, SCSS, JavaScript, and CoffeeScript files;
+Cruncher makes optimising your resources easy. It can bundle unlimited combinations of remote and local CSS, LESS, Sass, JavaScript, and CoffeeScript files;
 combining them, minifying them and caching them in the browser. Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning 
 cache should any changes be made to any of the referenced files.
-It'll even gzip compress the output.  
 
 If you use Cruncher please get in touch on my twitter [@james_m_south](https://twitter.com/james_m_south).
 
@@ -39,13 +38,11 @@ Cruncher Web.config Explained.
 		</whiteList>
 	</security>
 	<processing>
-		<!-- Whether to minify the css and js files and whether to compress the http response using gzip.-->
-		<compression minifyCSS="true" minifyJS="true" compressResponse="true" />
 		<!-- The comma separated virtual paths to the css and js folders.-->
-		<virtualPaths cssPaths="~/content" jsPaths="~/scripts" />
+		<virtualPaths cssPaths="~/css, ~/content" jsPaths="~/js, ~/scripts"/>
+        <!-- Where to store crunched files in the application and how long to keep expired ones.-->
+        <physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7"/>
 	</processing>
-	<!-- The number of days to store a client resource in the cache. -->
-	<cache maxDays="365" />
 </cruncher>
 ```
 
