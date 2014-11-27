@@ -1,44 +1,32 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CoffeeScriptPreprocessor.cs" company="James South">
+// <copyright file="IPreprocessor.cs" company="James South">
 //   Copyright (c) James South.
 //   Licensed under the Apache License, Version 2.0.
 // </copyright>
 // <summary>
-//   The coffee script pre-processor.
-//   Much thanks here to <see href="https://bundletransformer.codeplex.com"/>
+//   Defines methods to pre-process the file before compression.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Cruncher.Preprocessors.Coffee
+namespace Cruncher.Postprocessors
 {
     /// <summary>
-    /// The coffee script pre-processor.
-    /// Much thanks here to <see href="https://bundletransformer.codeplex.com"/>
+    /// Defines methods to post-process the file before compression.
     /// </summary>
-    public class CoffeeScriptPreprocessor : IPreprocessor
+    public interface IPostprocessor
     {
         /// <summary>
         /// Gets the extensions that this filter processes.
         /// </summary>
-        public string[] AllowedExtensions
-        {
-            get
-            {
-                return new[] { ".COFFEE" };
-            }
-        }
+        string[] AllowedExtensions { get; }
 
         /// <summary>
-        /// Transforms the content of the given string.
+        /// Transforms the content of the given string. 
         /// </summary>
         /// <param name="input">The input string to transform.</param>
         /// <param name="path">The path to the given input string to transform.</param>
         /// <param name="cruncher">The cruncher that is running the transform.</param>
         /// <returns>The transformed string.</returns>
-        public string Transform(string input, string path, CruncherBase cruncher)
-        {
-            CoffeeScriptCompiler coffeeScriptCompiler = new CoffeeScriptCompiler();
-            return coffeeScriptCompiler.Compile(input);
-        }
+        string Transform(string input, string path, CruncherBase cruncher);
     }
 }

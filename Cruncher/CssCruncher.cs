@@ -19,6 +19,7 @@ namespace Cruncher
     using Cruncher.Compression;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
+    using Cruncher.Postprocessors.AutoPrefixer;
     using Cruncher.Preprocessors;
 
     /// <summary>
@@ -67,6 +68,12 @@ namespace Cruncher
             }
 
             return minifier.Minify(resource);
+        }
+
+        public string PostProcess(string resource, AutoPrefixerOptions options)
+        {
+            // TODO: Wire this up.
+            return resource;
         }
         #endregion
 

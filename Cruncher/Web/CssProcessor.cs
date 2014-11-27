@@ -106,14 +106,18 @@ namespace Cruncher.Web
                                 // We only want the first file.
                                 string first = files.FirstOrDefault();
                                 cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                                stringBuilder.Append(cssCruncher.Crunch(first));
+                                string output = cssCruncher.Crunch(first);
+                                output = cssCruncher.PostProcess(output, null);
+                                stringBuilder.Append(output);
                             }
                         }
                         else
                         {
                             // Remote files.
                             string remoteFile = this.GetUrlFromToken(path).ToString();
-                            stringBuilder.Append(cssCruncher.Crunch(remoteFile));
+                            string output = cssCruncher.Crunch(remoteFile);
+                            output = cssCruncher.PostProcess(output, null);
+                            stringBuilder.Append(output);
                         }
                     }
 

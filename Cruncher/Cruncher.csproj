@@ -72,6 +72,11 @@
     <Compile Include="Extensions\AssemblyExtensions.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="JavaScriptCruncher.cs" />
+    <Compile Include="Postprocessors\AutoPrefixer\AutoPrefixerOptions.cs" />
+    <Compile Include="Postprocessors\AutoPrefixer\AutoPrefixerPostprocessor.cs" />
+    <Compile Include="Postprocessors\AutoPrefixer\AutoPrefixerProcessingException.cs" />
+    <Compile Include="Postprocessors\AutoPrefixer\AutoPrefixerProcessor.cs" />
+    <Compile Include="Postprocessors\IPreprocessor.cs" />
     <Compile Include="Preprocessors\Coffee\CoffeeScriptCompilingException.cs" />
     <Compile Include="Preprocessors\Coffee\CoffeeScriptCompiler.cs" />
     <Compile Include="Preprocessors\Coffee\CoffeeScriptPreprocessor.cs" />
@@ -112,20 +117,19 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js.map">
-      <DependentUpon>coffee-script-helpers.js</DependentUpon>
-    </None>
-    <None Include="Preprocessors\Coffee\Resources\coffee-script.min.js.map">
-      <DependentUpon>coffee-script.min.js</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.js" />
     <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js" />
+    <None Include="Preprocessors\Coffee\Resources\coffee-script.js" />
     <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script.min.js" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <None Include="Preprocessors\Coffee\Resources\coffee-script.js" />
+    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-helper.min.js" />
+    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-helper.js" />
+    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.js" />
+    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.min.js"/>   
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

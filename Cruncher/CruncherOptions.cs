@@ -10,6 +10,8 @@
 
 namespace Cruncher
 {
+    using Cruncher.Postprocessors.AutoPrefixer;
+
     /// <summary>
     /// The cruncher options.
     /// </summary>

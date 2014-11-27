@@ -1,15 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CoffeeScriptCompiler.cs" company="James South">
-//   Copyright (c) James South.
-//   Licensed under the Apache License, Version 2.0.
-// </copyright>
-// <summary>
-//   The CoffeeScript compiler.
-//   Much thanks here to <see href="https://bundletransformer.codeplex.com"/>
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Cruncher.Preprocessors.Coffee
+﻿namespace Cruncher.Postprocessors.AutoPrefixer
 {
     using System;
     using System.IO;
@@ -17,36 +6,34 @@ namespace Cruncher.Preprocessors.Coffee
     using System.Resources;
     using System.Text;
 
+    using Cruncher.Preprocessors.Coffee;
+
     using Microsoft.ClearScript.Windows;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    /// <summary>
-    /// The CoffeeScript compiler.
-    /// Much thanks here to <see href="https://bundletransformer.codeplex.com"/>
-    /// </summary>
-    internal sealed class CoffeeScriptCompiler
+    internal sealed class AutoPrefixerProcessor
     {
         /// <summary>
-        /// Name of resource, which contains a CoffeeScript-library
+        /// Name of resource, which contains a AutoPrefixer library
         /// </summary>
-        private const string CoffeeScriptLibraryResource = "Cruncher.Preprocessors.Coffee.Resources.coffee-script.min.js";
+        private const string AutoPrefixerLibraryResource = "Cruncher.Postprocessors.AutoPrefixer.Resources.autoprefixer.min.js";
 
         /// <summary>
-        /// Name of resource, which contains a CoffeeScript-compiler helper
+        /// Name of resource, which contains a AutoPrefixer processor helper
         /// </summary>
-        private const string CoffeeScriptHelperResource = "Cruncher.Preprocessors.Coffee.Resources.coffee-script-helpers.min.js";
+        private const string AutoPrefixerHelperResource = "Cruncher.Postprocessors.AutoPrefixer.Resources.autoprefixer-helpers.min.js";
 
         /// <summary>
         /// Template of function call, which is responsible for compilation
         /// </summary>
-        private const string CompilationFunctionCallTemplate = @"coffeeScriptHelper.compile({0}, {1});";
+        private const string CompilationFunctionCallTemplate = @"autoprefixerHelper.process({0}, {1});";
 
         /// <summary>
-        /// The CoffeeScript resource.
+        /// The AutoPrefixer resource.
         /// </summary>
-        private static string coffeescript = string.Empty;
+        private static string autoPrefixer = string.Empty;
 
         /// <summary>
         /// Gets the compiler.
@@ -55,26 +42,26 @@ namespace Cruncher.Preprocessors.Coffee
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(coffeescript))
+                if (string.IsNullOrWhiteSpace(autoPrefixer))
                 {
-                    coffeescript = LoadCoffeeScript();
+                    autoPrefixer = LoadAutoPrefixerScript();
                 }
 
-                return coffeescript;
+                return autoPrefixer;
             }
         }
 
         /// <summary>
-        /// Loads the CoffeeScript assembly manifest resource.
+        /// Loads the AutoPrefixer assembly manifest resource.
         /// </summary>
         /// <returns>
-        /// The <see cref="string"/> containing the CoffeeScript assembly manifest resource.
+        /// The <see cref="string"/> containing the AutoPrefixer assembly manifest resource.
         /// </returns>
-        public static string LoadCoffeeScript()
+        public static string LoadAutoPrefixerScript()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(GetAssemblyResource(CoffeeScriptLibraryResource));
-            stringBuilder.Append(GetAssemblyResource(CoffeeScriptHelperResource));
+            stringBuilder.Append(GetAssemblyResource(AutoPrefixerLibraryResource));
+            stringBuilder.Append(GetAssemblyResource(AutoPrefixerHelperResource));
 
             return stringBuilder.ToString();
         }
@@ -85,19 +72,22 @@ namespace Cruncher.Preprocessors.Coffee
         /// <param name="input">
         /// The input to compile.
         /// </param>
+        /// <param name="options">
+        /// The AutoPrefixer options.
+        /// </param>
         /// <returns>
         /// The <see cref="string"/> containing the compiled CoffeeScript result.
         /// </returns>
-        public string Compile(string input)
+        public string Process(string input, AutoPrefixerOptions options)
         {
-            string compiledInput;
+            string processedCode;
             try
             {
                 string result;
                 using (JScriptEngine engine = new JScriptEngine(WindowsScriptEngineFlags.EnableStandardsMode))
                 {
                     engine.Execute(Compiler);
-                    string expression = string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), "{bare: false}");
+                    string expression = string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), ConvertAutoPrefixerOptionsToJson(options));
                     result = engine.Evaluate(expression).ToString();
                 }
 
@@ -106,17 +96,32 @@ namespace Cruncher.Preprocessors.Coffee
 
                 if (errors != null && errors.Count > 0)
                 {
-                    throw new CoffeeScriptCompilingException(FormatErrorDetails(errors[0]));
+                    throw new AutoPrefixerProcessingException(FormatErrorDetails(errors[0]));
                 }
 
-                compiledInput = json.Value<string>("compiledCode");
+                processedCode = json.Value<string>("processedCode");
             }
             catch (Exception ex)
             {
                 throw new CoffeeScriptCompilingException(ex.Message, ex.InnerException);
             }
 
-            return compiledInput;
+            return processedCode;
+        }
+
+        /// <summary>
+        /// Converts <see cref="AutoPrefixerOptions"/> to JSON
+        /// </summary>
+        /// <param name="options">AutoPrefixerOptions options</param>
+        /// <returns>AutoPrefixerOptions options in JSON format</returns>
+        private static JObject ConvertAutoPrefixerOptionsToJson(AutoPrefixerOptions options)
+        {
+            JObject optionsJson = new JObject(
+                new JProperty("browsers", new JArray(options.Browsers)),
+                new JProperty("cascade", options.Cascade),
+                new JProperty("safe", options.Safe));
+
+            return optionsJson;
         }
 
         /// <summary>

@@ -9,6 +9,7 @@
       <Value>javascript</Value>
       <Value>minified</Value>
       <Value>minifier</Value>
+      <Value>prefixer</Value>
       <Value>stylesheet</Value>
       <Value>urls</Value>
     </CollectionProperty>
