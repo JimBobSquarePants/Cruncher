@@ -18,6 +18,7 @@ namespace Cruncher.Web
     using Cruncher.Caching;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
+    using Cruncher.Postprocessors.AutoPrefixer;
     using Cruncher.Preprocessors;
     using Cruncher.Web.Configuration;
 
@@ -65,6 +66,8 @@ namespace Cruncher.Web
 
                     CssCruncher cssCruncher = new CssCruncher(cruncherOptions);
 
+                    AutoPrefixerOptions autoPrefixerOptions = CruncherConfiguration.Instance.AutoPrefixerOptions;
+
                     // Loop through and process each file.
                     foreach (string path in paths)
                     {
@@ -106,22 +109,21 @@ namespace Cruncher.Web
                                 // We only want the first file.
                                 string first = files.FirstOrDefault();
                                 cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                                string output = cssCruncher.Crunch(first);
-                                output = cssCruncher.PostProcess(output, null);
-                                stringBuilder.Append(output);
+                                stringBuilder.Append(cssCruncher.Crunch(first));
                             }
                         }
                         else
                         {
                             // Remote files.
                             string remoteFile = this.GetUrlFromToken(path).ToString();
-                            string output = cssCruncher.Crunch(remoteFile);
-                            output = cssCruncher.PostProcess(output, null);
-                            stringBuilder.Append(output);
+                            stringBuilder.Append(cssCruncher.Crunch(remoteFile));
                         }
                     }
 
                     combinedCSS = stringBuilder.ToString();
+
+                    // Apply autoprefixer
+                    combinedCSS = cssCruncher.AutoPrefix(combinedCSS, autoPrefixerOptions);
 
                     if (minify)
                     {

@@ -8,17 +8,20 @@
 
     using Cruncher.Preprocessors.Coffee;
 
+    using JavaScriptEngineSwitcher.Core;
+    using JavaScriptEngineSwitcher.Core.Helpers;
+
     using Microsoft.ClearScript.Windows;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    internal sealed class AutoPrefixerProcessor
+    internal sealed class AutoPrefixerProcessor : IDisposable
     {
         /// <summary>
         /// Name of resource, which contains a AutoPrefixer library
         /// </summary>
-        private const string AutoPrefixerLibraryResource = "Cruncher.Postprocessors.AutoPrefixer.Resources.autoprefixer.min.js";
+        private const string AutoPrefixerLibraryResource = "Cruncher.Postprocessors.AutoPrefixer.Resources.autoprefixer.js";
 
         /// <summary>
         /// Name of resource, which contains a AutoPrefixer processor helper
@@ -31,40 +34,61 @@
         private const string CompilationFunctionCallTemplate = @"autoprefixerHelper.process({0}, {1});";
 
         /// <summary>
-        /// The AutoPrefixer resource.
+        /// Delegate that creates an instance of JavaScript engine
         /// </summary>
-        private static string autoPrefixer = string.Empty;
+        private readonly Func<IJsEngine> createJsEngineInstance;
+
+        private IJsEngine javascriptEngine;
+
+        private bool initialized;
 
         /// <summary>
-        /// Gets the compiler.
+        /// The sync root for locking against.
         /// </summary>
-        public static string Compiler
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(autoPrefixer))
-                {
-                    autoPrefixer = LoadAutoPrefixerScript();
-                }
+        private static readonly object SyncRoot = new object();
 
-                return autoPrefixer;
-            }
+        private bool disposed;
+
+        ///// <summary>
+        ///// The AutoPrefixer resource.
+        ///// </summary>
+        //private static string autoPrefixer = string.Empty;
+
+        public AutoPrefixerProcessor(Func<IJsEngine> javascriptEngineFactory)
+        {
+            this.javascriptEngine = javascriptEngineFactory();
         }
 
-        /// <summary>
-        /// Loads the AutoPrefixer assembly manifest resource.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="string"/> containing the AutoPrefixer assembly manifest resource.
-        /// </returns>
-        public static string LoadAutoPrefixerScript()
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(GetAssemblyResource(AutoPrefixerLibraryResource));
-            stringBuilder.Append(GetAssemblyResource(AutoPrefixerHelperResource));
+        ///// <summary>
+        ///// Gets the compiler.
+        ///// </summary>
+        //public static string Compiler
+        //{
+        //    get
+        //    {
+        //        if (string.IsNullOrWhiteSpace(autoPrefixer))
+        //        {
+        //            autoPrefixer = LoadAutoPrefixerScript();
+        //        }
 
-            return stringBuilder.ToString();
-        }
+        //        return autoPrefixer;
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Loads the AutoPrefixer assembly manifest resource.
+        ///// </summary>
+        ///// <returns>
+        ///// The <see cref="string"/> containing the AutoPrefixer assembly manifest resource.
+        ///// </returns>
+        //public static string LoadAutoPrefixerScript()
+        //{
+        //    StringBuilder stringBuilder = new StringBuilder();
+        //    stringBuilder.Append(GetAssemblyResource(AutoPrefixerLibraryResource));
+        //    stringBuilder.Append(GetAssemblyResource(AutoPrefixerHelperResource));
+
+        //    return stringBuilder.ToString();
+        //}
 
         /// <summary>
         /// Gets a string containing the compiled CoffeeScript result.
@@ -81,31 +105,37 @@
         public string Process(string input, AutoPrefixerOptions options)
         {
             string processedCode;
-            try
+
+            lock (SyncRoot)
             {
-                string result;
-                using (JScriptEngine engine = new JScriptEngine(WindowsScriptEngineFlags.EnableStandardsMode))
+                this.Initialize();
+
+                try
                 {
-                    engine.Execute(Compiler);
-                    string expression = string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), ConvertAutoPrefixerOptionsToJson(options));
-                    result = engine.Evaluate(expression).ToString();
+                    string result = this.javascriptEngine.Evaluate<string>(string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), ConvertAutoPrefixerOptionsToJson(options)));
+
+                    //using (JScriptEngine engine = new JScriptEngine(WindowsScriptEngineFlags.EnableDebugging))
+                    //{
+                    //    engine.Execute(Compiler);
+                    //    string expression = string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), ConvertAutoPrefixerOptionsToJson(options));
+                    //    result = engine.Evaluate(expression).ToString();
+                    //}
+
+                    JObject json = JObject.Parse(result);
+                    JArray errors = json["errors"] != null ? json["errors"] as JArray : null;
+
+                    if (errors != null && errors.Count > 0)
+                    {
+                        throw new AutoPrefixerProcessingException(FormatErrorDetails(errors[0]));
+                    }
+
+                    processedCode = json.Value<string>("processedCode");
                 }
-
-                JObject json = JObject.Parse(result);
-                JArray errors = json["errors"] != null ? json["errors"] as JArray : null;
-
-                if (errors != null && errors.Count > 0)
+                catch (JsRuntimeException ex)
                 {
-                    throw new AutoPrefixerProcessingException(FormatErrorDetails(errors[0]));
+                    throw new AutoPrefixerProcessingException(JsRuntimeErrorHelpers.Format(ex));
                 }
-
-                processedCode = json.Value<string>("processedCode");
             }
-            catch (Exception ex)
-            {
-                throw new CoffeeScriptCompilingException(ex.Message, ex.InnerException);
-            }
-
             return processedCode;
         }
 
@@ -125,31 +155,47 @@
         }
 
         /// <summary>
-        /// Gets the assembly manifest resource.
+        /// Initializes CSS auto-prefixer
         /// </summary>
-        /// <param name="resource">
-        /// The resource to retrieve.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/> containing the specified assembly manifest resource.
-        /// </returns>
-        /// A <exception cref="MissingManifestResourceException"> containing the error message.
-        /// </exception>
-        private static string GetAssemblyResource(string resource)
+        private void Initialize()
         {
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
+            if (!this.initialized)
             {
-                if (stream != null)
-                {
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        return reader.ReadToEnd();
-                    }
-                }
+                Type type = GetType();
 
-                throw new MissingManifestResourceException(resource.Split(new[] { "Resources." }, StringSplitOptions.None)[1]);
+                this.javascriptEngine.ExecuteResource(AutoPrefixerLibraryResource, type);
+                this.javascriptEngine.ExecuteResource(AutoPrefixerHelperResource, type);
+
+                this.initialized = true;
             }
         }
+
+        ///// <summary>
+        ///// Gets the assembly manifest resource.
+        ///// </summary>
+        ///// <param name="resource">
+        ///// The resource to retrieve.
+        ///// </param>
+        ///// <returns>
+        ///// The <see cref="string"/> containing the specified assembly manifest resource.
+        ///// </returns>
+        ///// A <exception cref="MissingManifestResourceException"> containing the error message.
+        ///// </exception>
+        //private static string GetAssemblyResource(string resource)
+        //{
+        //    using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
+        //    {
+        //        if (stream != null)
+        //        {
+        //            using (StreamReader reader = new StreamReader(stream))
+        //            {
+        //                return reader.ReadToEnd();
+        //            }
+        //        }
+
+        //        throw new MissingManifestResourceException(resource.Split(new[] { "Resources." }, StringSplitOptions.None)[1]);
+        //    }
+        //}
 
         /// <summary>
         /// Generates a detailed error message
@@ -178,6 +224,24 @@
             }
 
             return errorMessage.ToString();
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            if (!this.disposed)
+            {
+                this.disposed = true;
+
+                if (this.javascriptEngine != null)
+                {
+                    this.javascriptEngine.Dispose();
+                    this.javascriptEngine = null;
+                }
+            }
+
         }
     }
 }

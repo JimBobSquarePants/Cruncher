@@ -33,6 +33,11 @@ namespace Cruncher
         private static readonly Regex ImportsRegex = new Regex(@"((?:@import\s*(url\([""']?)\s*(?<filename>.*\.\w+ss)(\s*[""']?)\s*\))((?<media>([^;@]+))?);)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         /// <summary>
+        /// The auto prefixer postprocessor.
+        /// </summary>
+        private static AutoPrefixerPostprocessor autoPrefixerPostprocessor = new AutoPrefixerPostprocessor();
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CssCruncher"/> class.
         /// </summary>
         /// <param name="options">The options containing instructions for the cruncher.</param>
@@ -70,10 +75,21 @@ namespace Cruncher
             return minifier.Minify(resource);
         }
 
-        public string PostProcess(string resource, AutoPrefixerOptions options)
+        /// <summary>
+        /// Post process the input using auto prefixer.
+        /// </summary>
+        /// <param name="input">
+        /// The input CSS.
+        /// </param>
+        /// <param name="options">
+        /// The <see cref="AutoPrefixerOptions"/>.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/> containing the post-processed CSS.
+        /// </returns>
+        public string AutoPrefix(string input, AutoPrefixerOptions options)
         {
-            // TODO: Wire this up.
-            return resource;
+            return autoPrefixerPostprocessor.Transform(input, options);
         }
         #endregion
 

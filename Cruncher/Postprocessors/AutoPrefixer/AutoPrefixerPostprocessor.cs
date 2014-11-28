@@ -1,19 +1,53 @@
-﻿
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AutoPrefixerPostprocessor.cs" company="James South">
+//   Copyright (c) James South.
+//   Licensed under the Apache License, Version 2.0.
+// </copyright>
+// <summary>
+//   The auto prefixer postprocessor.
+//   by using Andrey Sitnik's Autoprefixer
+//   <see href="https://bundletransformer.codeplex.com" />
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace Cruncher.Postprocessors.AutoPrefixer
 {
-    public class AutoPrefixerPostprocessor : IPostprocessor
-    {
-        public string[] AllowedExtensions
-        {
-            get
-            {
-                return new[] { ".CSS" };
-            }
-        }
+    using System.Configuration;
+    using System.Diagnostics.CodeAnalysis;
 
-        public string Transform(string input, string path, CruncherBase cruncher)
+    using Cruncher.Web.Configuration;
+
+    using JavaScriptEngineSwitcher.Core;
+
+    /// <summary>
+    /// The auto prefixer postprocessor.
+    /// by using Andrey Sitnik's Autoprefixer
+    /// <see href="https://bundletransformer.codeplex.com"/>
+    /// </summary>
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    public class AutoPrefixerPostprocessor
+    {
+        /// <summary>
+        /// Transforms the content of the given string. 
+        /// </summary>
+        /// <param name="input">
+        /// The input string to transform.
+        /// </param>
+        /// <param name="options">
+        /// The <see cref="AutoPrefixerOptions"/>.
+        /// </param>
+        /// <returns>
+        /// The transformed string.
+        /// </returns>
+        public string Transform(string input, AutoPrefixerOptions options)
         {
-            throw new System.NotImplementedException();
+            if (!options.Enabled)
+            {
+                return input;
+            }
+
+            AutoPrefixerProcessor processor = new AutoPrefixerProcessor(CruncherConfiguration.Instance.JsEngineFunc);
+            return processor.Process(input, options);
         }
     }
 }

@@ -5,31 +5,32 @@
 // </copyright>
 // <summary>
 //   Encapsulates methods to allow the retrieval of cruncher settings.
-//   http://csharpindepth.com/Articles/General/Singleton.aspx
+//   <see href="http://csharpindepth.com/Articles/General/Singleton.aspx"/> 
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher.Web.Configuration
 {
-    #region Using
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    #endregion
+    using System.Linq;
+
+    using Cruncher.Postprocessors.AutoPrefixer;
+
+    using JavaScriptEngineSwitcher.Core;
 
     /// <summary>
     /// Encapsulates methods to allow the retrieval of cruncher settings.
-    /// <see cref="http://csharpindepth.com/Articles/General/Singleton.aspx"/> 
+    /// <see href="http://csharpindepth.com/Articles/General/Singleton.aspx"/> 
     /// </summary>
     public class CruncherConfiguration
     {
-        #region Fields
         /// <summary>
-        /// A new instance Initializes a new instance of the <see cref="T:Cruncher.Web.Configuration.CruncherConfiguration"/> class.
+        /// A new instance Initializes a new instance of the <see cref="CruncherConfiguration"/> class.
         /// initialized lazily.
         /// </summary>
-        private static readonly Lazy<CruncherConfiguration> Lazy =
-                        new Lazy<CruncherConfiguration>(() => new CruncherConfiguration());
+        private static readonly Lazy<CruncherConfiguration> Lazy = new Lazy<CruncherConfiguration>(() => new CruncherConfiguration());
 
         /// <summary>
         /// Represents a CruncherSecuritySection within a configuration file.
@@ -44,26 +45,33 @@ namespace Cruncher.Web.Configuration
         /// <summary>
         /// An array of registered css paths for the application.
         /// </summary>
-        private string[] cssPaths;
+        private IList<string> cssPaths;
 
         /// <summary>
         /// An array of registered JavaScript paths for the application.
         /// </summary>
-        private string[] javaScriptPaths;
-        #endregion
+        private IList<string> javaScriptPaths;
 
-        #region Constructors
         /// <summary>
-        /// Prevents a default instance of the <see cref="T:Cruncher.Web.Configuration.CruncherConfiguration"/> class from being created.
+        /// The auto prefixer options.
+        /// </summary>
+        private AutoPrefixerOptions autoPrefixerOptions;
+
+        /// <summary>
+        /// Delegate that creates an instance of JavaScript engine
+        /// </summary>
+        private Func<IJsEngine> jsEngineFunc;
+
+        /// <summary>
+        /// Prevents a default instance of the <see cref="CruncherConfiguration"/> class from being created.
         /// </summary>
         private CruncherConfiguration()
         {
         }
-        #endregion
 
         #region Properties
         /// <summary>
-        /// Gets the current instance of the <see cref="T:Cruncher.Web.Configuration.CruncherConfiguration"/> class.
+        /// Gets the current instance of the <see cref="CruncherConfiguration"/> class.
         /// </summary>
         public static CruncherConfiguration Instance
         {
@@ -121,6 +129,25 @@ namespace Cruncher.Web.Configuration
         #endregion
 
         #region Processing
+
+        /// <summary>
+        /// Gets the delegate that creates an instance of JavaScript engine.
+        /// </summary>
+        public Func<IJsEngine> JsEngineFunc
+        {
+            get
+            {
+                if (this.jsEngineFunc == null)
+                {
+                    string engineName = this.GetCruncherProcessingSection().JsEngine;
+
+                    this.jsEngineFunc = () => JsEngineSwitcher.Current.CreateJsEngineInstance(engineName);
+                }
+
+                return this.jsEngineFunc;
+            }
+        }
+
         /// <summary>
         /// Gets an array of registered css paths for the application.
         /// </summary>
@@ -129,7 +156,7 @@ namespace Cruncher.Web.Configuration
             get
             {
                 return this.cssPaths
-                       ?? (this.cssPaths = this.GetCruncherProcessingSection().VirtualPaths.CSSPaths.Split(','));
+                       ?? (this.cssPaths = this.GetCruncherProcessingSection().VirtualPaths.CSSPaths.Split(',').Select(p => p.Trim()).ToList());
             }
         }
 
@@ -141,7 +168,7 @@ namespace Cruncher.Web.Configuration
             get
             {
                 return this.javaScriptPaths
-                       ?? (this.javaScriptPaths = this.GetCruncherProcessingSection().VirtualPaths.JavaScriptPaths.Split(','));
+                       ?? (this.javaScriptPaths = this.GetCruncherProcessingSection().VirtualPaths.JavaScriptPaths.Split(',').Select(p => p.Trim()).ToList());
             }
         }
 
@@ -167,6 +194,16 @@ namespace Cruncher.Web.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the auto prefixer options.
+        /// </summary>
+        public AutoPrefixerOptions AutoPrefixerOptions
+        {
+            get
+            {
+                return this.GetAutoPrefixerOptions();
+            }
+        }
         #endregion
         #endregion
 
@@ -187,6 +224,30 @@ namespace Cruncher.Web.Configuration
         private CruncherProcessingSection GetCruncherProcessingSection()
         {
             return this.processingSection ?? (this.processingSection = CruncherProcessingSection.GetConfiguration());
+        }
+
+        /// <summary>
+        /// Retrieves the auto prefixer configuration options from the current application configuration. 
+        /// </summary>
+        /// <returns>
+        /// The <see cref="AutoPrefixerOptions"/> from the current application configuration.
+        /// </returns>
+        private AutoPrefixerOptions GetAutoPrefixerOptions()
+        {
+            if (this.autoPrefixerOptions != null)
+            {
+                return this.autoPrefixerOptions;
+            }
+
+            this.autoPrefixerOptions = new AutoPrefixerOptions
+            {
+                Browsers = this.GetCruncherProcessingSection().AutoPrefixer.Browsers.Split(',').Select(p => p.Trim()).ToList(),
+                Enabled = this.GetCruncherProcessingSection().AutoPrefixer.Enabled,
+                Cascade = this.GetCruncherProcessingSection().AutoPrefixer.Cascade,
+                Safe = this.GetCruncherProcessingSection().AutoPrefixer.Safe
+            };
+
+            return this.autoPrefixerOptions;
         }
         #endregion
     }

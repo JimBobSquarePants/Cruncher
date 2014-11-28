@@ -19,9 +19,28 @@ namespace Cruncher.Web.Configuration
     {
         #region Properties
         /// <summary>
-        /// Gets or sets the <see cref="T:Cruncher.Web.Configuration.CruncherProcessingSection.VirtualPathsElement"/>.
+        /// Gets or sets the JavaScript Engine for processing embedded JavaScript resources for the application.
         /// </summary>
-        /// <value>The <see cref="T:Cruncher.Web.Configuration.CruncherProcessingSection.VirtualPathsElement"/>.</value>
+        /// <value>The JavaScript Engine for processing embedded JavaScript.</value>
+        /// <remarks>Defaults to 'JurassicJsEngine' if not set.</remarks>
+        [ConfigurationProperty("jsEngine", DefaultValue = "JurassicJsEngine", IsRequired = true)]
+        public string JsEngine
+        {
+            get
+            {
+                return (string)this["jsEngine"];
+            }
+
+            set
+            {
+                this["jsEngine"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="VirtualPathsElement"/>.
+        /// </summary>
+        /// <value>The <see cref="VirtualPathsElement"/>.</value>
         [ConfigurationProperty("virtualPaths", IsRequired = true)]
         public VirtualPathsElement VirtualPaths
         {
@@ -30,14 +49,25 @@ namespace Cruncher.Web.Configuration
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="T:Cruncher.Web.Configuration.CruncherProcessingSection.PhysicalFilesElement"/>.
+        /// Gets or sets the <see cref="PhysicalFilesElement"/>.
         /// </summary>
-        /// <value>The <see cref="T:Cruncher.Web.Configuration.CruncherProcessingSection.PhysicalFilesElement"/>.</value>
+        /// <value>The <see cref="PhysicalFilesElement"/>.</value>
         [ConfigurationProperty("physicalFiles", IsRequired = true)]
         public PhysicalFilesElement PhysicalFiles
         {
             get { return (PhysicalFilesElement)this["physicalFiles"]; }
             set { this["physicalFiles"] = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="AutoPrefixerElement"/>.
+        /// </summary>
+        /// <value>The <see cref="AutoPrefixerElement"/>.</value>
+        [ConfigurationProperty("autoPrefixer", IsRequired = true)]
+        public AutoPrefixerElement AutoPrefixer
+        {
+            get { return (AutoPrefixerElement)this["autoPrefixer"]; }
+            set { this["autoPrefixer"] = value; }
         }
         #endregion
 
@@ -151,6 +181,67 @@ namespace Cruncher.Web.Configuration
                 {
                     this["daysBeforeRemoveExpired"] = value;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Represents a auto prefixer configuration element within the configuration.
+        /// </summary>
+        public class AutoPrefixerElement : ConfigurationElement
+        {
+            /// <summary>
+            /// Gets or sets a value indicating whether the current application should auto-prefix CSS files before minification.
+            /// </summary>
+            /// <value><see langword="true"/> if the current application is allowed to auto-prefix CSS files; otherwise, <see langword="false"/>.</value>
+            [ConfigurationProperty("enabled", DefaultValue = true, IsRequired = true)]
+            public bool Enabled
+            {
+                get { return (bool)this["enabled"]; }
+                set { this["enabled"] = value; }
+            }
+
+            /// <summary>
+            /// Gets or sets the browser(s) to provide prefixes for.
+            /// </summary>
+            /// <value>The browser(s) to provide prefixes for.</value>
+            /// <remarks>Multiple browsers are comma separated.</remarks>
+            [ConfigurationProperty("browsers", DefaultValue = "> 1%, last 2 versions, Firefox ESR, Opera 12.1", IsRequired = true)]
+            [StringValidator(MinLength = 2, MaxLength = 200)]
+            public string Browsers
+            {
+                get
+                {
+                    string virtualPath = (string)this["browsers"];
+
+                    return virtualPath;
+                }
+
+                set
+                {
+                    this["browsers"] = value;
+                }
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether to create nice visual cascade of prefixes.
+            /// </summary>
+            /// <value><see langword="true"/> if the current application is should cascade prefixes; otherwise, <see langword="false"/>.</value>
+            [ConfigurationProperty("cascade", DefaultValue = true, IsRequired = true)]
+            public bool Cascade
+            {
+                get { return (bool)this["cascade"]; }
+                set { this["cascade"] = value; }
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether to enable the special safe mode to parse broken CSS.
+            /// </summary>
+            /// <value><see langword="true"/> if the current application is enable safe mode; otherwise, <see langword="false"/>.</value>
+            [ConfigurationProperty("safe", DefaultValue = false, IsRequired = true)]
+            public bool Safe
+            {
+                get { return (bool)this["safe"]; }
+                set { this["safe"] = value; }
             }
         }
     }

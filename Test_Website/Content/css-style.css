@@ -1,9 +1,13 @@
-﻿html{ 
+﻿html {
     height: 100%;
+}
+
+::selection {
+    background: #ff1493;
+    text-shadow: none;
 }
 
 /*! This comment should be preserved.*/
 @import url('imports/css-style2.css');
 
 @import url('/Content/imports/css-style3.css');
-

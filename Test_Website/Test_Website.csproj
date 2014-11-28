@@ -45,9 +45,16 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\dotless.1.4.1.0\lib\dotless.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Jurassic, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="JavaScriptEngineSwitcher.Core, Version=1.2.0.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Jurassic.2.1.1\lib\Jurassic.dll</HintPath>
+      <HintPath>..\packages\JavaScriptEngineSwitcher.Core.1.2.0\lib\net40\JavaScriptEngineSwitcher.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="JavaScriptEngineSwitcher.Jurassic">
+      <HintPath>..\packages\JavaScriptEngineSwitcher.Jurassic.1.2.0\lib\net40\JavaScriptEngineSwitcher.Jurassic.dll</HintPath>
+    </Reference>
+    <Reference Include="Jurassic, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67039d2c577b4c08, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\JavaScriptEngineSwitcher.Jurassic.1.2.0\lib\net40\Jurassic.dll</HintPath>
     </Reference>
     <Reference Include="LibSass.x64, Version=0.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
