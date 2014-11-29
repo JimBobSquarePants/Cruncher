@@ -17,10 +17,15 @@
 Cruncher makes optimizing your resources easy. It can bundle unlimited combinations of remote and local CSS, Less, Sass, JavaScript, and CoffeeScript files.
 
 Combining them, minifying them, and caching them in the browser, Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files.
+It can also parse CSS and add vendor prefixes to rules by Can I Use using AutoPrefixer.
 
 Requires 64 bit functionality due to the Sass compiler dependency. If using IIS Express ensure you are running in 64 it mode.
 
 Tools > Options > Projects and Solutions > Web Projects > Use the 64 bit version of IIS Express…
+
+Also requires `msvcp110.dll` and `msvcr110.dll` from the Visual C++ Redistributable Package to be installed on the server to support the embedded JavaScript engine.
+
+http://www.microsoft.com/en-us/download/details.aspx?id=40784
 
 If you use Cruncher please get in touch on my twitter @james_m_south. Feedback is always welcome.
     </description>
@@ -31,7 +36,6 @@ If you use Cruncher please get in touch on my twitter @james_m_south. Feedback i
   </metadata>
   <files>
     <file src="..\Nuget\content\web.config.transform" target="content\web.config.transform" />
-    <file src="..\Nuget\tools\CruncherConsole.exe" target="tools\CruncherConsole.exe" />
     <file src="..\Nuget\readme.txt" target="" />
   </files>
 </package>

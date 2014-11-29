@@ -53,6 +53,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\JavaScriptEngineSwitcher.Core.1.2.0\lib\net40\JavaScriptEngineSwitcher.Core.dll</HintPath>
     </Reference>
+    <Reference Include="JavaScriptEngineSwitcher.Msie">
+      <HintPath>..\packages\JavaScriptEngineSwitcher.Msie.1.2.0\lib\net40\JavaScriptEngineSwitcher.Msie.dll</HintPath>
+    </Reference>
     <Reference Include="JavaScriptEngineSwitcher.V8">
       <HintPath>..\packages\JavaScriptEngineSwitcher.V8.1.2.1\lib\net40\JavaScriptEngineSwitcher.V8.dll</HintPath>
     </Reference>
@@ -65,6 +68,9 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="MsieJavaScriptEngine">
+      <HintPath>..\packages\MsieJavaScriptEngine.1.5.0\lib\net40\MsieJavaScriptEngine.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>

@@ -5,7 +5,7 @@
 // </copyright>
 // <summary>
 //   The coffee script pre-processor.
-//   Much thanks here to <see href="https://bundletransformer.codeplex.com"/>
+//   Many thanks here to Andrey Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ namespace Cruncher.Preprocessors.Coffee
 
     /// <summary>
     /// The coffee script pre-processor.
-    /// Much thanks here to <see href="https://bundletransformer.codeplex.com"/>
+    /// Many thanks here to Andrey Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
     /// </summary>
     public class CoffeeScriptPreprocessor : IPreprocessor
     {

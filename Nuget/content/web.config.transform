@@ -9,7 +9,7 @@
 
   <system.webServer>
     <staticContent>
-        <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
+      <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
     </staticContent>
   </system.webServer>
 
@@ -19,9 +19,10 @@
         <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.js" />
       </whiteList>
     </security>
-    <processing>
-      <virtualPaths cssPaths="~/content, ~/css" jsPaths="~/scripts, ~/js" />
-      <physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7"/>
+    <processing jsEngine="V8JsEngine">
+      <virtualPaths cssPaths="~/css, ~/content" jsPaths="~/js, ~/scripts" />
+      <physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7" />
+      <autoPrefixer enabled="true" browsers="> 1%, last 2 versions, Firefox ESR, Opera 12.1" cascade="true" safe="false" />
     </processing>
   </cruncher>
 </configuration>

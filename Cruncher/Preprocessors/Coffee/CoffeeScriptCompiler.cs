@@ -5,7 +5,7 @@
 // </copyright>
 // <summary>
 //   The CoffeeScript compiler.
-//   Many thanks here to Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
+//   Many thanks here to Andrey Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ namespace Cruncher.Preprocessors.Coffee
 
     /// <summary>
     /// The CoffeeScript compiler.
-    /// Many thanks here to Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
+    /// Many thanks here to Andrey Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
     /// </summary>
     internal sealed class CoffeeScriptCompiler : IDisposable
     {
