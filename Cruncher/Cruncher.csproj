@@ -37,8 +37,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\AjaxMin.5.12.5436.22734\lib\net40\AjaxMin.dll</HintPath>
     </Reference>
-    <Reference Include="ClearScript">
-      <HintPath>..\packages\ClearScript.5.3.11.0\lib\net40\ClearScript.dll</HintPath>
+    <Reference Include="ClearScript, Version=5.4.0.0, Culture=neutral, PublicKeyToken=935d0c957da47c73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\JavaScriptEngineSwitcher.V8.1.2.1\lib\net40\ClearScript.dll</HintPath>
     </Reference>
     <Reference Include="dotless.Core, Version=1.4.1.0, Culture=neutral, PublicKeyToken=96b446c9e63eae34, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -47,11 +48,8 @@
     <Reference Include="JavaScriptEngineSwitcher.Core">
       <HintPath>..\packages\JavaScriptEngineSwitcher.Core.1.2.0\lib\net40\JavaScriptEngineSwitcher.Core.dll</HintPath>
     </Reference>
-    <Reference Include="JavaScriptEngineSwitcher.Jurassic">
-      <HintPath>..\packages\JavaScriptEngineSwitcher.Jurassic.1.2.0\lib\net40\JavaScriptEngineSwitcher.Jurassic.dll</HintPath>
-    </Reference>
-    <Reference Include="Jurassic">
-      <HintPath>..\packages\JavaScriptEngineSwitcher.Jurassic.1.2.0\lib\net40\Jurassic.dll</HintPath>
+    <Reference Include="JavaScriptEngineSwitcher.V8">
+      <HintPath>..\packages\JavaScriptEngineSwitcher.V8.1.2.1\lib\net40\JavaScriptEngineSwitcher.V8.dll</HintPath>
     </Reference>
     <Reference Include="LibSass.x64">
       <HintPath>..\packages\libsassnet.x64.3.0.1.1\lib\net40\LibSass.x64.dll</HintPath>
@@ -126,19 +124,58 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-helpers.min.js.map">
+      <DependentUpon>autoprefixer-helpers.min.js</DependentUpon>
+    </None>
+    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.min.js.map">
+      <DependentUpon>autoprefixer.min.js</DependentUpon>
+    </None>
+    <None Include="Preprocessors\Coffee\Resources\coffee-script.min.js.map">
+      <DependentUpon>coffee-script.min.js</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.js" />
-    <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js" />
+    <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js.map">
+      <DependentUpon>coffee-script-helpers.min.js</DependentUpon>
+    </None>
     <None Include="Preprocessors\Coffee\Resources\coffee-script.js" />
-    <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script.min.js" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-helpers.min.js" />
+    <None Include="ClearScript.V8\ClearScriptV8-32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ClearScript.V8\ClearScriptV8-64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ClearScript.V8\v8-ia32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ClearScript.V8\v8-x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-helpers.js" />
-    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.js" />
-    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.min.js" />
+    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js">
+      <DependentUpon>coffee-script-helpers.js</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script.min.js">
+      <DependentUpon>coffee-script.js</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-helpers.min.js">
+      <DependentUpon>autoprefixer-helpers.js</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.min.js">
+      <DependentUpon>autoprefixer.js</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

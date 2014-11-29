@@ -11,6 +11,8 @@
 
 namespace Cruncher.Preprocessors.Coffee
 {
+    using Cruncher.Web.Configuration;
+
     /// <summary>
     /// The coffee script pre-processor.
     /// Much thanks here to <see href="https://bundletransformer.codeplex.com"/>
@@ -37,8 +39,12 @@ namespace Cruncher.Preprocessors.Coffee
         /// <returns>The transformed string.</returns>
         public string Transform(string input, string path, CruncherBase cruncher)
         {
-            CoffeeScriptCompiler coffeeScriptCompiler = new CoffeeScriptCompiler();
-            return coffeeScriptCompiler.Compile(input);
+            using (CoffeeScriptCompiler coffeeScriptCompiler = new CoffeeScriptCompiler(CruncherConfiguration.Instance.JsEngineFunc))
+            {
+                input = coffeeScriptCompiler.Compile(input);
+            }
+
+            return input;
         }
     }
 }

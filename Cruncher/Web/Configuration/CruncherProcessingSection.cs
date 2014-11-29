@@ -22,8 +22,8 @@ namespace Cruncher.Web.Configuration
         /// Gets or sets the JavaScript Engine for processing embedded JavaScript resources for the application.
         /// </summary>
         /// <value>The JavaScript Engine for processing embedded JavaScript.</value>
-        /// <remarks>Defaults to 'JurassicJsEngine' if not set.</remarks>
-        [ConfigurationProperty("jsEngine", DefaultValue = "JurassicJsEngine", IsRequired = true)]
+        /// <remarks>Defaults to 'V8JsEngine' if not set.</remarks>
+        [ConfigurationProperty("jsEngine", DefaultValue = "V8JsEngine", IsRequired = true)]
         public string JsEngine
         {
             get

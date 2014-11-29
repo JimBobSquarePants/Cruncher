@@ -12,12 +12,9 @@
 
 namespace Cruncher.Postprocessors.AutoPrefixer
 {
-    using System.Configuration;
     using System.Diagnostics.CodeAnalysis;
 
     using Cruncher.Web.Configuration;
-
-    using JavaScriptEngineSwitcher.Core;
 
     /// <summary>
     /// The auto prefixer postprocessor.
@@ -46,8 +43,12 @@ namespace Cruncher.Postprocessors.AutoPrefixer
                 return input;
             }
 
-            AutoPrefixerProcessor processor = new AutoPrefixerProcessor(CruncherConfiguration.Instance.JsEngineFunc);
-            return processor.Process(input, options);
+            using (AutoPrefixerProcessor processor = new AutoPrefixerProcessor(CruncherConfiguration.Instance.JsEngineFunc))
+            {
+                input = processor.Process(input, options);
+            }
+
+            return input;
         }
     }
 }

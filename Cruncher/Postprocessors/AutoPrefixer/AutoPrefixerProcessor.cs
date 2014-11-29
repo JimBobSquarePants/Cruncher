@@ -1,27 +1,35 @@
-﻿namespace Cruncher.Postprocessors.AutoPrefixer
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AutoPrefixerProcessor.cs" company="James South">
+//   Copyright (c) James South.
+//   Licensed under the Apache License, Version 2.0.
+// </copyright>
+// <summary>
+//   The auto prefixer processor.
+//   Many thanks here to Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Cruncher.Postprocessors.AutoPrefixer
 {
     using System;
-    using System.IO;
-    using System.Reflection;
-    using System.Resources;
     using System.Text;
-
-    using Cruncher.Preprocessors.Coffee;
 
     using JavaScriptEngineSwitcher.Core;
     using JavaScriptEngineSwitcher.Core.Helpers;
 
-    using Microsoft.ClearScript.Windows;
-
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
+    /// <summary>
+    /// The auto prefixer processor.
+    /// Many thanks here to Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
+    /// </summary>
     internal sealed class AutoPrefixerProcessor : IDisposable
     {
         /// <summary>
         /// Name of resource, which contains a AutoPrefixer library
         /// </summary>
-        private const string AutoPrefixerLibraryResource = "Cruncher.Postprocessors.AutoPrefixer.Resources.autoprefixer.js";
+        private const string AutoPrefixerLibraryResource = "Cruncher.Postprocessors.AutoPrefixer.Resources.autoprefixer.min.js";
 
         /// <summary>
         /// Name of resource, which contains a AutoPrefixer processor helper
@@ -34,67 +42,67 @@
         private const string CompilationFunctionCallTemplate = @"autoprefixerHelper.process({0}, {1});";
 
         /// <summary>
-        /// Delegate that creates an instance of JavaScript engine
-        /// </summary>
-        private readonly Func<IJsEngine> createJsEngineInstance;
-
-        private IJsEngine javascriptEngine;
-
-        private bool initialized;
-
-        /// <summary>
         /// The sync root for locking against.
         /// </summary>
         private static readonly object SyncRoot = new object();
 
-        private bool disposed;
+        /// <summary>
+        /// The javascript engine.
+        /// </summary>
+        private IJsEngine javascriptEngine;
 
-        ///// <summary>
-        ///// The AutoPrefixer resource.
-        ///// </summary>
-        //private static string autoPrefixer = string.Empty;
+        /// <summary>
+        /// Whether the engine has been initialized.
+        /// </summary>
+        private bool initialized;
 
+        /// <summary>
+        /// A value indicating whether this instance of the given entity has been disposed.
+        /// </summary>
+        /// <value><see langword="true"/> if this instance has been disposed; otherwise, <see langword="false"/>.</value>
+        /// <remarks>
+        /// If the entity is disposed, it must not be disposed a second
+        /// time. The isDisposed field is set the first time the entity
+        /// is disposed. If the isDisposed field is true, then the Dispose()
+        /// method will not dispose again. This help not to prolong the entity's
+        /// life in the Garbage Collector.
+        /// </remarks>
+        private bool isDisposed;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AutoPrefixerProcessor"/> class.
+        /// </summary>
+        /// <param name="javascriptEngineFactory">
+        /// The javascript engine factory.
+        /// </param>
         public AutoPrefixerProcessor(Func<IJsEngine> javascriptEngineFactory)
         {
             this.javascriptEngine = javascriptEngineFactory();
         }
 
-        ///// <summary>
-        ///// Gets the compiler.
-        ///// </summary>
-        //public static string Compiler
-        //{
-        //    get
-        //    {
-        //        if (string.IsNullOrWhiteSpace(autoPrefixer))
-        //        {
-        //            autoPrefixer = LoadAutoPrefixerScript();
-        //        }
-
-        //        return autoPrefixer;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Loads the AutoPrefixer assembly manifest resource.
-        ///// </summary>
-        ///// <returns>
-        ///// The <see cref="string"/> containing the AutoPrefixer assembly manifest resource.
-        ///// </returns>
-        //public static string LoadAutoPrefixerScript()
-        //{
-        //    StringBuilder stringBuilder = new StringBuilder();
-        //    stringBuilder.Append(GetAssemblyResource(AutoPrefixerLibraryResource));
-        //    stringBuilder.Append(GetAssemblyResource(AutoPrefixerHelperResource));
-
-        //    return stringBuilder.ToString();
-        //}
+        /// <summary>
+        /// Finalizes an instance of the <see cref="AutoPrefixerProcessor"/> class. 
+        /// </summary>
+        /// <remarks>
+        /// Use C# destructor syntax for finalization code.
+        /// This destructor will run only if the Dispose method 
+        /// does not get called.
+        /// It gives your base class the opportunity to finalize.
+        /// Do not provide destructors in types derived from this class.
+        /// </remarks>
+        ~AutoPrefixerProcessor()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            this.Dispose(false);
+        }
 
         /// <summary>
         /// Gets a string containing the compiled CoffeeScript result.
         /// </summary>
         /// <param name="input">
-        /// The input to compile.
+        /// The input to process.
         /// </param>
         /// <param name="options">
         /// The AutoPrefixer options.
@@ -114,13 +122,6 @@
                 {
                     string result = this.javascriptEngine.Evaluate<string>(string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), ConvertAutoPrefixerOptionsToJson(options)));
 
-                    //using (JScriptEngine engine = new JScriptEngine(WindowsScriptEngineFlags.EnableDebugging))
-                    //{
-                    //    engine.Execute(Compiler);
-                    //    string expression = string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), ConvertAutoPrefixerOptionsToJson(options));
-                    //    result = engine.Evaluate(expression).ToString();
-                    //}
-
                     JObject json = JObject.Parse(result);
                     JArray errors = json["errors"] != null ? json["errors"] as JArray : null;
 
@@ -136,7 +137,23 @@
                     throw new AutoPrefixerProcessingException(JsRuntimeErrorHelpers.Format(ex));
                 }
             }
+
             return processedCode;
+        }
+
+        /// <summary>
+        /// Disposes the object and frees resources for the Garbage Collector.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+
+            // This object will be cleaned up by the Dispose method.
+            // Therefore, you should call GC.SuppressFinalize to
+            // take this object off the finalization queue 
+            // and prevent finalization code for this object
+            // from executing a second time.
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -153,49 +170,6 @@
 
             return optionsJson;
         }
-
-        /// <summary>
-        /// Initializes CSS auto-prefixer
-        /// </summary>
-        private void Initialize()
-        {
-            if (!this.initialized)
-            {
-                Type type = GetType();
-
-                this.javascriptEngine.ExecuteResource(AutoPrefixerLibraryResource, type);
-                this.javascriptEngine.ExecuteResource(AutoPrefixerHelperResource, type);
-
-                this.initialized = true;
-            }
-        }
-
-        ///// <summary>
-        ///// Gets the assembly manifest resource.
-        ///// </summary>
-        ///// <param name="resource">
-        ///// The resource to retrieve.
-        ///// </param>
-        ///// <returns>
-        ///// The <see cref="string"/> containing the specified assembly manifest resource.
-        ///// </returns>
-        ///// A <exception cref="MissingManifestResourceException"> containing the error message.
-        ///// </exception>
-        //private static string GetAssemblyResource(string resource)
-        //{
-        //    using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
-        //    {
-        //        if (stream != null)
-        //        {
-        //            using (StreamReader reader = new StreamReader(stream))
-        //            {
-        //                return reader.ReadToEnd();
-        //            }
-        //        }
-
-        //        throw new MissingManifestResourceException(resource.Split(new[] { "Resources." }, StringSplitOptions.None)[1]);
-        //    }
-        //}
 
         /// <summary>
         /// Generates a detailed error message
@@ -227,14 +201,18 @@
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Disposes the object and frees resources for the Garbage Collector.
         /// </summary>
-        public void Dispose()
+        /// <param name="disposing">If true, the object gets disposed.</param>
+        private void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (this.isDisposed)
             {
-                this.disposed = true;
+                return;
+            }
 
+            if (disposing)
+            {
                 if (this.javascriptEngine != null)
                 {
                     this.javascriptEngine.Dispose();
@@ -242,6 +220,26 @@
                 }
             }
 
+            // Call the appropriate methods to clean up
+            // unmanaged resources here.
+            // Note disposing is done.
+            this.isDisposed = true;
+        }
+
+        /// <summary>
+        /// Initializes CSS autoprefixer
+        /// </summary>
+        private void Initialize()
+        {
+            if (!this.initialized)
+            {
+                Type type = this.GetType();
+
+                this.javascriptEngine.ExecuteResource(AutoPrefixerLibraryResource, type);
+                this.javascriptEngine.ExecuteResource(AutoPrefixerHelperResource, type);
+
+                this.initialized = true;
+            }
         }
     }
 }
