@@ -120,7 +120,7 @@ namespace Cruncher.Preprocessors
                     // Make it relative.
                     string resolvedOutput = rootUri.MakeRelativeUri(resolvedSourcePath).OriginalString;
 
-                    if (!resolvedOutput.StartsWith("/"))
+                    if (!resolvedOutput.StartsWith("/") && !resolvedOutput.Contains(Uri.SchemeDelimiter))
                     {
                         resolvedOutput = string.Format("/{0}", resolvedOutput);
                     }
