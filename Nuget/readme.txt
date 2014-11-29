@@ -2,7 +2,7 @@
 		Cruncher
 		==================================================================================================
 
-		A CSS, LESS, Sass, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
+		A CSS, Less, Sass, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
 
 		Cruncher makes optimizing your resources easy. It can bundle unlimited combinations of remote and local CSS, Less, Sass, JavaScript, and CoffeeScript files.
 
