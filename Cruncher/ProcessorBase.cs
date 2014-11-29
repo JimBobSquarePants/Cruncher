@@ -8,7 +8,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Cruncher.Web
+namespace Cruncher
 {
     using System;
     using System.Collections.Concurrent;
@@ -17,7 +17,7 @@ namespace Cruncher.Web
 
     using Cruncher.Caching;
     using Cruncher.Extensions;
-    using Cruncher.Web.Configuration;
+    using Cruncher.Configuration;
 
     /// <summary>
     /// The base processor. Asset processors inherit from this.

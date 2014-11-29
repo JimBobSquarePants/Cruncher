@@ -18,7 +18,6 @@ namespace Cruncher
     using System.Text.RegularExpressions;
 
     using Cruncher.Preprocessors;
-    using Cruncher.Web;
 
     /// <summary>
     /// The cruncher base. Inherit from this to implement your own cruncher. 

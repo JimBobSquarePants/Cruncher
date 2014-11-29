@@ -8,7 +8,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Cruncher.Web
+namespace Cruncher
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Text;

@@ -8,7 +8,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Cruncher.Web.Configuration
+namespace Cruncher.Configuration
 {
     #region Using
     using System;
@@ -71,9 +71,9 @@ namespace Cruncher.Web.Configuration
         }
 
         /// <summary>
-        /// Gets the <see cref="T:Cruncher.Web.Configuration.CruncherSecuritySection.WhiteListElementCollection"/>.
+        /// Gets the <see cref="T:Cruncher.Configuration.CruncherSecuritySection.WhiteListElementCollection"/>.
         /// </summary>
-        /// <value>The <see cref="T:Cruncher.Web.Configuration.CruncherSecuritySection.WhiteListElementCollection"/>.</value>
+        /// <value>The <see cref="T:Cruncher.Configuration.CruncherSecuritySection.WhiteListElementCollection"/>.</value>
         [ConfigurationProperty("whiteList", IsRequired = true)]
         public WhiteListElementCollection WhiteList
         {

@@ -8,7 +8,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Cruncher.Web.Configuration
+namespace Cruncher.Configuration
 {
     using System.Configuration;
 

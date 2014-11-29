@@ -1,5 +1,5 @@
 ﻿
-namespace Cruncher.Web
+namespace Cruncher
 {
     #region Using
     using System;
@@ -8,7 +8,7 @@ namespace Cruncher.Web
     using System.Net;
     using System.Security;
     using System.Text;
-    using Cruncher.Web.Configuration;
+    using Cruncher.Configuration;
     #endregion
 
     /// <summary>
@@ -42,7 +42,7 @@ namespace Cruncher.Web
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Cruncher.Web.RemoteFile">RemoteFile</see> class. 
+        /// Initializes a new instance of the <see cref="T:Cruncher.RemoteFile">RemoteFile</see> class. 
         /// </summary>
         /// <param name="filePath">The url of the file to be downloaded.</param>
         internal RemoteFile(Uri filePath)

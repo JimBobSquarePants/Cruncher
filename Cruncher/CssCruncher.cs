@@ -35,7 +35,7 @@ namespace Cruncher
         /// <summary>
         /// The auto prefixer postprocessor.
         /// </summary>
-        private static AutoPrefixerPostprocessor autoPrefixerPostprocessor = new AutoPrefixerPostprocessor();
+        private static readonly AutoPrefixerPostprocessor AutoPrefixerPostprocessor = new AutoPrefixerPostprocessor();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CssCruncher"/> class.
@@ -89,7 +89,7 @@ namespace Cruncher
         /// </returns>
         public string AutoPrefix(string input, AutoPrefixerOptions options)
         {
-            return autoPrefixerPostprocessor.Transform(input, options);
+            return AutoPrefixerPostprocessor.Transform(input, options);
         }
         #endregion
 

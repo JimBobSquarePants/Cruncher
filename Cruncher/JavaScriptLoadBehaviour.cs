@@ -8,7 +8,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Cruncher.Web
+namespace Cruncher
 {
     /// <summary>
     /// Describes the various loading behaviour available to the JavaScript script tag.

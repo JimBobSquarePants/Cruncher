@@ -20,7 +20,7 @@ namespace Cruncher.Helpers
     using System.Web.Hosting;
 
     using Cruncher.Caching;
-    using Cruncher.Web.Configuration;
+    using Cruncher.Configuration;
 
     /// <summary>
     /// Provides a series of helper methods for dealing with resources.

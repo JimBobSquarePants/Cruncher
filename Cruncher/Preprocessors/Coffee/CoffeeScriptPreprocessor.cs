@@ -11,7 +11,7 @@
 
 namespace Cruncher.Preprocessors.Coffee
 {
-    using Cruncher.Web.Configuration;
+    using Cruncher.Configuration;
 
     /// <summary>
     /// The coffee script pre-processor.

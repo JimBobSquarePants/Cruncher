@@ -2,8 +2,8 @@
 <configuration>
   <configSections>
     <sectionGroup name="cruncher">
-      <section name="security" requirePermission="false" type="Cruncher.Web.Configuration.CruncherSecuritySection, Cruncher, Culture=neutral" />
-      <section name="processing" requirePermission="false" type="Cruncher.Web.Configuration.CruncherProcessingSection, Cruncher, Culture=neutral" />
+      <section name="security" requirePermission="false" type="Cruncher.Configuration.CruncherSecuritySection, Cruncher, Culture=neutral" />
+      <section name="processing" requirePermission="false" type="Cruncher.Configuration.CruncherProcessingSection, Cruncher, Culture=neutral" />
     </sectionGroup>
   </configSections>
 

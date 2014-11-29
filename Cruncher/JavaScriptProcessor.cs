@@ -1,54 +1,54 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CssProcessor.cs" company="James South">
+// <copyright file="JavaScriptProcessor.cs" company="James South">
 //   Copyright (c) James South.
 //   Licensed under the Apache License, Version 2.0.
 // </copyright>
 // <summary>
-//   The CSS processor for processing CSS files.
+//   The JavaScript processor for processing JavaScript files.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Cruncher.Web
+namespace Cruncher
 {
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
     using System.Web;
+
     using Cruncher.Caching;
+    using Cruncher.Configuration;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
-    using Cruncher.Postprocessors.AutoPrefixer;
     using Cruncher.Preprocessors;
-    using Cruncher.Web.Configuration;
 
     /// <summary>
-    /// The CSS processor for processing CSS files.
+    /// The JavaScript processor for processing JavaScript files.
     /// </summary>
-    public class CssProcessor : ProcessorBase
+    public class JavaScriptProcessor : ProcessorBase
     {
         /// <summary>
-        /// Processes the css request using cruncher and returns the result.
+        /// Processes the JavaScript request using cruncher and returns the result.
         /// </summary>
         /// <param name="minify">
         /// Whether to minify the output.
-        /// </param> 
+        /// </param>
         /// <param name="paths">
         /// The paths to the resources to crunch.
         /// </param>
         /// <returns>
         /// The <see cref="string"/> representing the processed result.
         /// </returns>
-        public string ProcessCssCrunch(bool minify, params string[] paths)
+        public string ProcessJavascriptCrunch(bool minify, params string[] paths)
         {
-            string combinedCSS = string.Empty;
+            string combinedJavaScript = string.Empty;
 
             if (paths != null)
             {
                 string key = string.Join(string.Empty, paths).ToMd5Fingerprint();
-                combinedCSS = (string)CacheManager.GetItem(key);
+                combinedJavaScript = (string)CacheManager.GetItem(key);
 
-                if (string.IsNullOrWhiteSpace(combinedCSS))
+                if (string.IsNullOrWhiteSpace(combinedJavaScript))
                 {
                     StringBuilder stringBuilder = new StringBuilder();
 
@@ -62,11 +62,7 @@ namespace Cruncher.Web
                         RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
                     };
 
-                    cruncherOptions.CacheFiles = cruncherOptions.Minify;
-
-                    CssCruncher cssCruncher = new CssCruncher(cruncherOptions);
-
-                    AutoPrefixerOptions autoPrefixerOptions = CruncherConfiguration.Instance.AutoPrefixerOptions;
+                    JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(cruncherOptions);
 
                     // Loop through and process each file.
                     foreach (string path in paths)
@@ -76,25 +72,25 @@ namespace Cruncher.Web
                         {
                             List<string> files = new List<string>();
 
-                            // Try to get the file by absolute/relative path
+                            // Try to get the file using absolute/relative path
                             if (!ResourceHelper.IsResourceFilenameOnly(path))
                             {
-                                string cssFilePath = ResourceHelper.GetFilePath(path, cruncherOptions.RootFolder);
+                                string javaScriptFilePath = ResourceHelper.GetFilePath(path, cruncherOptions.RootFolder);
 
-                                if (File.Exists(cssFilePath))
+                                if (File.Exists(javaScriptFilePath))
                                 {
-                                    files.Add(cssFilePath);
+                                    files.Add(javaScriptFilePath);
                                 }
                             }
                             else
                             {
                                 // Get the path from the server.
                                 // Loop through each possible directory.
-                                foreach (string cssPath in CruncherConfiguration.Instance.CSSPaths)
+                                foreach (string javaScriptFolder in CruncherConfiguration.Instance.JavaScriptPaths)
                                 {
-                                    if (!string.IsNullOrWhiteSpace(cssPath) && cssPath.Trim().StartsWith("~/"))
+                                    if (!string.IsNullOrWhiteSpace(javaScriptFolder) && javaScriptFolder.Trim().StartsWith("~/"))
                                     {
-                                        DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(cssPath));
+                                        DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(javaScriptFolder));
 
                                         if (directoryInfo.Exists)
                                         {
@@ -109,31 +105,35 @@ namespace Cruncher.Web
                                 // We only want the first file.
                                 string first = files.FirstOrDefault();
                                 cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                                stringBuilder.Append(cssCruncher.Crunch(first));
+                                stringBuilder.Append(javaScriptCruncher.Crunch(first));
                             }
                         }
                         else
                         {
                             // Remote files.
                             string remoteFile = this.GetUrlFromToken(path).ToString();
-                            stringBuilder.Append(cssCruncher.Crunch(remoteFile));
+                            stringBuilder.Append(javaScriptCruncher.Crunch(remoteFile));
                         }
                     }
 
-                    combinedCSS = stringBuilder.ToString();
-
-                    // Apply autoprefixer
-                    combinedCSS = cssCruncher.AutoPrefix(combinedCSS, autoPrefixerOptions);
+                    combinedJavaScript = stringBuilder.ToString();
 
                     if (minify)
                     {
-                        combinedCSS = cssCruncher.Minify(combinedCSS);
-                        this.AddItemToCache(key, combinedCSS, cssCruncher.FileMonitors);
+                        // Minify and fix any missing semicolons between function expressions.
+                        combinedJavaScript = javaScriptCruncher.Minify(combinedJavaScript);
+
+                        if (!combinedJavaScript.EndsWith(";"))
+                        {
+                            combinedJavaScript += ";";
+                        }
+                        
+                        this.AddItemToCache(key, combinedJavaScript, javaScriptCruncher.FileMonitors);
                     }
                 }
             }
 
-            return combinedCSS;
+            return combinedJavaScript;
         }
     }
 }

@@ -71,7 +71,7 @@ Cruncher Razor Helpers.
 
 Cruncher comes with some helpers to make adding methods easier.
 
-Simply add `@using Cruncher.Web` to your view and use the following methods to add resources.
+Simply add `@using Cruncher` to your view and use the following methods to add resources.
 
 ``` csharp
 // Default.

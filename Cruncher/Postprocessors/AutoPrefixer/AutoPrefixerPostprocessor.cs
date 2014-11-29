@@ -14,7 +14,7 @@ namespace Cruncher.Postprocessors.AutoPrefixer
 {
     using System.Diagnostics.CodeAnalysis;
 
-    using Cruncher.Web.Configuration;
+    using Cruncher.Configuration;
 
     /// <summary>
     /// The auto prefixer postprocessor.
