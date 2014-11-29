@@ -5,13 +5,17 @@
 // </copyright>
 // <summary>
 //   The coffee script pre-processor.
+//   Many thanks here to Andrey Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher.Preprocessors.Coffee
 {
+    using Cruncher.Configuration;
+
     /// <summary>
     /// The coffee script pre-processor.
+    /// Many thanks here to Andrey Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
     /// </summary>
     public class CoffeeScriptPreprocessor : IPreprocessor
     {
@@ -35,8 +39,12 @@ namespace Cruncher.Preprocessors.Coffee
         /// <returns>The transformed string.</returns>
         public string Transform(string input, string path, CruncherBase cruncher)
         {
-            CoffeeScriptCompiler coffeeScriptCompiler = new CoffeeScriptCompiler();
-            return coffeeScriptCompiler.Compile(input);
+            using (CoffeeScriptCompiler coffeeScriptCompiler = new CoffeeScriptCompiler(CruncherConfiguration.Instance.JsEngineFunc))
+            {
+                input = coffeeScriptCompiler.Compile(input);
+            }
+
+            return input;
         }
     }
 }

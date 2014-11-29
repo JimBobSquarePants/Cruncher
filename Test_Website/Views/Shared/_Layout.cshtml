@@ -1,17 +1,15 @@
-﻿@using Cruncher.Web
+﻿@using Cruncher
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
-    @CruncherBundler.RenderCSS("style.css", "style.less", "style.scss")
-    @*    <link rel="stylesheet" href="/css.axd?path=style.css|style.less|style.scss" />*@
+    @CruncherBundler.RenderCSS("fontawesome")
+    @CruncherBundler.RenderCSS("css-style.css", "less-style.less", "scss-style.scss", "/Content/imports/css-style4.css", "/Content/imports/import.css")
 </head>
 <body>
-    @RenderBody()
-
-    @CruncherBundler.RenderJavaScript("jquery", "test.coffee", "test.js")
-    @*    <script src="/js.axd?path=jquery-2.0.3.js|test.coffee|test.js"></script>*@
+    <main> @RenderBody()</main>
+    @CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Defer, "jquery", "test.coffee", "test.js")
 </body>
 </html>

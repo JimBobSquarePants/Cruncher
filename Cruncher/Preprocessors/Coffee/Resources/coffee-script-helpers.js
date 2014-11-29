@@ -2,7 +2,7 @@
  *  https://bundletransformer.codeplex.com/SourceControl/latest#BundleTransformer.CoffeeScript/Resources/cscHelper.js
  */
 
-var coffeeScriptHelper = (function (coffeeScript) {
+var coffeeScriptHelper = (function (coffeeScript, undefined) {
     "use strict";
 
     var exports = {};

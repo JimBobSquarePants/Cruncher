@@ -10,30 +10,33 @@
 
 namespace Cruncher
 {
-    #region Using
     using System;
     using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+
     using Cruncher.Compression;
     using Cruncher.Extensions;
+    using Cruncher.Helpers;
+    using Cruncher.Postprocessors.AutoPrefixer;
     using Cruncher.Preprocessors;
-    #endregion
 
     /// <summary>
     /// The css cruncher.
     /// </summary>
     public class CssCruncher : CruncherBase
     {
-        #region Fields
         /// <summary>
         /// The regular expression to search files for.
         /// </summary>
-        private static readonly Regex ImportsRegex = new Regex(@"((?:@import\s*(url\([""']?)\s*(?<filename>[^.]+\.\w+ss)(\s*[""']?)\s*\))((?<media>([^;@]+))?);)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
-        #endregion
+        private static readonly Regex ImportsRegex = new Regex(@"((?:@import\s*(url\([""']?)\s*(?<filename>.*\.\w+ss)(\s*[""']?)\s*\))((?<media>([^;@]+))?);)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
-        #region Constructors
+        /// <summary>
+        /// The auto prefixer postprocessor.
+        /// </summary>
+        private static readonly AutoPrefixerPostprocessor AutoPrefixerPostprocessor = new AutoPrefixerPostprocessor();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CssCruncher"/> class.
         /// </summary>
@@ -42,7 +45,6 @@ namespace Cruncher
             : base(options)
         {
         }
-        #endregion
 
         #region Methods
         #region Public
@@ -70,14 +72,24 @@ namespace Cruncher
                 };
             }
 
-            string result = minifier.Minify(resource);
+            return minifier.Minify(resource);
+        }
 
-            if (this.Options.CacheFiles)
-            {
-                this.AddItemToCache(this.Options.MinifyCacheKey, result);
-            }
-
-            return result;
+        /// <summary>
+        /// Post process the input using auto prefixer.
+        /// </summary>
+        /// <param name="input">
+        /// The input CSS.
+        /// </param>
+        /// <param name="options">
+        /// The <see cref="AutoPrefixerOptions"/>.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/> containing the post-processed CSS.
+        /// </returns>
+        public string AutoPrefix(string input, AutoPrefixerOptions options)
+        {
+            return AutoPrefixerPostprocessor.Transform(input, options);
         }
         #endregion
 
@@ -157,12 +169,23 @@ namespace Cruncher
                         mediaQuery = mediaQueries[0];
                     }
 
-                    string importedCSS = string.Empty;
+                    string importedCss = string.Empty;
 
-                    if (!fileName.Contains("://"))
+                    if (!fileName.Contains(Uri.SchemeDelimiter))
                     {
                         // Check and add the @import the match.
-                        FileInfo fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+                        FileInfo fileInfo;
+
+                        // Try to get the file by absolute/relative path
+                        if (!ResourceHelper.IsResourceFilenameOnly(fileName))
+                        {
+                            string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder);
+                            fileInfo = new FileInfo(cssFilePath);
+                        }
+                        else
+                        {
+                            fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+                        }
 
                         // Read the file.
                         if (fileInfo.Exists)
@@ -172,7 +195,7 @@ namespace Cruncher
                             using (StreamReader reader = new StreamReader(file))
                             {
                                 // Parse the children.
-                                importedCSS = mediaQuery != null
+                                importedCss = mediaQuery != null
                                                   ? string.Format(
                                                       CultureInfo.InvariantCulture,
                                                       "@media {0}{{{1}{2}{1}}}",
@@ -183,11 +206,11 @@ namespace Cruncher
                             }
 
                             // Cache if applicable.
-                            this.AddFileMonitor(file, importedCSS);
+                            this.AddFileMonitor(file, importedCss);
                         }
 
                         // Replace the regex match with the full qualified css.
-                        css = css.Replace(match.Value, importedCSS);
+                        css = css.Replace(match.Value, importedCss);
                     }
                 }
             }

@@ -10,16 +10,24 @@
 
 namespace Cruncher
 {
-    #region Using
+    using System;
+    using System.IO;
+    using System.Text.RegularExpressions;
+
     using Cruncher.Compression;
-    #endregion
+    using Cruncher.Extensions;
+    using Cruncher.Helpers;
 
     /// <summary>
     /// The JavaScript cruncher.
     /// </summary>
     public class JavaScriptCruncher : CruncherBase
     {
-        #region Constructors
+        /// <summary>
+        /// The regular expression to search files for.
+        /// </summary>
+        private static readonly Regex ImportsRegex = new Regex(@"(?:import\s*([""']?)\s*(?<filename>.+\.js)(\s*[""']?)\s*);", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptCruncher"/> class.
         /// </summary>
@@ -28,10 +36,7 @@ namespace Cruncher
             : base(options)
         {
         }
-        #endregion
 
-        #region Methods
-        #region Public
         /// <summary>
         /// Minifies the specified resource.
         /// </summary>
@@ -60,18 +65,9 @@ namespace Cruncher
                 };
             }
 
-            string result = minifier.Minify(resource);
-
-            if (this.Options.CacheFiles)
-            {
-                this.AddItemToCache(this.Options.MinifyCacheKey, result);
-            }
-
-            return result;
+            return minifier.Minify(resource);
         }
-        #endregion
 
-        #region Protected
         /// <summary>
         /// Loads the local file.
         /// </summary>
@@ -83,6 +79,8 @@ namespace Cruncher
         {
             string contents = base.LoadLocalFile(file);
 
+            contents = this.ParseImports(contents);
+
             contents = this.PreProcessInput(contents, file);
 
             // Cache if applicable.
@@ -90,7 +88,72 @@ namespace Cruncher
 
             return contents;
         }
-        #endregion
-        #endregion
+
+        /// <summary>
+        /// Parses the string for Javascript imports and replaces them with the referenced Javascript.
+        /// </summary>
+        /// <param name="javascript">
+        /// The Javascript to parse for import statements.
+        /// </param>
+        /// <returns>The Javascript file parsed for imports.</returns>
+        private string ParseImports(string javascript)
+        {
+            // Check for imports and parse if necessary.
+            if (!javascript.Contains("import", StringComparison.OrdinalIgnoreCase))
+            {
+                return javascript;
+            }
+
+            // Recursively parse the javascript for imports.
+            foreach (Match match in ImportsRegex.Matches(javascript))
+            {
+                // Recursively parse the javascript for imports.
+                GroupCollection groups = match.Groups;
+                CaptureCollection fileCaptures = groups["filename"].Captures;
+
+                if (fileCaptures.Count > 0)
+                {
+                    string fileName = fileCaptures[0].ToString();
+                    string importedJavascript = string.Empty;
+
+                    // Check and add the @import the match.
+                    FileInfo fileInfo = null;
+
+                    // Try to get the file by absolute/relative path
+                    if (!ResourceHelper.IsResourceFilenameOnly(fileName))
+                    {
+                        string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder);
+                        if (File.Exists(cssFilePath))
+                        {
+                            fileInfo = new FileInfo(cssFilePath);
+                        }
+                    }
+                    else
+                    {
+                        fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+                    }
+
+                    // Read the file.
+                    if (fileInfo != null && fileInfo.Exists)
+                    {
+                        string file = fileInfo.FullName;
+
+                        using (StreamReader reader = new StreamReader(file))
+                        {
+                            // Parse the children.
+                            importedJavascript = this.ParseImports(reader.ReadToEnd());
+                        }
+
+                        // Cache if applicable.
+                        this.AddFileMonitor(file, importedJavascript);
+                    }
+
+                    // Replace the regex match with the full qualified javascript.
+                    javascript = javascript.Replace(match.Value, importedJavascript);
+                }
+            }
+
+            return javascript;
+        }
     }
 }

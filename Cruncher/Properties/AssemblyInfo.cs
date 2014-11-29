@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Cruncher")]
-[assembly: AssemblyDescription("Cruncher makes optimising your resources easy. Cruncher can bundle unlimited combinations of remote and local CSS, LESS, SASS, SCSS, CoffeScript, and JavaScript files. It combines them, minifies them and caches them in the browser. It can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files. It'll even gzip compress the output.")]
+[assembly: AssemblyDescription("A CSS, Less, Sass, JavaScript, and CoffeeScript Preprocessor for Asp.NET.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("James South")]
 [assembly: AssemblyProduct("Cruncher")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.1.0.0")]
-[assembly: AssemblyFileVersion("2.1.0.0")]
+[assembly: AssemblyVersion("3.0.0.0")]
+[assembly: AssemblyFileVersion("3.0.0.0")]

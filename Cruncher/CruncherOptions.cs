@@ -10,6 +10,8 @@
 
 namespace Cruncher
 {
+    using Cruncher.Postprocessors.AutoPrefixer;
+
     /// <summary>
     /// The cruncher options.
     /// </summary>
@@ -29,11 +31,6 @@ namespace Cruncher
         /// Gets or sets a value indicating whether to cache files.
         /// </summary>
         public bool CacheFiles { get; set; }
-
-        /// <summary>
-        /// Gets or sets the cache length in days.
-        /// </summary>
-        public int CacheLength { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to allow remote files.

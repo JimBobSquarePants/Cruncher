@@ -10,7 +10,6 @@
 
 namespace Cruncher.Preprocessors.Less
 {
-    #region Using
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -20,14 +19,12 @@ namespace Cruncher.Preprocessors.Less
     using dotless.Core.Importers;
     using dotless.Core.Input;
     using dotless.Core.Parser;
-    #endregion
 
     /// <summary>
     /// Provides methods to convert LESS into CSS.
     /// </summary>
     public class DotLessPreprocessor : IPreprocessor
     {
-        #region Properties
         /// <summary>
         /// Gets the extension that this filter processes.
         /// </summary>
@@ -38,7 +35,6 @@ namespace Cruncher.Preprocessors.Less
                 return new[] { ".LESS" };
             }
         }
-        #endregion
 
         /// <summary>
         /// Transforms the content of the given string from Less into CSS. 
@@ -70,11 +66,10 @@ namespace Cruncher.Preprocessors.Less
                     {
                         foreach (string import in enumerable)
                         {
-                            if (!import.Contains("://"))
+                            if (!import.Contains(Uri.SchemeDelimiter))
                             {
                                 string filePath =
-                                    HostingEnvironment.MapPath(
-                                        VirtualPathUtility.Combine(dotLessPathResolver.CurrentFileDirectory, import));
+                                    HostingEnvironment.MapPath(VirtualPathUtility.Combine(dotLessPathResolver.CurrentFileDirectory, import));
 
                                 cruncher.AddFileMonitor(filePath, "not empty");
                             }

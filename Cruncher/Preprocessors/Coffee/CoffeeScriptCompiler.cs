@@ -5,29 +5,27 @@
 // </copyright>
 // <summary>
 //   The CoffeeScript compiler.
-//   Much thanks here to Justin Etheridge's SquishIt project https://github.com/jetheredge/SquishIt
+//   Many thanks here to Andrey Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace Cruncher.Preprocessors.Coffee
 {
-    #region Using
     using System;
-    using System.IO;
-    using System.Reflection;
-    using System.Resources;
     using System.Text;
-    using Jurassic;
+
+    using JavaScriptEngineSwitcher.Core;
+    using JavaScriptEngineSwitcher.Core.Helpers;
+
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-    #endregion
 
     /// <summary>
     /// The CoffeeScript compiler.
+    /// Many thanks here to Andrey Taritsyn's <see href="https://bundletransformer.codeplex.com/"/>
     /// </summary>
-    internal sealed class CoffeeScriptCompiler
+    internal sealed class CoffeeScriptCompiler : IDisposable
     {
-        #region Fields
         /// <summary>
         /// Name of resource, which contains a CoffeeScript-library
         /// </summary>
@@ -44,74 +42,60 @@ namespace Cruncher.Preprocessors.Coffee
         private const string CompilationFunctionCallTemplate = @"coffeeScriptHelper.compile({0}, {1});";
 
         /// <summary>
-        /// The synchronization root.
+        /// The sync root for locking against.
         /// </summary>
         private static readonly object SyncRoot = new object();
 
         /// <summary>
-        /// The CoffeeScript resource.
+        /// The javascript engine.
         /// </summary>
-        private static string coffeescript = string.Empty;
+        private IJsEngine javascriptEngine;
 
         /// <summary>
-        /// The <see cref="T:Jurassic.ScriptEngine"/> that processes the CoffeeScript.
+        /// Whether the engine has been initialized.
         /// </summary>
-        private static ScriptEngine scriptEngine;
-        #endregion
+        private bool initialized;
 
-        #region Properties
         /// <summary>
-        /// Gets the compiler.
+        /// A value indicating whether this instance of the given entity has been disposed.
         /// </summary>
-        public static string Compiler
+        /// <value><see langword="true"/> if this instance has been disposed; otherwise, <see langword="false"/>.</value>
+        /// <remarks>
+        /// If the entity is disposed, it must not be disposed a second
+        /// time. The isDisposed field is set the first time the entity
+        /// is disposed. If the isDisposed field is true, then the Dispose()
+        /// method will not dispose again. This help not to prolong the entity's
+        /// life in the Garbage Collector.
+        /// </remarks>
+        private bool isDisposed;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoffeeScriptCompiler"/> class.
+        /// </summary>
+        /// <param name="javascriptEngineFactory">
+        /// The javascript engine factory.
+        /// </param>
+        public CoffeeScriptCompiler(Func<IJsEngine> javascriptEngineFactory)
         {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(coffeescript))
-                {
-                    coffeescript = LoadCoffeeScript();
-                }
-
-                return coffeescript;
-            }
+            this.javascriptEngine = javascriptEngineFactory();
         }
 
         /// <summary>
-        /// Gets the coffee script engine.
+        /// Finalizes an instance of the <see cref="CoffeeScriptCompiler"/> class. 
         /// </summary>
-        public static ScriptEngine CoffeeScriptEngine
+        /// <remarks>
+        /// Use C# destructor syntax for finalization code.
+        /// This destructor will run only if the Dispose method 
+        /// does not get called.
+        /// It gives your base class the opportunity to finalize.
+        /// Do not provide destructors in types derived from this class.
+        /// </remarks>
+        ~CoffeeScriptCompiler()
         {
-            get
-            {
-                if (scriptEngine == null)
-                {
-                    lock (SyncRoot)
-                    {
-                        ScriptEngine engine = new ScriptEngine { ForceStrictMode = true };
-                        engine.Execute(Compiler);
-                        scriptEngine = engine;
-                    }
-                }
-
-                return scriptEngine;
-            }
-        }
-        #endregion
-
-        #region Methods
-        /// <summary>
-        /// Loads the CoffeeScript assembly manifest resource.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="string"/> containing the CoffeeScript assembly manifest resource.
-        /// </returns>
-        public static string LoadCoffeeScript()
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(GetAssemblyResource(CoffeeScriptLibraryResource));
-            stringBuilder.Append(GetAssemblyResource(CoffeeScriptHelperResource));
-
-            return stringBuilder.ToString();
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            this.Dispose(false);
         }
 
         /// <summary>
@@ -126,59 +110,47 @@ namespace Cruncher.Preprocessors.Coffee
         public string Compile(string input)
         {
             string compiledInput;
-            try
+
+            lock (SyncRoot)
             {
-                string result =
-                    CoffeeScriptEngine.Evaluate<string>(
-                        string.Format(
-                            CompilationFunctionCallTemplate,
-                            JsonConvert.SerializeObject(input),
-                            "{bare: false}"));
+                this.Initialize();
 
-                JObject json = JObject.Parse(result);
-                var errors = json["errors"] != null ? json["errors"] as JArray : null;
-
-                if (errors != null && errors.Count > 0)
+                try
                 {
-                    throw new CoffeeScriptCompilingException(FormatErrorDetails(errors[0]));
-                }
+                    string result = this.javascriptEngine.Evaluate<string>(string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), "{bare: false}"));
 
-                compiledInput = json.Value<string>("compiledCode");
-            }
-            catch (Exception ex)
-            {
-                throw new CoffeeScriptCompilingException(ex.Message, ex.InnerException);
+                    JObject json = JObject.Parse(result);
+                    JArray errors = json["errors"] != null ? json["errors"] as JArray : null;
+
+                    if (errors != null && errors.Count > 0)
+                    {
+                        throw new CoffeeScriptCompilingException(FormatErrorDetails(errors[0]));
+                    }
+
+                    compiledInput = json.Value<string>("compiledCode");
+                }
+                catch (JsRuntimeException ex)
+                {
+                    throw new CoffeeScriptCompilingException(JsRuntimeErrorHelpers.Format(ex));
+                }
             }
 
             return compiledInput;
         }
 
         /// <summary>
-        /// Gets the assembly manifest resource.
+        /// Disposes the object and frees resources for the Garbage Collector.
         /// </summary>
-        /// <param name="resource">
-        /// The resource to retrieve.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/> containing the specified assembly manifest resource.
-        /// </returns>
-        /// A <exception cref="MissingManifestResourceException"> containing the error message.
-        /// </exception>
-        private static string GetAssemblyResource(string resource)
+        public void Dispose()
         {
-            using (Stream stream = Assembly.GetExecutingAssembly()
-                            .GetManifestResourceStream(resource))
-            {
-                if (stream != null)
-                {
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        return reader.ReadToEnd();
-                    }
-                }
+            this.Dispose(true);
 
-                throw new MissingManifestResourceException(resource.Split(new[] { "Resources." }, StringSplitOptions.None)[1]);
-            }
+            // This object will be cleaned up by the Dispose method.
+            // Therefore, you should call GC.SuppressFinalize to
+            // take this object off the finalization queue 
+            // and prevent finalization code for this object
+            // from executing a second time.
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -209,6 +181,47 @@ namespace Cruncher.Preprocessors.Coffee
 
             return errorMessage.ToString();
         }
-        #endregion
+
+        /// <summary>
+        /// Disposes the object and frees resources for the Garbage Collector.
+        /// </summary>
+        /// <param name="disposing">If true, the object gets disposed.</param>
+        private void Dispose(bool disposing)
+        {
+            if (this.isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                if (this.javascriptEngine != null)
+                {
+                    this.javascriptEngine.Dispose();
+                    this.javascriptEngine = null;
+                }
+            }
+
+            // Call the appropriate methods to clean up
+            // unmanaged resources here.
+            // Note disposing is done.
+            this.isDisposed = true;
+        }
+
+        /// <summary>
+        /// Initializes CoffeeScript compiler
+        /// </summary>
+        private void Initialize()
+        {
+            if (!this.initialized)
+            {
+                Type type = this.GetType();
+
+                this.javascriptEngine.ExecuteResource(CoffeeScriptLibraryResource, type);
+                this.javascriptEngine.ExecuteResource(CoffeeScriptHelperResource, type);
+
+                this.initialized = true;
+            }
+        }
     }
 }

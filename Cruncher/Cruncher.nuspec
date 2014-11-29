@@ -11,33 +11,31 @@
     <iconUrl>https://raw.github.com/JimBobSquarePants/Cruncher/master/Nuget/cruncher.128.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>
-      A CSS, LESS, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
+      A CSS, Less, Sass, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
     </summary>
     <description>
-      Cruncher makes optimising your resources easy. It can bundle unlimited combinations of remote and local CSS, LESS, JavaScript, and CoffeeScript files. 
-      
-      Combining them, minifying them and caching them in the browser, Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files.
-      
-      It'll even gzip compress the output.
+Cruncher makes optimizing your resources easy. It can bundle unlimited combinations of remote and local CSS, Less, Sass, JavaScript, and CoffeeScript files.
 
-      If you use Cruncher please get in touch on my twitter @james_m_south.
+Combining them, minifying them, and caching them in the browser, Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache should any changes be made to any of the referenced files.
+It can also parse CSS and add vendor prefixes to rules by Can I Use using AutoPrefixer.
 
-      Feedback is always welcome.
+Requires 64 bit functionality due to the Sass compiler dependency. If using IIS Express ensure you are running in 64 it mode.
+
+Tools > Options > Projects and Solutions > Web Projects > Use the 64 bit version of IIS Express…
+
+Also requires `msvcp110.dll` and `msvcr110.dll` from the Visual C++ Redistributable Package to be installed on the server to support the embedded JavaScript engine.
+
+http://www.microsoft.com/en-us/download/details.aspx?id=40784
+
+If you use Cruncher please get in touch on my twitter @james_m_south. Feedback is always welcome.
     </description>
     <releaseNotes>
     </releaseNotes>
     <copyright>Copyright $author$</copyright>
-    <tags>Performance Speed JavaScript CSS LESS CoffeeScript JS JavaScript Minify Minifier Compiler Combine Concatenate Optimization Min Ajax Crunch Cruncher Bundle</tags>
-    <dependencies>
-      <dependency id="AjaxMin" version="5.9.5229.26438" />
-      <dependency id="dotless" version="1.4.0.0" />
-      <dependency id="Jurassic" version="2.2.0" />
-      <dependency id="Newtonsoft.Json" version="4.5.1" />
-    </dependencies>
+    <tags>CSS Less CoffeeScript Sass JavaScript Minify Preprocessor Combine Optimization Bundle Performance</tags>
   </metadata>
   <files>
     <file src="..\Nuget\content\web.config.transform" target="content\web.config.transform" />
-    <file src="..\Nuget\tools\CruncherConsole.exe" target="tools\CruncherConsole.exe" />
     <file src="..\Nuget\readme.txt" target="" />
   </files>
 </package>

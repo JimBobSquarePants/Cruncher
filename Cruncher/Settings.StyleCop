@@ -1,14 +1,20 @@
 <StyleCopSettings Version="105">
   <GlobalSettings>
     <CollectionProperty Name="RecognizedWords">
+      <Value>Andrey</Value>
+      <Value>autoprefixer</Value>
+      <Value>behaviour</Value>
       <Value>css</Value>
       <Value>Enum</Value>
       <Value>Enums</Value>
       <Value>intellisense</Value>
       <Value>javascript</Value>
+      <Value>js</Value>
       <Value>minified</Value>
       <Value>minifier</Value>
+      <Value>prefixer</Value>
       <Value>stylesheet</Value>
+      <Value>Taritsyn's</Value>
       <Value>urls</Value>
     </CollectionProperty>
   </GlobalSettings>

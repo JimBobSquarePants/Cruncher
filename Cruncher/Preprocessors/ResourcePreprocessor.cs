@@ -10,28 +10,23 @@
 
 namespace Cruncher.Preprocessors
 {
-    #region Using
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-    #endregion
 
     /// <summary>
     /// Provides methods to replace relative resource paths within a stylesheet with absolute paths.
     /// </summary>
     public class ResourcePreprocessor : IPreprocessor
     {
-        #region Fields
         /// <summary>
         /// The regular expression for matching resources within a css file.
         /// </summary>
         private static readonly Regex ResourceRegex = new Regex(@"url\(\s*(?:[""']?)(.*?)(?:[""']?)\s*\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        #endregion
 
-        #region Properties
         /// <summary>
         /// Gets the extension that this filter processes.
         /// </summary>
@@ -42,9 +37,7 @@ namespace Cruncher.Preprocessors
                 return null;
             }
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Transforms the content of the given string by replacing relative paths. 
         /// </summary>
@@ -121,13 +114,13 @@ namespace Cruncher.Preprocessors
 
                     // Parse the Absolute path.
                     Uri resolvedSourcePath = !isExternal
-                                            ? new Uri(Path.Combine(sourceDirectory, capturedRelativePath))
+                                            ? new Uri(this.GetAbsolutePathFromRelative(sourceDirectory, capturedRelativePath))
                                             : new Uri(new Uri(sourceDirectory, UriKind.Absolute), new Uri(capturedRelativePath, UriKind.Relative));
 
                     // Make it relative.
                     string resolvedOutput = rootUri.MakeRelativeUri(resolvedSourcePath).OriginalString;
 
-                    if (!resolvedOutput.StartsWith("/"))
+                    if (!resolvedOutput.StartsWith("/") && !resolvedOutput.Contains(Uri.SchemeDelimiter))
                     {
                         resolvedOutput = string.Format("/{0}", resolvedOutput);
                     }
@@ -154,6 +147,51 @@ namespace Cruncher.Preprocessors
         }
 
         /// <summary>
+        /// Returns the absolute path to the relative resource.
+        /// </summary>
+        /// <param name="sourceDirectory">
+        /// The source directory to parse against.
+        /// </param>
+        /// <param name="relativePath">
+        /// The relative path.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/> representing the absolute path to the file.
+        /// </returns>
+        private string GetAbsolutePathFromRelative(string sourceDirectory, string relativePath)
+        {
+            if (!relativePath.StartsWith(".."))
+            {
+                return Path.GetFullPath(Path.Combine(sourceDirectory, relativePath));
+            }
+
+            // Check whether the file could be reached directly by combining source directory and relative path
+            string absolutePath = Path.GetFullPath(Path.Combine(sourceDirectory, relativePath));
+            if (File.Exists(absolutePath))
+            {
+                return absolutePath;
+            }
+
+            // Reached this point it is necessary to tterate through source directory's sub-directories looking for the relavite path
+            DirectoryInfo directoryInfo = new DirectoryInfo(sourceDirectory);
+
+            // Path is always propagated.
+            // ReSharper disable once PossibleNullReferenceException
+            string directoryName = Path.GetDirectoryName(relativePath).TrimStart(new[] { '.', '\\' });
+            string fileName = Path.GetFileName(relativePath);
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (DirectoryInfo directory in directoryInfo.EnumerateDirectories(directoryName, SearchOption.AllDirectories))
+            {
+                foreach (FileInfo file in directory.EnumerateFiles(fileName, SearchOption.AllDirectories))
+                {
+                    return file.FullName;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Returns a distinct enumerable collection of relative paths from the css file.
         /// </summary>
         /// <param name="input">The css file to parse.</param>
@@ -173,6 +211,5 @@ namespace Cruncher.Preprocessors
                     && !p.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
              .Distinct();
         }
-        #endregion
     }
 }

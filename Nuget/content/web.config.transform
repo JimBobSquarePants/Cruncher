@@ -2,38 +2,27 @@
 <configuration>
   <configSections>
     <sectionGroup name="cruncher">
-      <section name="security" requirePermission="false" type="Cruncher.Web.Configuration.CruncherSecuritySection, Cruncher, Culture=neutral" />
-      <section name="processing" requirePermission="false" type="Cruncher.Web.Configuration.CruncherProcessingSection, Cruncher, Culture=neutral" />
-      <section name="cache" requirePermission="false" type="Cruncher.Web.Configuration.CruncherCacheSection, Cruncher, Culture=neutral" />
+      <section name="security" requirePermission="false" type="Cruncher.Configuration.CruncherSecuritySection, Cruncher, Culture=neutral" />
+      <section name="processing" requirePermission="false" type="Cruncher.Configuration.CruncherProcessingSection, Cruncher, Culture=neutral" />
     </sectionGroup>
   </configSections>
 
-  <system.web>
-    <httpHandlers>
-      <add verb="*" path="css.axd" type="Cruncher.Web.CssHandler, Cruncher, Culture=neutral" validate="false" />
-      <add verb="*" path="js.axd" type="Cruncher.Web.JavaScriptHandler, Cruncher, Culture=neutral" validate="false" />
-    </httpHandlers>
-  </system.web>
-
   <system.webServer>
-    <handlers>
-      <!--The CSS compression HttpHandler-->
-      <add name="CssHandler" verb="*" path="css.axd" type="Cruncher.Web.CssHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode" />
-      <!--The JavaScipt compression HttpHandler-->
-      <add name="JavaScript" verb="*" path="js.axd" type="Cruncher.Web.JavaScriptHandler, Cruncher" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode" />
-    </handlers>
+    <staticContent>
+      <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
+    </staticContent>
   </system.webServer>
 
   <cruncher>
     <security allowRemoteDownloads="true" maxBytes="524288" timeout="300000">
       <whiteList>
-        <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.js" />
+        <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.js" />
       </whiteList>
     </security>
-    <processing>
-      <compression minifyCSS="true" minifyJS="true" compressResponse="true" />
-      <virtualPaths cssPaths="~/content, ~/css" jsPaths="~/scripts, ~/js" />
+    <processing jsEngine="V8JsEngine">
+      <virtualPaths cssPaths="~/css, ~/content" jsPaths="~/js, ~/scripts" />
+      <physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7" />
+      <autoPrefixer enabled="true" browsers="> 1%, last 2 versions, Firefox ESR, Opera 12.1" cascade="true" safe="false" />
     </processing>
-    <cache maxDays="365" />
   </cruncher>
 </configuration>
