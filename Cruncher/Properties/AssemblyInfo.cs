@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Cruncher")]
-[assembly: AssemblyDescription("A CSS, LESS, Sass, JavaScript, and CoffeeScript Preprocessor for Asp.NET.")]
+[assembly: AssemblyDescription("A CSS, Less, Sass, JavaScript, and CoffeeScript Preprocessor for Asp.NET.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("James South")]
 [assembly: AssemblyProduct("Cruncher")]
