@@ -15,6 +15,7 @@ namespace Cruncher.Configuration
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+    using System.Web;
 
     using Cruncher.Postprocessors.AutoPrefixer;
 
@@ -60,7 +61,7 @@ namespace Cruncher.Configuration
         /// <summary>
         /// Delegate that creates an instance of JavaScript engine
         /// </summary>
-        private Func<IJsEngine> jsEngineFunc;
+        private Func<IJsEngine> javaScriptEngineFunc;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="CruncherConfiguration"/> class from being created.
@@ -137,14 +138,14 @@ namespace Cruncher.Configuration
         {
             get
             {
-                if (this.jsEngineFunc == null)
+                if (this.javaScriptEngineFunc == null)
                 {
                     string engineName = this.GetCruncherProcessingSection().JsEngine;
 
-                    this.jsEngineFunc = () => JsEngineSwitcher.Current.CreateJsEngineInstance(engineName);
+                    this.javaScriptEngineFunc = () => JsEngineSwitcher.Current.CreateJsEngineInstance(engineName);
                 }
 
-                return this.jsEngineFunc;
+                return this.javaScriptEngineFunc;
             }
         }
 
@@ -241,7 +242,7 @@ namespace Cruncher.Configuration
 
             this.autoPrefixerOptions = new AutoPrefixerOptions
             {
-                Browsers = this.GetCruncherProcessingSection().AutoPrefixer.Browsers.Split(',').Select(p => p.Trim()).ToList(),
+                Browsers = this.GetCruncherProcessingSection().AutoPrefixer.Browsers.Split(',').Select(p => HttpUtility.HtmlDecode(p.Trim())).ToList(),
                 Enabled = this.GetCruncherProcessingSection().AutoPrefixer.Enabled,
                 Cascade = this.GetCruncherProcessingSection().AutoPrefixer.Cascade,
                 Safe = this.GetCruncherProcessingSection().AutoPrefixer.Safe
