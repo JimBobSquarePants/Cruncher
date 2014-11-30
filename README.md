@@ -8,7 +8,7 @@ A CSS, Less, Sass, JavaScript, and CoffeeScript Preprocessor for ASP.NET.
 
 Cruncher makes optimizing your resources easy. It can bundle unlimited combinations of remote and local CSS, Less, Sass, JavaScript, and CoffeeScript files.
 
-Combining them, minifying them, and caching them in the browser, Cruncher can handle nested css @import statements, re-maps relative resource urls and has a self cleaning cache 
+Combining them, minifying them, and caching them in the browser, Cruncher can handle nested CSS @import statements, re-maps relative resource urls and has a self cleaning cache 
 should any changes be made to any of the referenced files. It can also parse CSS and add vendor prefixes to rules by Can I Use using AutoPrefixer. 
 
 Requires 64 bit functionality due to the Sass compiler dependency. If using IIS Express ensure you are running in 64 bit mode.
