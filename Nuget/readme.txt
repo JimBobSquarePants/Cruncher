@@ -37,7 +37,7 @@
 		The javascript engine for processing embedded javascript based processors.
 		Tested working engines include JintJsEngine, V8JsEngine and MsieJsEngine.
 		-->
-		<processing jsEngine="V8JsEngine">
+		<processing jsEngine="JintJsEngine">
 			<!-- The comma separated virtual paths to the css and js folders.-->
 			<virtualPaths cssPaths="~/css, ~/content" jsPaths="~/js, ~/scripts" />
 			<!-- Where to store crunched files in the application and how long to keep expired ones.-->
