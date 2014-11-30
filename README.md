@@ -13,6 +13,8 @@ should any changes be made to any of the referenced files. It can also parse CSS
 
 Requires 64 bit functionality due to the Sass compiler dependency. If using IIS Express ensure you are running in 64 bit mode.
 
+    Tools > Options > Projects and Solutions > Web Projects > Use the 64 bit version of IIS Express…
+
 If you use Cruncher please get in touch on my twitter [@james_m_south](https://twitter.com/james_m_south). Feedback is always welcome.
 
 
