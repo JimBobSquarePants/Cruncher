@@ -13,10 +13,6 @@
 
 		Tools > Options > Projects and Solutions > Web Projects > Use the 64 bit version of IIS Express…
 
-		Also requires `msvcp110.dll` and `msvcr110.dll` from the Visual C++ Redistributable Package to be installed on the server to support the embedded JavaScript engine.
-
-		http://www.microsoft.com/en-us/download/details.aspx?id=40784
-
 		If you use Cruncher please get in touch on my twitter @james_m_south. Feedback is always welcome.
 
 		==================================================================================================
@@ -39,7 +35,7 @@
 		</security>
 		<!--
 		The javascript engine for processing embedded javascript based processors.
-		Tested working engines include V8JsEngine and MsieJsEngine.
+		Tested working engines include JintJsEngine, V8JsEngine and MsieJsEngine.
 		-->
 		<processing jsEngine="V8JsEngine">
 			<!-- The comma separated virtual paths to the css and js folders.-->
