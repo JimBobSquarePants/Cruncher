@@ -83,11 +83,11 @@ Simply add `@using Cruncher` to your view and use the following methods to add r
 @CruncherBundler.RenderCSS(new HtmlString("media=\"(max-width: 800px)\""), "style.css", "style.less", "style.scss")
 
 // Default.
-@CruncherBundler.RenderJavaScript("jquery-2.0.3.js", "test.coffee", "test.js")
+@CruncherBundler.RenderJavaScript("jquery-2.1.1", "test.coffee", "test.js")
 
 // Render the script with the 'async' boolean enabled.
-@CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Async, "jquery-2.0.3.js", "test.coffee", "test.js")
+@CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Async, "jquery-2.1.1", "test.coffee", "test.js")
 
 // Render the script with the 'defer' boolean enabled.
-@CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Defer, "jquery-2.0.3.js", "test.coffee", "test.js")
+@CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Defer, "jquery-2.1.1", "test.coffee", "test.js")
 ```
