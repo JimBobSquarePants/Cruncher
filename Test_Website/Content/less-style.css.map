@@ -1,1 +1,1 @@
-﻿{"version":3,"sources":["../../../../../AppData/Local/Microsoft/VisualStudio/12.0/Extensions/x4aevzj5.dp1/Resources/nodejs/imports/less-style2.less","less-style.less"],"names":[],"mappings":";;AAEA;EACI,WAAA;;ACCJ;EACI,YAAA;EACA,4CAAA","file":"less-style.css"}
+﻿{"version":3,"sources":["imports/less-style2.less","less-style.less"],"names":[],"mappings":";;AAEA;EACI,WAAA;;ACCJ;EACI,YAAA;EACA,4CAAA","file":"less-style.css"}

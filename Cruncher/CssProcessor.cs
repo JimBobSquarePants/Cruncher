@@ -15,12 +15,13 @@ namespace Cruncher
     using System.Linq;
     using System.Text;
     using System.Web;
+
     using Cruncher.Caching;
+    using Cruncher.Configuration;
     using Cruncher.Extensions;
     using Cruncher.Helpers;
     using Cruncher.Postprocessors.AutoPrefixer;
     using Cruncher.Preprocessors;
-    using Cruncher.Configuration;
 
     /// <summary>
     /// The CSS processor for processing CSS files.
@@ -56,13 +57,11 @@ namespace Cruncher
                     {
                         MinifyCacheKey = key,
                         Minify = minify,
-                        CacheFiles = minify,
+                        CacheFiles = true,
                         AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
                         RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
                         RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
                     };
-
-                    cruncherOptions.CacheFiles = cruncherOptions.Minify;
 
                     CssCruncher cssCruncher = new CssCruncher(cruncherOptions);
 
@@ -128,8 +127,9 @@ namespace Cruncher
                     if (minify)
                     {
                         combinedCSS = cssCruncher.Minify(combinedCSS);
-                        this.AddItemToCache(key, combinedCSS, cssCruncher.FileMonitors);
                     }
+
+                    this.AddItemToCache(key, combinedCSS, cssCruncher.FileMonitors);
                 }
             }
 
