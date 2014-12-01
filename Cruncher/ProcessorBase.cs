@@ -16,7 +16,6 @@ namespace Cruncher
     using System.Runtime.Caching;
 
     using Cruncher.Caching;
-    using Cruncher.Extensions;
     using Cruncher.Configuration;
 
     /// <summary>

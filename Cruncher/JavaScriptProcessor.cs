@@ -56,7 +56,7 @@ namespace Cruncher
                     {
                         MinifyCacheKey = key,
                         Minify = minify,
-                        CacheFiles = minify,
+                        CacheFiles = true,
                         AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
                         RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
                         RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
@@ -127,9 +127,9 @@ namespace Cruncher
                         {
                             combinedJavaScript += ";";
                         }
-                        
-                        this.AddItemToCache(key, combinedJavaScript, javaScriptCruncher.FileMonitors);
                     }
+
+                    this.AddItemToCache(key, combinedJavaScript, javaScriptCruncher.FileMonitors);
                 }
             }
 
