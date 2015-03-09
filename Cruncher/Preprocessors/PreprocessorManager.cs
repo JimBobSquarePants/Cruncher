@@ -179,7 +179,7 @@ namespace Cruncher.Preprocessors
                 }
             }
 
-            this.AllowedExtensionsRegex = new Regex(stringBuilder.ToString().TrimEnd('|'), RegexOptions.IgnoreCase);
+            this.AllowedExtensionsRegex = new Regex(string.Format("({0})$", stringBuilder.ToString().TrimEnd('|')), RegexOptions.IgnoreCase);
         }
     }
 }
