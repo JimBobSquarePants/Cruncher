@@ -11,6 +11,7 @@
 namespace Cruncher
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.IO;
     using System.Text;
     using System.Web;
 
@@ -90,7 +91,7 @@ namespace Cruncher
             foreach (string name in fileNames)
             {
                 string fileContent = CssProcessor.ProcessCssCrunch(false, name);
-                string fileName = string.Format("{0}.css", fileContent.GetHashCode());
+                string fileName = string.Format("{0}{1}.css", Path.GetFileNameWithoutExtension(name), fileContent.GetHashCode());
                 stringBuilder.AppendFormat(CssPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), mediaQuery);
                 stringBuilder.AppendLine();
             }
@@ -148,7 +149,7 @@ namespace Cruncher
             foreach (string name in fileNames)
             {
                 string fileContent = JavaScriptHandler.ProcessJavascriptCrunch(false, name);
-                string fileName = string.Format("{0}.js", fileContent.GetHashCode());
+                string fileName = string.Format("{0}{1}.js", Path.GetFileNameWithoutExtension(name), fileContent.GetHashCode());
                 stringBuilder.AppendFormat(JavaScriptPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), behaviourParam);
                 stringBuilder.AppendLine();
             }

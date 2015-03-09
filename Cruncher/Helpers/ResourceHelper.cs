@@ -30,7 +30,7 @@ namespace Cruncher.Helpers
         /// <summary>
         /// The physical file regex.
         /// </summary>
-        private static readonly Regex PhysicalFileRegex = new Regex(@"^(-)?[0-9]+\.(css|js)$", RegexOptions.IgnoreCase);
+        private static readonly Regex PhysicalFileRegex = new Regex(@"\.(css|js)$", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Get's a value indicating whether the resource is a filename only.
