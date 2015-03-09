@@ -266,35 +266,5 @@ namespace Cruncher.Helpers
                 }
             }
         }
-
-        // TODO: Move this to a tests project
-        //public static string Test()
-        //{
-        //    StringBuilder result = new StringBuilder();
-        //    List<string> files = new List<string>()
-        //        {
-        //            "page.aspx",
-        //            "style.css",
-        //            "javascript.js",
-        //            "without-extension",
-        //            "directory/page.aspx",
-        //            "/directory/page.aspx",
-        //            "domain.com/page.aspx",
-        //            "domain.com/directory/page.aspx",
-        //            "http://domain.com/directory/page.aspx",
-        //            "directory\\file.txt",
-        //            "\\directory\\file.txt",
-        //            "C:\\directory\\file.txt",
-        //            "C:\\file.txt",
-        //            "\\\\directory\\file.txt",
-        //            "\\\\file.txt"
-        //        };
-        //    foreach (string file in files)
-        //    {
-        //        result.AppendFormat("{0} --> {1}{2}", file, getFilePath(file), Environment.NewLine);
-        //    }
-        //    Console.WriteLine(result.ToString());
-        //    return result.ToString();
-        //}
     }
 }

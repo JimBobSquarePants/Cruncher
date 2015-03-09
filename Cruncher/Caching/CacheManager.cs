@@ -100,7 +100,10 @@ namespace Cruncher.Caching
         /// </returns>
         public static object GetItem(string key, string regionName = null)
         {
-            return Cache.Get(key, regionName);
+            lock (Cache)
+            {
+                return Cache.Get(key, regionName);
+            }
         }
 
         /// <summary>
