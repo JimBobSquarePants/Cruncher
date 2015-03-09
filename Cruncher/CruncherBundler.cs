@@ -24,7 +24,7 @@ namespace Cruncher
         /// <summary>
         /// The template for generating css links pointing to a physical file
         /// </summary>
-        private const string CssPhysicalFileTemplate = "<link rel=\"stylesheet\" href=\"{0}\" {1}>";
+        private const string CssPhysicalFileTemplate = "<link rel=\"stylesheet\" href=\"{0}\" {1}/>";
 
         /// <summary>
         /// The template for generating JavaScript links pointing to a physical file
