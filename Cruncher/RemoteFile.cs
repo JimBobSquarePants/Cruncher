@@ -1,15 +1,23 @@
-﻿
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="RemoteFile.cs" company="James South">
+//   Copyright (c) James South.
+//   Licensed under the Apache License, Version 2.0.
+// </copyright>
+// <summary>
+//   Encapsulates methods used to download files from a website address.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace Cruncher
 {
-    #region Using
     using System;
     using System.Globalization;
     using System.IO;
     using System.Net;
     using System.Security;
     using System.Text;
-    using Cruncher.Configuration;
-    #endregion
+    using System.Threading.Tasks;
+    using System.Web;
 
     /// <summary>
     /// Encapsulates methods used to download files from a website address.
@@ -80,7 +88,7 @@ namespace Cruncher
         #endregion
 
         #region Methods
-        #region Public
+        #region Internal
         /// <summary>
         /// Returns the <see cref="T:System.Net.WebResponse">WebResponse</see> used to download this file.
         /// <remarks>
@@ -90,30 +98,52 @@ namespace Cruncher
         /// </para>
         /// </remarks>
         /// </summary>
-        /// <returns>The <see cref="T:System.Net.WebResponse">WebResponse</see> used to download this file.</returns>
-        public WebResponse GetWebResponse()
+        /// <returns>
+        /// The <see cref="T:System.Net.WebResponse">WebResponse</see> used to download this file.
+        /// </returns>
+        internal async Task<WebResponse> GetWebResponseAsync()
         {
-            WebResponse response = this.GetWebRequest().GetResponse();
-
-            long contentLength = response.ContentLength;
-
-            // WebResponse.ContentLength doesn't always know the value, it returns -1 in this case.
-            if (contentLength == -1)
+            WebResponse response = null;
+            try
             {
-                // Response headers may still have the Content-Length inside of it.
-                string headerContentLength = response.Headers["Content-Length"];
-
-                if (!string.IsNullOrWhiteSpace(headerContentLength))
+                response = await this.GetWebRequest().GetResponseAsync();
+            }
+            catch (WebException ex)
+            {
+                if (response != null)
                 {
-                    contentLength = long.Parse(headerContentLength, CultureInfo.InvariantCulture);
+                    HttpWebResponse errorResponse = (HttpWebResponse)ex.Response;
+                    if (errorResponse.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        throw new HttpException(404, "No file exists at " + this.Uri);
+                    }
                 }
+
+                throw;
             }
 
-            // We don't need to check the url here since any external urls are available only from the web.config.
-            if ((this.MaxDownloadSize > 0) && (contentLength > this.MaxDownloadSize))
+            if (response != null)
             {
-                response.Close();
-                throw new SecurityException("An attempt to download a remote file has been halted because the file is larger than allowed.");
+                long contentLength = response.ContentLength;
+
+                // WebResponse.ContentLength doesn't always know the value, it returns -1 in this case.
+                if (contentLength == -1)
+                {
+                    // Response headers may still have the Content-Length inside of it.
+                    string headerContentLength = response.Headers["Content-Length"];
+
+                    if (!string.IsNullOrWhiteSpace(headerContentLength))
+                    {
+                        contentLength = long.Parse(headerContentLength, CultureInfo.InvariantCulture);
+                    }
+                }
+
+                // We don't need to check the url here since any external urls are available only from the web.config.
+                if ((this.MaxDownloadSize > 0) && (contentLength > this.MaxDownloadSize))
+                {
+                    response.Close();
+                    throw new SecurityException("An attempt to download a remote file has been halted because the file is larger than allowed.");
+                }
             }
 
             return response;
@@ -126,11 +156,11 @@ namespace Cruncher
         /// </remarks>
         /// </summary>
         /// <returns>The remote file as a String.</returns>
-        public string GetFileAsString()
+        internal async Task<string> GetFileAsStringAsync()
         {
             string file = string.Empty;
 
-            using (WebResponse response = this.GetWebResponse())
+            using (WebResponse response = await this.GetWebResponseAsync())
             {
                 using (Stream responseStream = response.GetResponseStream())
                 {
@@ -139,7 +169,7 @@ namespace Cruncher
                         // Pipe the stream to a stream reader with the required encoding format.
                         using (StreamReader reader = new StreamReader(responseStream, Encoding.UTF8))
                         {
-                            file = reader.ReadToEnd();
+                            file = await reader.ReadToEndAsync();
                         }
                     }
                 }

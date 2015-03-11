@@ -3,6 +3,7 @@
     <CollectionProperty Name="RecognizedWords">
       <Value>Andrey</Value>
       <Value>autoprefixer</Value>
+      <Value>awaitable</Value>
       <Value>behaviour</Value>
       <Value>css</Value>
       <Value>Enum</Value>

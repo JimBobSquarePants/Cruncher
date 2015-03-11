@@ -58,12 +58,12 @@ namespace Cruncher.Helpers
         /// <returns>
         /// The <see cref="string"/> representing the file path to the resource.
         /// </returns>
-        public static string GetFilePath(string resource, string rootPath)
+        public static string GetFilePath(string resource, string rootPath, HttpContext context)
         {
             try
             {
                 // Check whether this method is invoked in an http request or not
-                if (HttpContext.Current != null)
+                if (context != null)
                 {
                     // Check whether it is a correct uri
                     if (Uri.IsWellFormedUriString(resource, UriKind.RelativeOrAbsolute))
@@ -176,7 +176,7 @@ namespace Cruncher.Helpers
                             if (!directoryInfo.Exists)
                             {
                                 // Don't swallow any errors. We want to know if this doesn't work.
-                                Directory.CreateDirectory(directoryPath);
+                                directoryInfo.Create();
                             }
                         }
 

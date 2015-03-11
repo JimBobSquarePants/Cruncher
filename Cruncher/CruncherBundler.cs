@@ -78,11 +78,12 @@ namespace Cruncher
         public static HtmlString RenderCSS(HtmlString mediaQuery, params string[] fileNames)
         {
             StringBuilder stringBuilder = new StringBuilder();
+            HttpContext context = HttpContext.Current;
 
             // Minify on release.
-            if (!HttpContext.Current.IsDebuggingEnabled)
+            if (!context.IsDebuggingEnabled)
             {
-                string fileContent = CssProcessor.ProcessCssCrunch(true, fileNames);
+                string fileContent = AsyncHelper.RunSync(() => CssProcessor.ProcessCssCrunchAsync(context, true, fileNames));
                 string fileName = string.Format("{0}.css", fileContent.GetHashCode());
                 return new HtmlString(string.Format(CssPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), mediaQuery));
             }
@@ -90,7 +91,8 @@ namespace Cruncher
             // Render them separately for debug mode.
             foreach (string name in fileNames)
             {
-                string fileContent = CssProcessor.ProcessCssCrunch(false, name);
+                string currentName = name;
+                string fileContent = AsyncHelper.RunSync(() => CssProcessor.ProcessCssCrunchAsync(context, false, currentName));
                 string fileName = string.Format("{0}{1}.css", Path.GetFileNameWithoutExtension(name), fileContent.GetHashCode());
                 stringBuilder.AppendFormat(CssPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), mediaQuery);
                 stringBuilder.AppendLine();
@@ -133,14 +135,16 @@ namespace Cruncher
         public static HtmlString RenderJavaScript(JavaScriptLoadBehaviour behaviour, params string[] fileNames)
         {
             StringBuilder stringBuilder = new StringBuilder();
+            HttpContext context = HttpContext.Current;
+
             string behaviourParam = behaviour == JavaScriptLoadBehaviour.Inline
                                         ? string.Empty
                                         : behaviour.ToString().ToLowerInvariant();
 
             // Minify on release.
-            if (!HttpContext.Current.IsDebuggingEnabled)
+            if (!context.IsDebuggingEnabled)
             {
-                string fileContent = JavaScriptHandler.ProcessJavascriptCrunch(true, fileNames);
+                string fileContent = AsyncHelper.RunSync(() => JavaScriptHandler.ProcessJavascriptCrunchAsync(context, true, fileNames));
                 string fileName = string.Format("{0}.js", fileContent.GetHashCode());
                 return new HtmlString(string.Format(JavaScriptPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), behaviourParam));
             }
@@ -148,7 +152,8 @@ namespace Cruncher
             // Render them separately for debug mode.
             foreach (string name in fileNames)
             {
-                string fileContent = JavaScriptHandler.ProcessJavascriptCrunch(false, name);
+                string currentName = name;
+                string fileContent = AsyncHelper.RunSync(() => JavaScriptHandler.ProcessJavascriptCrunchAsync(context, false, currentName));
                 string fileName = string.Format("{0}{1}.js", Path.GetFileNameWithoutExtension(name), fileContent.GetHashCode());
                 stringBuilder.AppendFormat(JavaScriptPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), behaviourParam);
                 stringBuilder.AppendLine();

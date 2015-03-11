@@ -14,6 +14,7 @@ namespace Cruncher
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Web;
 
     using Cruncher.Caching;
@@ -30,6 +31,9 @@ namespace Cruncher
         /// <summary>
         /// Processes the JavaScript request using cruncher and returns the result.
         /// </summary>
+        /// <param name="context">
+        /// The current context.
+        /// </param>
         /// <param name="minify">
         /// Whether to minify the output.
         /// </param>
@@ -39,7 +43,7 @@ namespace Cruncher
         /// <returns>
         /// The <see cref="string"/> representing the processed result.
         /// </returns>
-        public string ProcessJavascriptCrunch(bool minify, params string[] paths)
+        public async Task<string> ProcessJavascriptCrunchAsync(HttpContext context, bool minify, params string[] paths)
         {
             string combinedJavaScript = string.Empty;
 
@@ -62,7 +66,7 @@ namespace Cruncher
                         RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
                     };
 
-                    JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(cruncherOptions);
+                    JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(cruncherOptions, context);
 
                     // Loop through and process each file.
                     foreach (string path in paths)
@@ -75,7 +79,7 @@ namespace Cruncher
                             // Try to get the file using absolute/relative path
                             if (!ResourceHelper.IsResourceFilenameOnly(path))
                             {
-                                string javaScriptFilePath = ResourceHelper.GetFilePath(path, cruncherOptions.RootFolder);
+                                string javaScriptFilePath = ResourceHelper.GetFilePath(path, cruncherOptions.RootFolder, context);
 
                                 if (File.Exists(javaScriptFilePath))
                                 {
@@ -90,7 +94,7 @@ namespace Cruncher
                                 {
                                     if (!string.IsNullOrWhiteSpace(javaScriptFolder) && javaScriptFolder.Trim().StartsWith("~/"))
                                     {
-                                        DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(javaScriptFolder));
+                                        DirectoryInfo directoryInfo = new DirectoryInfo(context.Server.MapPath(javaScriptFolder));
 
                                         if (directoryInfo.Exists)
                                         {
@@ -105,14 +109,14 @@ namespace Cruncher
                                 // We only want the first file.
                                 string first = files.FirstOrDefault();
                                 cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                                stringBuilder.Append(javaScriptCruncher.Crunch(first));
+                                stringBuilder.Append(await javaScriptCruncher.CrunchAsync(first));
                             }
                         }
                         else
                         {
                             // Remote files.
                             string remoteFile = this.GetUrlFromToken(path).ToString();
-                            stringBuilder.Append(javaScriptCruncher.Crunch(remoteFile));
+                            stringBuilder.Append(await javaScriptCruncher.CrunchAsync(remoteFile));
                         }
                     }
 

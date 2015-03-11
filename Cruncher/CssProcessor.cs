@@ -14,6 +14,7 @@ namespace Cruncher
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Web;
 
     using Cruncher.Caching;
@@ -31,16 +32,19 @@ namespace Cruncher
         /// <summary>
         /// Processes the css request using cruncher and returns the result.
         /// </summary>
+        /// <param name="context">
+        /// The current context.
+        /// </param>
         /// <param name="minify">
         /// Whether to minify the output.
-        /// </param> 
+        /// </param>
         /// <param name="paths">
         /// The paths to the resources to crunch.
         /// </param>
         /// <returns>
         /// The <see cref="string"/> representing the processed result.
         /// </returns>
-        public string ProcessCssCrunch(bool minify, params string[] paths)
+        public async Task<string> ProcessCssCrunchAsync(HttpContext context, bool minify, params string[] paths)
         {
             string combinedCSS = string.Empty;
 
@@ -63,7 +67,7 @@ namespace Cruncher
                         RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
                     };
 
-                    CssCruncher cssCruncher = new CssCruncher(cruncherOptions);
+                    CssCruncher cssCruncher = new CssCruncher(cruncherOptions, context);
 
                     AutoPrefixerOptions autoPrefixerOptions = CruncherConfiguration.Instance.AutoPrefixerOptions;
 
@@ -78,7 +82,7 @@ namespace Cruncher
                             // Try to get the file by absolute/relative path
                             if (!ResourceHelper.IsResourceFilenameOnly(path))
                             {
-                                string cssFilePath = ResourceHelper.GetFilePath(path, cruncherOptions.RootFolder);
+                                string cssFilePath = ResourceHelper.GetFilePath(path, cruncherOptions.RootFolder, context);
 
                                 if (File.Exists(cssFilePath))
                                 {
@@ -93,7 +97,7 @@ namespace Cruncher
                                 {
                                     if (!string.IsNullOrWhiteSpace(cssPath) && cssPath.Trim().StartsWith("~/"))
                                     {
-                                        DirectoryInfo directoryInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath(cssPath));
+                                        DirectoryInfo directoryInfo = new DirectoryInfo(context.Server.MapPath(cssPath));
 
                                         if (directoryInfo.Exists)
                                         {
@@ -108,14 +112,14 @@ namespace Cruncher
                                 // We only want the first file.
                                 string first = files.FirstOrDefault();
                                 cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                                stringBuilder.Append(cssCruncher.Crunch(first));
+                                stringBuilder.Append(await cssCruncher.CrunchAsync(first));
                             }
                         }
                         else
                         {
                             // Remote files.
                             string remoteFile = this.GetUrlFromToken(path).ToString();
-                            stringBuilder.Append(cssCruncher.Crunch(remoteFile));
+                            stringBuilder.Append(await cssCruncher.CrunchAsync(remoteFile));
                         }
                     }
 

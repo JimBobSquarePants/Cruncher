@@ -15,6 +15,7 @@ namespace Cruncher
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using System.Web;
 
     using Cruncher.Compression;
     using Cruncher.Extensions;
@@ -38,12 +39,23 @@ namespace Cruncher
         private static readonly AutoPrefixerPostprocessor AutoPrefixerPostprocessor = new AutoPrefixerPostprocessor();
 
         /// <summary>
+        /// The current context.
+        /// </summary>
+        private readonly HttpContext context;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CssCruncher"/> class.
         /// </summary>
-        /// <param name="options">The options containing instructions for the cruncher.</param>
-        public CssCruncher(CruncherOptions options)
+        /// <param name="options">
+        /// The options containing instructions for the cruncher.
+        /// </param>
+        /// <param name="context">
+        /// The current context.
+        /// </param>
+        public CssCruncher(CruncherOptions options, HttpContext context)
             : base(options)
         {
+            this.context = context;
         }
 
         #region Methods
@@ -179,7 +191,7 @@ namespace Cruncher
                         // Try to get the file by absolute/relative path
                         if (!ResourceHelper.IsResourceFilenameOnly(fileName))
                         {
-                            string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder);
+                            string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder, this.context);
                             fileInfo = new FileInfo(cssFilePath);
                         }
                         else

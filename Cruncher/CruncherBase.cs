@@ -16,6 +16,7 @@ namespace Cruncher
     using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
 
     using Cruncher.Preprocessors;
 
@@ -56,13 +57,13 @@ namespace Cruncher
         /// </summary>
         /// <param name="resource">The file or folder containing the resource(s) to crunch.</param>
         /// <returns>The minified resource.</returns>
-        public string Crunch(string resource)
+        public async Task<string> CrunchAsync(string resource)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
             if (this.IsRemoteFile(resource))
             {
-                stringBuilder.Append(this.LoadRemoteFile(resource));
+                stringBuilder.Append(await this.LoadRemoteFileAsync(resource));
             }
             else if (this.IsValidPath(resource))
             {
@@ -165,7 +166,7 @@ namespace Cruncher
         /// </summary>
         /// <param name="url">The url to the resource.</param>
         /// <returns>The contents of the remote file as a string.</returns>
-        private string LoadRemoteFile(string url)
+        private async Task<string> LoadRemoteFileAsync(string url)
         {
             string contents = string.Empty;
 
@@ -178,7 +179,7 @@ namespace Cruncher
                 };
 
                 // Return the preprocessed css.
-                contents = this.PreProcessInput(remoteFile.GetFileAsString(), url);
+                contents = this.PreProcessInput(await remoteFile.GetFileAsStringAsync(), url);
             }
 
             return contents;
