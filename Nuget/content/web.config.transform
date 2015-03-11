@@ -21,7 +21,7 @@
     </security>
     <processing jsEngine="MsieJsEngine">
       <virtualPaths cssPaths="~/css, ~/content" jsPaths="~/js, ~/scripts" />
-      <physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7" />
+      <physicalFiles path="~/.cruncherCache" daysBeforeRemoveExpired="7" />
       <autoPrefixer enabled="true" browsers="> 1%, last 2 versions, Firefox ESR, Opera 12.1" cascade="true" safe="false" />
     </processing>
   </cruncher>

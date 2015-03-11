@@ -101,7 +101,8 @@ namespace Cruncher
 
                                         if (directoryInfo.Exists)
                                         {
-                                            files.AddRange(Directory.GetFiles(directoryInfo.FullName, path, SearchOption.AllDirectories));
+                                            IEnumerable<FileInfo> fileInfos = await directoryInfo.EnumerateFilesAsync(path, SearchOption.AllDirectories);
+                                            files.AddRange(fileInfos.Select(f => f.FullName));
                                         }
                                     }
                                 }

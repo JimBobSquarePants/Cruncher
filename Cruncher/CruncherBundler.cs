@@ -85,7 +85,13 @@ namespace Cruncher
             {
                 string fileContent = AsyncHelper.RunSync(() => CssProcessor.ProcessCssCrunchAsync(context, true, fileNames));
                 string fileName = string.Format("{0}.css", fileContent.GetHashCode());
-                return new HtmlString(string.Format(CssPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), mediaQuery));
+                return
+                    new HtmlString(
+                        string.Format(
+                            CssPhysicalFileTemplate,
+                            AsyncHelper.RunSync(
+                                () => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
+                            mediaQuery));
             }
 
             // Render them separately for debug mode.
@@ -93,8 +99,14 @@ namespace Cruncher
             {
                 string currentName = name;
                 string fileContent = AsyncHelper.RunSync(() => CssProcessor.ProcessCssCrunchAsync(context, false, currentName));
-                string fileName = string.Format("{0}{1}.css", Path.GetFileNameWithoutExtension(name), fileContent.GetHashCode());
-                stringBuilder.AppendFormat(CssPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), mediaQuery);
+                string fileName = string.Format(
+                    "{0}{1}.css",
+                    Path.GetFileNameWithoutExtension(name),
+                    fileContent.GetHashCode());
+                stringBuilder.AppendFormat(
+                    CssPhysicalFileTemplate,
+                    AsyncHelper.RunSync(() => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
+                    mediaQuery);
                 stringBuilder.AppendLine();
             }
 
@@ -146,7 +158,13 @@ namespace Cruncher
             {
                 string fileContent = AsyncHelper.RunSync(() => JavaScriptHandler.ProcessJavascriptCrunchAsync(context, true, fileNames));
                 string fileName = string.Format("{0}.js", fileContent.GetHashCode());
-                return new HtmlString(string.Format(JavaScriptPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), behaviourParam));
+                return
+                    new HtmlString(
+                        string.Format(
+                            JavaScriptPhysicalFileTemplate,
+                            AsyncHelper.RunSync(
+                                () => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
+                            behaviourParam));
             }
 
             // Render them separately for debug mode.
@@ -154,8 +172,14 @@ namespace Cruncher
             {
                 string currentName = name;
                 string fileContent = AsyncHelper.RunSync(() => JavaScriptHandler.ProcessJavascriptCrunchAsync(context, false, currentName));
-                string fileName = string.Format("{0}{1}.js", Path.GetFileNameWithoutExtension(name), fileContent.GetHashCode());
-                stringBuilder.AppendFormat(JavaScriptPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), behaviourParam);
+                string fileName = string.Format(
+                    "{0}{1}.js",
+                    Path.GetFileNameWithoutExtension(name),
+                    fileContent.GetHashCode());
+                stringBuilder.AppendFormat(
+                    JavaScriptPhysicalFileTemplate,
+                    AsyncHelper.RunSync(() => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
+                    behaviourParam);
                 stringBuilder.AppendLine();
             }
 

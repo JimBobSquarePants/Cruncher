@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="Caching\CacheManager.cs" />
     <Compile Include="Extensions\AssemblyExtensions.cs" />
+    <Compile Include="Extensions\DirectoryInfoExtensions.cs" />
     <Compile Include="Helpers\AsyncHelper.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="JavaScriptCruncher.cs" />

@@ -15,6 +15,7 @@ namespace Cruncher
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using System.Web;
 
     using Cruncher.Compression;
@@ -113,9 +114,9 @@ namespace Cruncher
         /// <returns>
         /// The contents of the local file as a string.
         /// </returns>
-        protected override string LoadLocalFile(string file)
+        protected override async Task<string> LoadLocalFileAsync(string file)
         {
-            string contents = base.LoadLocalFile(file);
+            string contents = await base.LoadLocalFileAsync(file);
 
             contents = this.ParseImports(contents);
 

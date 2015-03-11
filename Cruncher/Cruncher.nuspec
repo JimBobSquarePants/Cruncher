@@ -8,7 +8,7 @@
     <owners>$author$</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</licenseUrl>
     <projectUrl>https://github.com/JimBobSquarePants/Cruncher</projectUrl>
-    <iconUrl>https://raw.github.com/JimBobSquarePants/Cruncher/master/Nuget/cruncher.128.png</iconUrl>
+    <iconUrl>https://raw.github.com/JimBobSquarePants/Cruncher/master/Nuget/cruncher.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>
       A CSS, Less, Sass, JavaScript, and CoffeeScript Preprocessor for ASP.NET.

@@ -18,6 +18,7 @@ namespace Cruncher
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
+    using Cruncher.Extensions;
     using Cruncher.Preprocessors;
 
     /// <summary>
@@ -67,11 +68,11 @@ namespace Cruncher
             }
             else if (this.IsValidPath(resource))
             {
-                stringBuilder.Append(this.LoadLocalFolder(resource));
+                stringBuilder.Append(await this.LoadLocalFolderAsync(resource));
             }
             else
             {
-                stringBuilder.Append(this.LoadLocalFile(resource));
+                stringBuilder.Append(await this.LoadLocalFileAsync(resource));
             }
 
             return stringBuilder.ToString();
@@ -109,7 +110,7 @@ namespace Cruncher
         /// </summary>
         /// <param name="file">The file to load.</param>
         /// <returns>The contents of the local file as a string.</returns>
-        protected virtual string LoadLocalFile(string file)
+        protected virtual async Task<string> LoadLocalFileAsync(string file)
         {
             string contents = string.Empty;
 
@@ -117,7 +118,7 @@ namespace Cruncher
             {
                 using (StreamReader streamReader = new StreamReader(file))
                 {
-                    contents = streamReader.ReadToEnd();
+                    contents = await streamReader.ReadToEndAsync();
                 }
             }
 
@@ -148,14 +149,14 @@ namespace Cruncher
         /// </summary>
         /// <param name="folder">The folder to load resources from.</param>
         /// <returns>The contents of the resources in the folder as a string.</returns>
-        private string LoadLocalFolder(string folder)
+        private async Task<string> LoadLocalFolderAsync(string folder)
         {
             StringBuilder stringBuilder = new StringBuilder();
             DirectoryInfo directoryInfo = new DirectoryInfo(folder);
 
-            foreach (FileInfo fileInfo in directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories))
+            foreach (FileInfo fileInfo in await directoryInfo.EnumerateFilesAsync("*", SearchOption.AllDirectories))
             {
-                stringBuilder.Append(this.LoadLocalFile(fileInfo.FullName));
+                stringBuilder.Append(await this.LoadLocalFileAsync(fileInfo.FullName));
             }
 
             return stringBuilder.ToString();

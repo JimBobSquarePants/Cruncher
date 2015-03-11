@@ -30,18 +30,18 @@
 			character url limit.
 			-->
 			<whiteList>
-			<add token="jquery-2.1.1" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.js" />
+			<add token="jquery-2.1.3" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.js" />
 			</whiteList>
 		</security>
 		<!--
 		The javascript engine for processing embedded javascript based processors.
 		Tested working engines include JintJsEngine, V8JsEngine and MsieJsEngine.
 		-->
-		<processing jsEngine="JintJsEngine">
+		<processing jsEngine="MsieJsEngine">
 			<!-- The comma separated virtual paths to the css and js folders.-->
 			<virtualPaths cssPaths="~/css, ~/content" jsPaths="~/js, ~/scripts" />
 			<!-- Where to store crunched files in the application and how long to keep expired ones.-->
-			<physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7" />
+			<physicalFiles path="~/.cruncherCache" daysBeforeRemoveExpired="7" />
 			<!--
 			Autoprefixer options
 			 - Whether to enable the prefixer.

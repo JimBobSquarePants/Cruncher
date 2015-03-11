@@ -15,12 +15,15 @@ namespace Cruncher.Helpers
     using System.IO;
     using System.Linq;
     using System.Runtime.Caching;
+    using System.Text;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using System.Web;
     using System.Web.Hosting;
 
     using Cruncher.Caching;
     using Cruncher.Configuration;
+    using Cruncher.Extensions;
 
     /// <summary>
     /// Provides a series of helper methods for dealing with resources.
@@ -54,6 +57,9 @@ namespace Cruncher.Helpers
         /// </param>
         /// <param name="rootPath">
         /// The root path for the application.
+        /// </param>
+        /// <param name="context">
+        /// The current context.
         /// </param>
         /// <returns>
         /// The <see cref="string"/> representing the file path to the resource.
@@ -114,7 +120,7 @@ namespace Cruncher.Helpers
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
-        public static string CreateResourcePhysicalFile(string fileName, string fileContent)
+        public static async Task<string> CreateResourcePhysicalFileAsync(string fileName, string fileContent)
         {
             // Cache item to ensure that checking file's creation date is performed only every xx hours
             string cacheIdCheckCreationDate = string.Format("_CruncherCheckFileCreationDate_{0}", fileName);
@@ -128,7 +134,7 @@ namespace Cruncher.Helpers
 
             // Trims the physical files folder ensuring that it does not contains files older than xx days 
             // This is performed before creating the physical resource file
-            TrimPhysicalFilesFolder(HostingEnvironment.MapPath(CruncherConfiguration.Instance.PhysicalFilesPath));
+            await TrimPhysicalFilesFolderAsync(HostingEnvironment.MapPath(CruncherConfiguration.Instance.PhysicalFilesPath));
 
             // Check whether the resource file already exists
             if (filePath != null)
@@ -180,7 +186,20 @@ namespace Cruncher.Helpers
                             }
                         }
 
-                        File.WriteAllText(filePath, fileContent);
+                        // Write the file asynchronously.
+                        byte[] encodedText = Encoding.UTF8.GetBytes(fileContent);
+
+                        using (
+                            FileStream sourceStream = new FileStream(
+                                filePath,
+                                FileMode.Create,
+                                FileAccess.Write,
+                                FileShare.None,
+                                4096,
+                                true))
+                        {
+                            await sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
+                        }
                     }
                 }
             }
@@ -195,7 +214,10 @@ namespace Cruncher.Helpers
         /// <param name="path">
         /// The path to the folder.
         /// </param>
-        public static void TrimPhysicalFilesFolder(string path)
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        public static async Task TrimPhysicalFilesFolderAsync(string path)
         {
             // If PhysicalFilesDaysBeforeRemoveExpired is 0 or negative then the trim process is not performed
             if (CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired < 1)
@@ -244,13 +266,17 @@ namespace Cruncher.Helpers
                 DirectoryInfo directoryInfo = new DirectoryInfo(path);
 
                 // Regular expression to get resource files which names match Cruncher's filename pattern.
-                IEnumerable<FileInfo> files = directoryInfo.EnumerateFiles().Where(f => PhysicalFileRegex.IsMatch(Path.GetFileName(f.Name))).OrderBy(f => f.CreationTimeUtc);
+                IEnumerable<FileInfo> files = await directoryInfo.EnumerateFilesAsync();
+                files = files.Where(f => PhysicalFileRegex.IsMatch(Path.GetFileName(f.Name)))
+                             .OrderBy(f => f.CreationTimeUtc);
+                int maxDays = CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired;
+
                 foreach (FileInfo fileInfo in files)
                 {
                     try
                     {
                         // If the file's last write datetime is older that xx days then delete it
-                        if (fileInfo.LastWriteTimeUtc.AddDays(CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired) > DateTime.UtcNow)
+                        if (fileInfo.LastWriteTimeUtc.AddDays(maxDays) > DateTime.UtcNow)
                         {
                             continue;
                         }
