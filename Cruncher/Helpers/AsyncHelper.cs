@@ -27,7 +27,7 @@ namespace Cruncher.Helpers
             CancellationToken.None,
             TaskCreationOptions.None,
             TaskContinuationOptions.None,
-                      TaskScheduler.Default);
+            TaskScheduler.Default);
 
         /// <summary>
         /// Executes an async <see cref="Task{T}"/> method which has a TResult return type synchronously
@@ -43,9 +43,9 @@ namespace Cruncher.Helpers
         /// </returns>
         public static TResult RunSync<TResult>(Func<Task<TResult>> func)
         {
-            return AsyncHelper.MyTaskFactory
-              .StartNew<Task<TResult>>(func)
-              .Unwrap<TResult>()
+            return MyTaskFactory
+              .StartNew(func)
+              .Unwrap()
               .GetAwaiter()
               .GetResult();
         }
@@ -58,8 +58,8 @@ namespace Cruncher.Helpers
         /// </param>
         public static void RunSync(Func<Task> func)
         {
-            AsyncHelper.MyTaskFactory
-              .StartNew<Task>(func)
+            MyTaskFactory
+              .StartNew(func)
               .Unwrap()
               .GetAwaiter()
               .GetResult();

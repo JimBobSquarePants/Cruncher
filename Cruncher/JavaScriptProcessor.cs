@@ -29,6 +29,11 @@ namespace Cruncher
     public class JavaScriptProcessor : ProcessorBase
     {
         /// <summary>
+        /// Ensures processing is atomic.
+        /// </summary>
+        private static readonly AsyncDuplicateLock Locker = new AsyncDuplicateLock();
+
+        /// <summary>
         /// Processes the JavaScript request using cruncher and returns the result.
         /// </summary>
         /// <param name="context">
@@ -50,90 +55,103 @@ namespace Cruncher
             if (paths != null)
             {
                 string key = string.Join(string.Empty, paths).ToMd5Fingerprint();
-                combinedJavaScript = (string)CacheManager.GetItem(key);
 
-                if (string.IsNullOrWhiteSpace(combinedJavaScript))
+                using (await Locker.LockAsync(key))
                 {
-                    StringBuilder stringBuilder = new StringBuilder();
+                    combinedJavaScript = (string)CacheManager.GetItem(key);
 
-                    CruncherOptions cruncherOptions = new CruncherOptions
+                    if (string.IsNullOrWhiteSpace(combinedJavaScript))
                     {
-                        MinifyCacheKey = key,
-                        Minify = minify,
-                        CacheFiles = true,
-                        AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
-                        RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
-                        RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
-                    };
+                        StringBuilder stringBuilder = new StringBuilder();
 
-                    JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(cruncherOptions, context);
-
-                    // Loop through and process each file.
-                    foreach (string path in paths)
-                    {
-                        // Local files.
-                        if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(path))
+                        CruncherOptions cruncherOptions = new CruncherOptions
                         {
-                            List<string> files = new List<string>();
+                            MinifyCacheKey = key,
+                            Minify = minify,
+                            CacheFiles = true,
+                            AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
+                            RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
+                            RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
+                        };
 
-                            // Try to get the file using absolute/relative path
-                            if (!ResourceHelper.IsResourceFilenameOnly(path))
+                        JavaScriptCruncher javaScriptCruncher = new JavaScriptCruncher(cruncherOptions, context);
+
+                        // Loop through and process each file.
+                        foreach (string path in paths)
+                        {
+                            // Local files.
+                            if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(path))
                             {
-                                string javaScriptFilePath = ResourceHelper.GetFilePath(path, cruncherOptions.RootFolder, context);
+                                List<string> files = new List<string>();
 
-                                if (File.Exists(javaScriptFilePath))
+                                // Try to get the file using absolute/relative path
+                                if (!ResourceHelper.IsResourceFilenameOnly(path))
                                 {
-                                    files.Add(javaScriptFilePath);
+                                    string javaScriptFilePath = ResourceHelper.GetFilePath(
+                                        path,
+                                        cruncherOptions.RootFolder,
+                                        context);
+
+                                    if (File.Exists(javaScriptFilePath))
+                                    {
+                                        files.Add(javaScriptFilePath);
+                                    }
+                                }
+                                else
+                                {
+                                    // Get the path from the server.
+                                    // Loop through each possible directory.
+                                    foreach (string javaScriptFolder in CruncherConfiguration.Instance.JavaScriptPaths)
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(javaScriptFolder)
+                                            && javaScriptFolder.Trim().StartsWith("~/"))
+                                        {
+                                            DirectoryInfo directoryInfo =
+                                                new DirectoryInfo(context.Server.MapPath(javaScriptFolder));
+
+                                            if (directoryInfo.Exists)
+                                            {
+                                                files.AddRange(
+                                                    Directory.GetFiles(
+                                                        directoryInfo.FullName,
+                                                        path,
+                                                        SearchOption.AllDirectories));
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (files.Any())
+                                {
+                                    // We only want the first file.
+                                    string first = files.FirstOrDefault();
+                                    cruncherOptions.RootFolder = Path.GetDirectoryName(first);
+                                    stringBuilder.Append(await javaScriptCruncher.CrunchAsync(first));
                                 }
                             }
                             else
                             {
-                                // Get the path from the server.
-                                // Loop through each possible directory.
-                                foreach (string javaScriptFolder in CruncherConfiguration.Instance.JavaScriptPaths)
-                                {
-                                    if (!string.IsNullOrWhiteSpace(javaScriptFolder) && javaScriptFolder.Trim().StartsWith("~/"))
-                                    {
-                                        DirectoryInfo directoryInfo = new DirectoryInfo(context.Server.MapPath(javaScriptFolder));
-
-                                        if (directoryInfo.Exists)
-                                        {
-                                            files.AddRange(Directory.GetFiles(directoryInfo.FullName, path, SearchOption.AllDirectories));
-                                        }
-                                    }
-                                }
+                                // Remote files.
+                                string remoteFile = this.GetUrlFromToken(path).ToString();
+                                stringBuilder.Append(await javaScriptCruncher.CrunchAsync(remoteFile));
                             }
+                        }
 
-                            if (files.Any())
+                        combinedJavaScript = stringBuilder.ToString();
+
+                        if (minify)
+                        {
+                            // Minify and fix any missing semicolons between function expressions.
+                            combinedJavaScript = javaScriptCruncher.Minify(combinedJavaScript);
+
+                            if (!combinedJavaScript.EndsWith(";"))
                             {
-                                // We only want the first file.
-                                string first = files.FirstOrDefault();
-                                cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                                stringBuilder.Append(await javaScriptCruncher.CrunchAsync(first));
+                                combinedJavaScript += ";";
                             }
                         }
-                        else
-                        {
-                            // Remote files.
-                            string remoteFile = this.GetUrlFromToken(path).ToString();
-                            stringBuilder.Append(await javaScriptCruncher.CrunchAsync(remoteFile));
-                        }
+
+                        this.AddItemToCache(key, combinedJavaScript, javaScriptCruncher.FileMonitors);
                     }
-
-                    combinedJavaScript = stringBuilder.ToString();
-
-                    if (minify)
-                    {
-                        // Minify and fix any missing semicolons between function expressions.
-                        combinedJavaScript = javaScriptCruncher.Minify(combinedJavaScript);
-
-                        if (!combinedJavaScript.EndsWith(";"))
-                        {
-                            combinedJavaScript += ";";
-                        }
-                    }
-
-                    this.AddItemToCache(key, combinedJavaScript, javaScriptCruncher.FileMonitors);
                 }
             }
 

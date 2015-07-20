@@ -22,13 +22,7 @@ namespace Cruncher.Preprocessors.Coffee
         /// <summary>
         /// Gets the extensions that this filter processes.
         /// </summary>
-        public string[] AllowedExtensions
-        {
-            get
-            {
-                return new[] { ".COFFEE" };
-            }
-        }
+        public string[] AllowedExtensions => new[] { ".COFFEE" };
 
         /// <summary>
         /// Transforms the content of the given string.

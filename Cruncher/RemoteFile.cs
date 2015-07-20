@@ -41,14 +41,11 @@ namespace Cruncher
     /// </remarks>
     internal sealed class RemoteFile
     {
-        #region Fields
         /// <summary>
         /// The <see cref="T:System.Net.WebResponse">WebResponse</see> object used internally for this RemoteFile instance.
         /// </summary>
         private WebRequest webRequest;
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Cruncher.RemoteFile">RemoteFile</see> class. 
         /// </summary>
@@ -57,13 +54,11 @@ namespace Cruncher
         {
             this.Uri = filePath;
         }
-        #endregion
 
-        #region Properties
         /// <summary>
         /// Gets the Uri of the remote file being downloaded.
         /// </summary>
-        public Uri Uri { get; private set; }
+        public Uri Uri { get; }
 
         /// <summary>
         /// Gets or sets the length of time, in milliseconds, that a remote file download attempt can 
@@ -85,10 +80,7 @@ namespace Cruncher
         /// </remarks>
         /// </summary>
         public int MaxDownloadSize { get; set; }
-        #endregion
 
-        #region Methods
-        #region Internal
         /// <summary>
         /// Returns the <see cref="T:System.Net.WebResponse">WebResponse</see> used to download this file.
         /// <remarks>
@@ -177,9 +169,7 @@ namespace Cruncher
 
             return file;
         }
-        #endregion
 
-        #region Private
         /// <summary>
         /// Creates the WebRequest object used internally for this RemoteFile instance.
         /// </summary>
@@ -210,7 +200,5 @@ namespace Cruncher
 
             return this.webRequest;
         }
-        #endregion
-        #endregion
     }
 }

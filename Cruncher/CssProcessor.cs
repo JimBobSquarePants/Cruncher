@@ -30,6 +30,11 @@ namespace Cruncher
     public class CssProcessor : ProcessorBase
     {
         /// <summary>
+        /// Ensures processing is atomic.
+        /// </summary>
+        private static readonly AsyncDuplicateLock Locker = new AsyncDuplicateLock();
+
+        /// <summary>
         /// Processes the css request using cruncher and returns the result.
         /// </summary>
         /// <param name="context">
@@ -51,90 +56,99 @@ namespace Cruncher
             if (paths != null)
             {
                 string key = string.Join(string.Empty, paths).ToMd5Fingerprint();
-                combinedCSS = (string)CacheManager.GetItem(key);
 
-                if (string.IsNullOrWhiteSpace(combinedCSS))
+                using (await Locker.LockAsync(key))
                 {
-                    StringBuilder stringBuilder = new StringBuilder();
+                    combinedCSS = (string)CacheManager.GetItem(key);
 
-                    CruncherOptions cruncherOptions = new CruncherOptions
+                    if (string.IsNullOrWhiteSpace(combinedCSS))
                     {
-                        MinifyCacheKey = key,
-                        Minify = minify,
-                        CacheFiles = true,
-                        AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
-                        RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
-                        RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
-                    };
+                        StringBuilder stringBuilder = new StringBuilder();
 
-                    CssCruncher cssCruncher = new CssCruncher(cruncherOptions, context);
-
-                    AutoPrefixerOptions autoPrefixerOptions = CruncherConfiguration.Instance.AutoPrefixerOptions;
-
-                    // Loop through and process each file.
-                    foreach (string path in paths)
-                    {
-                        // Local files.
-                        if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(path))
+                        CruncherOptions cruncherOptions = new CruncherOptions
                         {
-                            List<string> files = new List<string>();
+                            MinifyCacheKey = key,
+                            Minify = minify,
+                            CacheFiles = true,
+                            AllowRemoteFiles = CruncherConfiguration.Instance.AllowRemoteDownloads,
+                            RemoteFileMaxBytes = CruncherConfiguration.Instance.MaxBytes,
+                            RemoteFileTimeout = CruncherConfiguration.Instance.Timeout
+                        };
 
-                            // Try to get the file by absolute/relative path
-                            if (!ResourceHelper.IsResourceFilenameOnly(path))
+                        CssCruncher cssCruncher = new CssCruncher(cruncherOptions, context);
+
+                        AutoPrefixerOptions autoPrefixerOptions = CruncherConfiguration.Instance.AutoPrefixerOptions;
+
+                        // Loop through and process each file.
+                        foreach (string path in paths)
+                        {
+                            // Local files.
+                            if (PreprocessorManager.Instance.AllowedExtensionsRegex.IsMatch(path))
                             {
-                                string cssFilePath = ResourceHelper.GetFilePath(path, cruncherOptions.RootFolder, context);
+                                List<string> files = new List<string>();
 
-                                if (File.Exists(cssFilePath))
+                                // Try to get the file by absolute/relative path
+                                if (!ResourceHelper.IsResourceFilenameOnly(path))
                                 {
-                                    files.Add(cssFilePath);
+                                    string cssFilePath = ResourceHelper.GetFilePath(
+                                        path,
+                                        cruncherOptions.RootFolder,
+                                        context);
+
+                                    if (File.Exists(cssFilePath))
+                                    {
+                                        files.Add(cssFilePath);
+                                    }
+                                }
+                                else
+                                {
+                                    // Get the path from the server.
+                                    // Loop through each possible directory.
+                                    foreach (string cssPath in CruncherConfiguration.Instance.CSSPaths)
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(cssPath) && cssPath.Trim().StartsWith("~/"))
+                                        {
+                                            DirectoryInfo directoryInfo = new DirectoryInfo(context.Server.MapPath(cssPath));
+
+                                            if (directoryInfo.Exists)
+                                            {
+                                                IEnumerable<FileInfo> fileInfos =
+                                                    await
+                                                    directoryInfo.EnumerateFilesAsync(path, SearchOption.AllDirectories);
+                                                    files.AddRange(fileInfos.Select(f => f.FullName));
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (files.Any())
+                                {
+                                    // We only want the first file.
+                                    string first = files.FirstOrDefault();
+                                    cruncherOptions.RootFolder = Path.GetDirectoryName(first);
+                                    stringBuilder.Append(await cssCruncher.CrunchAsync(first));
                                 }
                             }
                             else
                             {
-                                // Get the path from the server.
-                                // Loop through each possible directory.
-                                foreach (string cssPath in CruncherConfiguration.Instance.CSSPaths)
-                                {
-                                    if (!string.IsNullOrWhiteSpace(cssPath) && cssPath.Trim().StartsWith("~/"))
-                                    {
-                                        DirectoryInfo directoryInfo = new DirectoryInfo(context.Server.MapPath(cssPath));
-
-                                        if (directoryInfo.Exists)
-                                        {
-                                            IEnumerable<FileInfo> fileInfos = await directoryInfo.EnumerateFilesAsync(path, SearchOption.AllDirectories);
-                                            files.AddRange(fileInfos.Select(f => f.FullName));
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (files.Any())
-                            {
-                                // We only want the first file.
-                                string first = files.FirstOrDefault();
-                                cruncherOptions.RootFolder = Path.GetDirectoryName(first);
-                                stringBuilder.Append(await cssCruncher.CrunchAsync(first));
+                                // Remote files.
+                                string remoteFile = this.GetUrlFromToken(path).ToString();
+                                stringBuilder.Append(await cssCruncher.CrunchAsync(remoteFile));
                             }
                         }
-                        else
+
+                        combinedCSS = stringBuilder.ToString();
+
+                        // Apply autoprefixer
+                        combinedCSS = cssCruncher.AutoPrefix(combinedCSS, autoPrefixerOptions);
+
+                        if (minify)
                         {
-                            // Remote files.
-                            string remoteFile = this.GetUrlFromToken(path).ToString();
-                            stringBuilder.Append(await cssCruncher.CrunchAsync(remoteFile));
+                            combinedCSS = cssCruncher.Minify(combinedCSS);
                         }
+
+                        this.AddItemToCache(key, combinedCSS, cssCruncher.FileMonitors);
                     }
-
-                    combinedCSS = stringBuilder.ToString();
-
-                    // Apply autoprefixer
-                    combinedCSS = cssCruncher.AutoPrefix(combinedCSS, autoPrefixerOptions);
-
-                    if (minify)
-                    {
-                        combinedCSS = cssCruncher.Minify(combinedCSS);
-                    }
-
-                    this.AddItemToCache(key, combinedCSS, cssCruncher.FileMonitors);
                 }
             }
 

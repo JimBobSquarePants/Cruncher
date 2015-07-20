@@ -5,11 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
+
     @CruncherBundler.RenderCSS("fontawesome")
-    @CruncherBundler.RenderCSS("css-style.css", "less-style.less", "scss-style.scss", "/Content/imports/css-style4.css", "/Content/imports/import.css")
+    @* @CruncherBundler.RenderCSS("css-style.css", "less-style.less", "scss-style.scss", "/Content/imports/css-style4.css", "/Content/imports/import.css")*@
 </head>
 <body>
     <main> @RenderBody()</main>
     @CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Defer, "jquery", "test.coffee", "test.js")
-</body> 
+</body>
 </html>

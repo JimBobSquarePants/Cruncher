@@ -46,13 +46,7 @@ namespace Cruncher.Preprocessors
         /// <summary>
         /// Gets the current instance of the <see cref="T:Cruncher.Preprocessors.PreprocessorManager"/> class.
         /// </summary>
-        public static PreprocessorManager Instance
-        {
-            get
-            {
-                return Lazy.Value;
-            }
-        }
+        public static PreprocessorManager Instance => Lazy.Value;
 
         /// <summary>
         /// Gets the list of available Preprocessors.

@@ -81,7 +81,7 @@ namespace Cruncher.Helpers
                             if (resource.Trim().StartsWith(requestAuthority, StringComparison.CurrentCultureIgnoreCase))
                             {
                                 string path = resource.Substring(requestAuthority.Length);
-                                return HostingEnvironment.MapPath(string.Format("~{0}", path));
+                                return HostingEnvironment.MapPath($"~{path}");
                             }
 
                             return resource;
@@ -94,7 +94,7 @@ namespace Cruncher.Helpers
                         }
 
                         // It is an absolute path
-                        return HostingEnvironment.MapPath(string.Format("~{0}", resource));
+                        return HostingEnvironment.MapPath($"~{resource}");
                     }
                 }
 
@@ -123,11 +123,11 @@ namespace Cruncher.Helpers
         public static async Task<string> CreateResourcePhysicalFileAsync(string fileName, string fileContent)
         {
             // Cache item to ensure that checking file's creation date is performed only every xx hours
-            string cacheIdCheckCreationDate = string.Format("_CruncherCheckFileCreationDate_{0}", fileName);
+            string cacheIdCheckCreationDate = $"_CruncherCheckFileCreationDate_{fileName}";
             const int CheckCreationDateFrequencyHours = 6;
 
             // Cache item to ensure that checking whether the file exists is performed only every xx hours
-            string cacheIdCheckFileExists = string.Format("_CruncherCheckFileExists_{0}", fileName);
+            string cacheIdCheckFileExists = $"_CruncherCheckFileExists_{fileName}";
 
             string fileVirtualPath = VirtualPathUtility.AppendTrailingSlash(CruncherConfiguration.Instance.PhysicalFilesPath) + fileName;
             string filePath = HostingEnvironment.MapPath(fileVirtualPath);

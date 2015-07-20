@@ -192,12 +192,12 @@ namespace Cruncher
                         // Try to get the file by absolute/relative path
                         if (!ResourceHelper.IsResourceFilenameOnly(fileName))
                         {
-                            string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder, this.context);
+                            string cssFilePath = ResourceHelper.GetFilePath(fileName, this.Options.RootFolder, this.context);
                             fileInfo = new FileInfo(cssFilePath);
                         }
                         else
                         {
-                            fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+                            fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(this.Options.RootFolder, fileName)));
                         }
 
                         // Read the file.

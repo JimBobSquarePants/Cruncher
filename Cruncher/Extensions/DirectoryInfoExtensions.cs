@@ -38,12 +38,12 @@ namespace Cruncher.Extensions
         /// <returns>
         /// An enumerable collection of directories that matches searchPattern and searchOption.
         /// </returns>
-        public static Task<IEnumerable<DirectoryInfo>> SafeEnumerateDirectoriesAsync(
+        public async static Task<IEnumerable<DirectoryInfo>> SafeEnumerateDirectoriesAsync(
             this DirectoryInfo directoryInfo,
             string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            return Task.Run(() => SafeEnumerateDirectories(directoryInfo, searchPattern, searchOption));
+            return await Task.Run(() => SafeEnumerateDirectories(directoryInfo, searchPattern, searchOption)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -101,12 +101,12 @@ namespace Cruncher.Extensions
         /// <returns>
         /// An enumerable collection of file info that matches searchPattern and searchOption.
         /// </returns>
-        public static Task<IEnumerable<FileInfo>> EnumerateFilesAsync(
+        public async static Task<IEnumerable<FileInfo>> EnumerateFilesAsync(
             this DirectoryInfo directoryInfo,
             string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            return Task.Run(() => directoryInfo.EnumerateFiles(searchPattern, searchOption));
+            return await Task.Run(() => directoryInfo.EnumerateFiles(searchPattern, searchOption)).ConfigureAwait(false);
         }
     }
 }

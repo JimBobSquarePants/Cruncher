@@ -15,6 +15,7 @@ namespace Cruncher
     using System.Text;
     using System.Web;
 
+    using Cruncher.Extensions;
     using Cruncher.Helpers;
 
     /// <summary>
@@ -84,7 +85,7 @@ namespace Cruncher
             if (!context.IsDebuggingEnabled)
             {
                 string fileContent = AsyncHelper.RunSync(() => CssProcessor.ProcessCssCrunchAsync(context, true, fileNames));
-                string fileName = string.Format("{0}.css", fileContent.GetHashCode());
+                string fileName = $"{fileContent.ToMd5Fingerprint()}.css";
                 return
                     new HtmlString(
                         string.Format(
@@ -99,10 +100,7 @@ namespace Cruncher
             {
                 string currentName = name;
                 string fileContent = AsyncHelper.RunSync(() => CssProcessor.ProcessCssCrunchAsync(context, false, currentName));
-                string fileName = string.Format(
-                    "{0}{1}.css",
-                    Path.GetFileNameWithoutExtension(name),
-                    fileContent.GetHashCode());
+                string fileName = $"{Path.GetFileNameWithoutExtension(name)}{fileContent.ToMd5Fingerprint()}.css";
                 stringBuilder.AppendFormat(
                     CssPhysicalFileTemplate,
                     AsyncHelper.RunSync(() => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
@@ -157,7 +155,7 @@ namespace Cruncher
             if (!context.IsDebuggingEnabled)
             {
                 string fileContent = AsyncHelper.RunSync(() => JavaScriptHandler.ProcessJavascriptCrunchAsync(context, true, fileNames));
-                string fileName = string.Format("{0}.js", fileContent.GetHashCode());
+                string fileName = $"{fileContent.ToMd5Fingerprint()}.js";
                 return
                     new HtmlString(
                         string.Format(
@@ -172,10 +170,7 @@ namespace Cruncher
             {
                 string currentName = name;
                 string fileContent = AsyncHelper.RunSync(() => JavaScriptHandler.ProcessJavascriptCrunchAsync(context, false, currentName));
-                string fileName = string.Format(
-                    "{0}{1}.js",
-                    Path.GetFileNameWithoutExtension(name),
-                    fileContent.GetHashCode());
+                string fileName = $"{Path.GetFileNameWithoutExtension(name)}{fileContent.ToMd5Fingerprint()}.js";
                 stringBuilder.AppendFormat(
                     JavaScriptPhysicalFileTemplate,
                     AsyncHelper.RunSync(() => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
