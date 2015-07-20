@@ -28,13 +28,7 @@ namespace Cruncher.Preprocessors.Less
         /// <summary>
         /// Gets the extension that this filter processes.
         /// </summary>
-        public string[] AllowedExtensions
-        {
-            get
-            {
-                return new[] { ".LESS" };
-            }
-        }
+        public string[] AllowedExtensions => new[] { ".LESS" };
 
         /// <summary>
         /// Transforms the content of the given string from Less into CSS. 
