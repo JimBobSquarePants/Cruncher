@@ -43,7 +43,7 @@ namespace Cruncher.Preprocessors.Less
         {
             if (string.IsNullOrWhiteSpace(currentFilePath))
             {
-                throw new ArgumentNullException("currentFilePath");
+                throw new ArgumentNullException(nameof(currentFilePath));
             }
 
             this.CurrentFilePath = currentFilePath;
@@ -85,13 +85,7 @@ namespace Cruncher.Preprocessors.Less
         /// <summary>
         /// Gets the current file directory.
         /// </summary>
-        public string CurrentFileDirectory
-        {
-            get
-            {
-                return this.currentFileDirectory;
-            }
-        }
+        public string CurrentFileDirectory => this.currentFileDirectory;
 
         /// <summary>
         /// Returns the full path for the specified file <param name="path"/>.
@@ -107,7 +101,7 @@ namespace Cruncher.Preprocessors.Less
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             }
 
             return HostingEnvironment.MapPath(VirtualPathUtility.Combine(this.currentFileDirectory, path));

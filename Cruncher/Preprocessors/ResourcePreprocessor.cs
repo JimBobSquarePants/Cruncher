@@ -30,13 +30,7 @@ namespace Cruncher.Preprocessors
         /// <summary>
         /// Gets the extension that this filter processes.
         /// </summary>
-        public string[] AllowedExtensions
-        {
-            get
-            {
-                return null;
-            }
-        }
+        public string[] AllowedExtensions => null;
 
         /// <summary>
         /// Transforms the content of the given string by replacing relative paths. 
@@ -122,7 +116,7 @@ namespace Cruncher.Preprocessors
 
                     if (!resolvedOutput.StartsWith("/") && !resolvedOutput.Contains(Uri.SchemeDelimiter))
                     {
-                        resolvedOutput = string.Format("/{0}", resolvedOutput);
+                        resolvedOutput = $"/{resolvedOutput}";
                     }
 
                     // Add the hash/query-string
@@ -177,7 +171,7 @@ namespace Cruncher.Preprocessors
 
             // Path is always propagated.
             // ReSharper disable once PossibleNullReferenceException
-            string directoryName = Path.GetDirectoryName(relativePath).TrimStart(new[] { '.', '\\' });
+            string directoryName = Path.GetDirectoryName(relativePath).TrimStart('.', '\\');
             string fileName = Path.GetFileName(relativePath);
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (DirectoryInfo directory in directoryInfo.EnumerateDirectories(directoryName, SearchOption.AllDirectories))

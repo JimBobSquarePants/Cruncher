@@ -15,6 +15,8 @@ namespace Cruncher
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using System.Web;
 
     using Cruncher.Compression;
     using Cruncher.Extensions;
@@ -38,12 +40,23 @@ namespace Cruncher
         private static readonly AutoPrefixerPostprocessor AutoPrefixerPostprocessor = new AutoPrefixerPostprocessor();
 
         /// <summary>
+        /// The current context.
+        /// </summary>
+        private readonly HttpContext context;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CssCruncher"/> class.
         /// </summary>
-        /// <param name="options">The options containing instructions for the cruncher.</param>
-        public CssCruncher(CruncherOptions options)
+        /// <param name="options">
+        /// The options containing instructions for the cruncher.
+        /// </param>
+        /// <param name="context">
+        /// The current context.
+        /// </param>
+        public CssCruncher(CruncherOptions options, HttpContext context)
             : base(options)
         {
+            this.context = context;
         }
 
         #region Methods
@@ -101,9 +114,9 @@ namespace Cruncher
         /// <returns>
         /// The contents of the local file as a string.
         /// </returns>
-        protected override string LoadLocalFile(string file)
+        protected override async Task<string> LoadLocalFileAsync(string file)
         {
-            string contents = base.LoadLocalFile(file);
+            string contents = await base.LoadLocalFileAsync(file);
 
             contents = this.ParseImports(contents);
 
@@ -179,12 +192,12 @@ namespace Cruncher
                         // Try to get the file by absolute/relative path
                         if (!ResourceHelper.IsResourceFilenameOnly(fileName))
                         {
-                            string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder);
+                            string cssFilePath = ResourceHelper.GetFilePath(fileName, this.Options.RootFolder, this.context);
                             fileInfo = new FileInfo(cssFilePath);
                         }
                         else
                         {
-                            fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+                            fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(this.Options.RootFolder, fileName)));
                         }
 
                         // Read the file.

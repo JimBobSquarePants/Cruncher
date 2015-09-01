@@ -46,13 +46,7 @@ namespace Cruncher.Preprocessors
         /// <summary>
         /// Gets the current instance of the <see cref="T:Cruncher.Preprocessors.PreprocessorManager"/> class.
         /// </summary>
-        public static PreprocessorManager Instance
-        {
-            get
-            {
-                return Lazy.Value;
-            }
-        }
+        public static PreprocessorManager Instance => Lazy.Value;
 
         /// <summary>
         /// Gets the list of available Preprocessors.
@@ -179,7 +173,7 @@ namespace Cruncher.Preprocessors
                 }
             }
 
-            this.AllowedExtensionsRegex = new Regex(stringBuilder.ToString().TrimEnd('|'), RegexOptions.IgnoreCase);
+            this.AllowedExtensionsRegex = new Regex(string.Format("({0})$", stringBuilder.ToString().TrimEnd('|')), RegexOptions.IgnoreCase);
         }
     }
 }

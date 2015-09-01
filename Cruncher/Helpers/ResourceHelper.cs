@@ -15,12 +15,15 @@ namespace Cruncher.Helpers
     using System.IO;
     using System.Linq;
     using System.Runtime.Caching;
+    using System.Text;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using System.Web;
     using System.Web.Hosting;
 
     using Cruncher.Caching;
     using Cruncher.Configuration;
+    using Cruncher.Extensions;
 
     /// <summary>
     /// Provides a series of helper methods for dealing with resources.
@@ -30,7 +33,7 @@ namespace Cruncher.Helpers
         /// <summary>
         /// The physical file regex.
         /// </summary>
-        private static readonly Regex PhysicalFileRegex = new Regex(@"^(-)?[0-9]+\.(css|js)$", RegexOptions.IgnoreCase);
+        private static readonly Regex PhysicalFileRegex = new Regex(@"\.(css|js)$", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Get's a value indicating whether the resource is a filename only.
@@ -55,15 +58,18 @@ namespace Cruncher.Helpers
         /// <param name="rootPath">
         /// The root path for the application.
         /// </param>
+        /// <param name="context">
+        /// The current context.
+        /// </param>
         /// <returns>
         /// The <see cref="string"/> representing the file path to the resource.
         /// </returns>
-        public static string GetFilePath(string resource, string rootPath)
+        public static string GetFilePath(string resource, string rootPath, HttpContext context)
         {
             try
             {
                 // Check whether this method is invoked in an http request or not
-                if (HttpContext.Current != null)
+                if (context != null)
                 {
                     // Check whether it is a correct uri
                     if (Uri.IsWellFormedUriString(resource, UriKind.RelativeOrAbsolute))
@@ -75,7 +81,7 @@ namespace Cruncher.Helpers
                             if (resource.Trim().StartsWith(requestAuthority, StringComparison.CurrentCultureIgnoreCase))
                             {
                                 string path = resource.Substring(requestAuthority.Length);
-                                return HostingEnvironment.MapPath(string.Format("~{0}", path));
+                                return HostingEnvironment.MapPath($"~{path}");
                             }
 
                             return resource;
@@ -88,7 +94,7 @@ namespace Cruncher.Helpers
                         }
 
                         // It is an absolute path
-                        return HostingEnvironment.MapPath(string.Format("~{0}", resource));
+                        return HostingEnvironment.MapPath($"~{resource}");
                     }
                 }
 
@@ -114,21 +120,21 @@ namespace Cruncher.Helpers
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
-        public static string CreateResourcePhysicalFile(string fileName, string fileContent)
+        public static async Task<string> CreateResourcePhysicalFileAsync(string fileName, string fileContent)
         {
             // Cache item to ensure that checking file's creation date is performed only every xx hours
-            string cacheIdCheckCreationDate = string.Format("_CruncherCheckFileCreationDate_{0}", fileName);
+            string cacheIdCheckCreationDate = $"_CruncherCheckFileCreationDate_{fileName}";
             const int CheckCreationDateFrequencyHours = 6;
 
             // Cache item to ensure that checking whether the file exists is performed only every xx hours
-            string cacheIdCheckFileExists = string.Format("_CruncherCheckFileExists_{0}", fileName);
+            string cacheIdCheckFileExists = $"_CruncherCheckFileExists_{fileName}";
 
             string fileVirtualPath = VirtualPathUtility.AppendTrailingSlash(CruncherConfiguration.Instance.PhysicalFilesPath) + fileName;
             string filePath = HostingEnvironment.MapPath(fileVirtualPath);
 
             // Trims the physical files folder ensuring that it does not contains files older than xx days 
             // This is performed before creating the physical resource file
-            TrimPhysicalFilesFolder(HostingEnvironment.MapPath(CruncherConfiguration.Instance.PhysicalFilesPath));
+            await TrimPhysicalFilesFolderAsync(HostingEnvironment.MapPath(CruncherConfiguration.Instance.PhysicalFilesPath));
 
             // Check whether the resource file already exists
             if (filePath != null)
@@ -176,11 +182,24 @@ namespace Cruncher.Helpers
                             if (!directoryInfo.Exists)
                             {
                                 // Don't swallow any errors. We want to know if this doesn't work.
-                                Directory.CreateDirectory(directoryPath);
+                                directoryInfo.Create();
                             }
                         }
 
-                        File.WriteAllText(filePath, fileContent);
+                        // Write the file asynchronously.
+                        byte[] encodedText = Encoding.UTF8.GetBytes(fileContent);
+
+                        using (
+                            FileStream sourceStream = new FileStream(
+                                filePath,
+                                FileMode.Create,
+                                FileAccess.Write,
+                                FileShare.None,
+                                4096,
+                                true))
+                        {
+                            await sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
+                        }
                     }
                 }
             }
@@ -195,7 +214,10 @@ namespace Cruncher.Helpers
         /// <param name="path">
         /// The path to the folder.
         /// </param>
-        public static void TrimPhysicalFilesFolder(string path)
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        public static async Task TrimPhysicalFilesFolderAsync(string path)
         {
             // If PhysicalFilesDaysBeforeRemoveExpired is 0 or negative then the trim process is not performed
             if (CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired < 1)
@@ -244,13 +266,17 @@ namespace Cruncher.Helpers
                 DirectoryInfo directoryInfo = new DirectoryInfo(path);
 
                 // Regular expression to get resource files which names match Cruncher's filename pattern.
-                IEnumerable<FileInfo> files = directoryInfo.EnumerateFiles().Where(f => PhysicalFileRegex.IsMatch(Path.GetFileName(f.Name))).OrderBy(f => f.CreationTimeUtc);
+                IEnumerable<FileInfo> files = await directoryInfo.EnumerateFilesAsync();
+                files = files.Where(f => PhysicalFileRegex.IsMatch(Path.GetFileName(f.Name)))
+                             .OrderBy(f => f.CreationTimeUtc);
+                int maxDays = CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired;
+
                 foreach (FileInfo fileInfo in files)
                 {
                     try
                     {
                         // If the file's last write datetime is older that xx days then delete it
-                        if (fileInfo.LastWriteTimeUtc.AddDays(CruncherConfiguration.Instance.PhysicalFilesDaysBeforeRemoveExpired) > DateTime.UtcNow)
+                        if (fileInfo.LastWriteTimeUtc.AddDays(maxDays) > DateTime.UtcNow)
                         {
                             continue;
                         }
@@ -266,35 +292,5 @@ namespace Cruncher.Helpers
                 }
             }
         }
-
-        // TODO: Move this to a tests project
-        //public static string Test()
-        //{
-        //    StringBuilder result = new StringBuilder();
-        //    List<string> files = new List<string>()
-        //        {
-        //            "page.aspx",
-        //            "style.css",
-        //            "javascript.js",
-        //            "without-extension",
-        //            "directory/page.aspx",
-        //            "/directory/page.aspx",
-        //            "domain.com/page.aspx",
-        //            "domain.com/directory/page.aspx",
-        //            "http://domain.com/directory/page.aspx",
-        //            "directory\\file.txt",
-        //            "\\directory\\file.txt",
-        //            "C:\\directory\\file.txt",
-        //            "C:\\file.txt",
-        //            "\\\\directory\\file.txt",
-        //            "\\\\file.txt"
-        //        };
-        //    foreach (string file in files)
-        //    {
-        //        result.AppendFormat("{0} --> {1}{2}", file, getFilePath(file), Environment.NewLine);
-        //    }
-        //    Console.WriteLine(result.ToString());
-        //    return result.ToString();
-        //}
     }
 }

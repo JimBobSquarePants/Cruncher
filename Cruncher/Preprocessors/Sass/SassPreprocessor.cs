@@ -22,7 +22,6 @@ namespace Cruncher.Preprocessors.Sass
     /// </summary>
     public class SassPreprocessor : IPreprocessor
     {
-        #region Fields
         /// <summary>
         /// The imports regex.
         /// </summary>
@@ -31,13 +30,8 @@ namespace Cruncher.Preprocessors.Sass
         /// <summary>
         /// Gets the extensions that this filter processes.
         /// </summary>
-        public string[] AllowedExtensions
-        {
-            get { return new[] { ".SASS", ".SCSS" }; }
-        }
-        #endregion
+        public string[] AllowedExtensions => new[] { ".SASS", ".SCSS" };
 
-        #region Methods
         /// <summary>
         /// Transforms the content of the given string.
         /// </summary>
@@ -109,6 +103,5 @@ namespace Cruncher.Preprocessors.Sass
                 }
             }
         }
-        #endregion
     }
 }

@@ -168,3 +168,5 @@ pip-log.txt
 
 # Test Files
 assets-cruncher/
+.cruncherCache/
+.cruncher/

@@ -64,10 +64,7 @@ namespace Cruncher.Compression
         /// Gets a value indicating whether this instance of the minifier should perform the minification.
         /// </summary>
         /// <value><see langword="true"/> if the minifier should perform the minification; otherwise, <see langword="false"/>.</value>
-        private bool ShouldMinify
-        {
-            get { return this.RemoveWhiteSpace; }
-        }
+        private bool ShouldMinify => this.RemoveWhiteSpace;
 
         /// <summary>
         /// Gets the minified version of the submitted stylesheet.

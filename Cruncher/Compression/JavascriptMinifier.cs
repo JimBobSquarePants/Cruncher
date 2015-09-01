@@ -82,19 +82,13 @@ namespace Cruncher.Compression
         /// <value>
         /// <see langword="true"/> if this instance of the minifier should minify the code; otherwise, <see langword="false"/>.
         /// </value>
-        private bool ShouldMinifyCode
-        {
-            get { return !this.PreserveFunctionNames || VariableMinification != VariableMinification.None; }
-        }
+        private bool ShouldMinifyCode => !this.PreserveFunctionNames || this.VariableMinification != VariableMinification.None;
 
         /// <summary>
         /// Gets a value indicating whether this instance of the minifier should perform the minification.
         /// </summary>
         /// <value><see langword="true"/> if the minifier should perform the minification; otherwise, <see langword="false"/>.</value>
-        private bool ShouldMinify
-        {
-            get { return this.RemoveWhiteSpace || this.ShouldMinifyCode; }
-        }
+        private bool ShouldMinify => this.RemoveWhiteSpace || this.ShouldMinifyCode;
 
         /// <summary>
         /// Gets the minified version of the submitted script.

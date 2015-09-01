@@ -123,7 +123,7 @@ namespace Cruncher.Postprocessors.AutoPrefixer
                     string result = this.javascriptEngine.Evaluate<string>(string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), ConvertAutoPrefixerOptionsToJson(options)));
 
                     JObject json = JObject.Parse(result);
-                    JArray errors = json["errors"] != null ? json["errors"] as JArray : null;
+                    JArray errors = json["errors"] as JArray;
 
                     if (errors != null && errors.Count > 0)
                     {

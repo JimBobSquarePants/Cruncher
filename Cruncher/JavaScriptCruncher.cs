@@ -13,6 +13,8 @@ namespace Cruncher
     using System;
     using System.IO;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using System.Web;
 
     using Cruncher.Compression;
     using Cruncher.Extensions;
@@ -29,12 +31,23 @@ namespace Cruncher
         private static readonly Regex ImportsRegex = new Regex(@"(?:import\s*([""']?)\s*(?<filename>.+\.js)(\s*[""']?)\s*);", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
 
         /// <summary>
+        /// The current context.
+        /// </summary>
+        private readonly HttpContext context;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptCruncher"/> class.
         /// </summary>
-        /// <param name="options">The options containing instructions for the cruncher.</param>
-        public JavaScriptCruncher(CruncherOptions options)
+        /// <param name="options">
+        /// The options containing instructions for the cruncher.
+        /// </param>
+        /// <param name="context">
+        /// The current context.
+        /// </param>
+        public JavaScriptCruncher(CruncherOptions options, HttpContext context)
             : base(options)
         {
+            this.context = context;
         }
 
         /// <summary>
@@ -75,9 +88,9 @@ namespace Cruncher
         /// <returns>
         /// The contents of the local file as a string.
         /// </returns>
-        protected override string LoadLocalFile(string file)
+        protected override async Task<string> LoadLocalFileAsync(string file)
         {
-            string contents = base.LoadLocalFile(file);
+            string contents = await base.LoadLocalFileAsync(file);
 
             contents = this.ParseImports(contents);
 
@@ -122,7 +135,7 @@ namespace Cruncher
                     // Try to get the file by absolute/relative path
                     if (!ResourceHelper.IsResourceFilenameOnly(fileName))
                     {
-                        string cssFilePath = ResourceHelper.GetFilePath(fileName, Options.RootFolder);
+                        string cssFilePath = ResourceHelper.GetFilePath(fileName, this.Options.RootFolder, this.context);
                         if (File.Exists(cssFilePath))
                         {
                             fileInfo = new FileInfo(cssFilePath);
@@ -130,7 +143,7 @@ namespace Cruncher
                     }
                     else
                     {
-                        fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(Options.RootFolder, fileName)));
+                        fileInfo = new FileInfo(Path.GetFullPath(Path.Combine(this.Options.RootFolder, fileName)));
                     }
 
                     // Read the file.

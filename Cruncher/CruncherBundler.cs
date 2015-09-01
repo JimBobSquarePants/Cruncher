@@ -11,9 +11,11 @@
 namespace Cruncher
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.IO;
     using System.Text;
     using System.Web;
 
+    using Cruncher.Extensions;
     using Cruncher.Helpers;
 
     /// <summary>
@@ -24,7 +26,7 @@ namespace Cruncher
         /// <summary>
         /// The template for generating css links pointing to a physical file
         /// </summary>
-        private const string CssPhysicalFileTemplate = "<link rel=\"stylesheet\" href=\"{0}\" {1}>";
+        private const string CssPhysicalFileTemplate = "<link rel=\"stylesheet\" href=\"{0}\" {1}/>";
 
         /// <summary>
         /// The template for generating JavaScript links pointing to a physical file
@@ -77,21 +79,32 @@ namespace Cruncher
         public static HtmlString RenderCSS(HtmlString mediaQuery, params string[] fileNames)
         {
             StringBuilder stringBuilder = new StringBuilder();
+            HttpContext context = HttpContext.Current;
 
             // Minify on release.
-            if (!HttpContext.Current.IsDebuggingEnabled)
+            if (!context.IsDebuggingEnabled)
             {
-                string fileContent = CssProcessor.ProcessCssCrunch(true, fileNames);
-                string fileName = string.Format("{0}.css", fileContent.GetHashCode());
-                return new HtmlString(string.Format(CssPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), mediaQuery));
+                string fileContent = AsyncHelper.RunSync(() => CssProcessor.ProcessCssCrunchAsync(context, true, fileNames));
+                string fileName = $"{fileContent.ToMd5Fingerprint()}.css";
+                return
+                    new HtmlString(
+                        string.Format(
+                            CssPhysicalFileTemplate,
+                            AsyncHelper.RunSync(
+                                () => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
+                            mediaQuery));
             }
 
             // Render them separately for debug mode.
             foreach (string name in fileNames)
             {
-                string fileContent = CssProcessor.ProcessCssCrunch(false, name);
-                string fileName = string.Format("{0}.css", fileContent.GetHashCode());
-                stringBuilder.AppendFormat(CssPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), mediaQuery);
+                string currentName = name;
+                string fileContent = AsyncHelper.RunSync(() => CssProcessor.ProcessCssCrunchAsync(context, false, currentName));
+                string fileName = $"{Path.GetFileNameWithoutExtension(name)}{fileContent.ToMd5Fingerprint()}.css";
+                stringBuilder.AppendFormat(
+                    CssPhysicalFileTemplate,
+                    AsyncHelper.RunSync(() => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
+                    mediaQuery);
                 stringBuilder.AppendLine();
             }
 
@@ -132,24 +145,36 @@ namespace Cruncher
         public static HtmlString RenderJavaScript(JavaScriptLoadBehaviour behaviour, params string[] fileNames)
         {
             StringBuilder stringBuilder = new StringBuilder();
+            HttpContext context = HttpContext.Current;
+
             string behaviourParam = behaviour == JavaScriptLoadBehaviour.Inline
                                         ? string.Empty
                                         : behaviour.ToString().ToLowerInvariant();
 
             // Minify on release.
-            if (!HttpContext.Current.IsDebuggingEnabled)
+            if (!context.IsDebuggingEnabled)
             {
-                string fileContent = JavaScriptHandler.ProcessJavascriptCrunch(true, fileNames);
-                string fileName = string.Format("{0}.js", fileContent.GetHashCode());
-                return new HtmlString(string.Format(JavaScriptPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), behaviourParam));
+                string fileContent = AsyncHelper.RunSync(() => JavaScriptHandler.ProcessJavascriptCrunchAsync(context, true, fileNames));
+                string fileName = $"{fileContent.ToMd5Fingerprint()}.js";
+                return
+                    new HtmlString(
+                        string.Format(
+                            JavaScriptPhysicalFileTemplate,
+                            AsyncHelper.RunSync(
+                                () => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
+                            behaviourParam));
             }
 
             // Render them separately for debug mode.
             foreach (string name in fileNames)
             {
-                string fileContent = JavaScriptHandler.ProcessJavascriptCrunch(false, name);
-                string fileName = string.Format("{0}.js", fileContent.GetHashCode());
-                stringBuilder.AppendFormat(JavaScriptPhysicalFileTemplate, ResourceHelper.CreateResourcePhysicalFile(fileName, fileContent), behaviourParam);
+                string currentName = name;
+                string fileContent = AsyncHelper.RunSync(() => JavaScriptHandler.ProcessJavascriptCrunchAsync(context, false, currentName));
+                string fileName = $"{Path.GetFileNameWithoutExtension(name)}{fileContent.ToMd5Fingerprint()}.js";
+                stringBuilder.AppendFormat(
+                    JavaScriptPhysicalFileTemplate,
+                    AsyncHelper.RunSync(() => ResourceHelper.CreateResourcePhysicalFileAsync(fileName, fileContent)),
+                    behaviourParam);
                 stringBuilder.AppendLine();
             }
 

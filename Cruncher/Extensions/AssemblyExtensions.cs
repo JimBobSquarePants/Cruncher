@@ -34,7 +34,7 @@ namespace Cruncher.Extensions
         {
             if (assembly == null)
             {
-                throw new ArgumentNullException("assembly");
+                throw new ArgumentNullException(nameof(assembly));
             }
 
             try

@@ -30,18 +30,18 @@
 			character url limit.
 			-->
 			<whiteList>
-			<add token="jquery-2.1.1" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.js" />
+			<add token="jquery-2.1.4" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js" />
 			</whiteList>
 		</security>
 		<!--
 		The javascript engine for processing embedded javascript based processors.
 		Tested working engines include JintJsEngine, V8JsEngine and MsieJsEngine.
 		-->
-		<processing jsEngine="JintJsEngine">
+		<processing jsEngine="MsieJsEngine">
 			<!-- The comma separated virtual paths to the css and js folders.-->
 			<virtualPaths cssPaths="~/css, ~/content" jsPaths="~/js, ~/scripts" />
 			<!-- Where to store crunched files in the application and how long to keep expired ones.-->
-			<physicalFiles path="~/assets-cruncher" daysBeforeRemoveExpired="7" />
+			<physicalFiles path="~/.cruncher" daysBeforeRemoveExpired="7" />
 			<!--
 			Autoprefixer options
 			 - Whether to enable the prefixer.
@@ -69,10 +69,10 @@
 		@CruncherBundler.RenderCSS(new HtmlString("media=\"(max-width: 800px)\""), "style.css", "style.less", "style.scss")
 
 		// Default.
-		@CruncherBundler.RenderJavaScript("jquery-2.0.3.js", "test.coffee", "test.js")
+		@CruncherBundler.RenderJavaScript("jquery-2.1.4.js", "test.coffee", "test.js")
 
 		// Render the script with the 'async' boolean enabled.
-		@CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Async, "jquery-2.0.3.js", "test.coffee", "test.js")
+		@CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Async, "jquery-2.1.4.js", "test.coffee", "test.js")
 
 		// Render the script with the 'defer' boolean enabled.
-		@CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Defer, "jquery-2.0.3.js", "test.coffee", "test.js")
+		@CruncherBundler.RenderJavaScript(JavaScriptLoadBehaviour.Defer, "jquery-2.1.4.js", "test.coffee", "test.js")

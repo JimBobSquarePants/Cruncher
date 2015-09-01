@@ -120,7 +120,7 @@ namespace Cruncher.Preprocessors.Coffee
                     string result = this.javascriptEngine.Evaluate<string>(string.Format(CompilationFunctionCallTemplate, JsonConvert.SerializeObject(input), "{bare: false}"));
 
                     JObject json = JObject.Parse(result);
-                    JArray errors = json["errors"] != null ? json["errors"] as JArray : null;
+                    JArray errors = json["errors"] as JArray;
 
                     if (errors != null && errors.Count > 0)
                     {
