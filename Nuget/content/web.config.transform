@@ -16,12 +16,12 @@
   <cruncher>
     <security allowRemoteDownloads="true" maxBytes="524288" timeout="300000">
       <whiteList>
-        <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.js" />
+        <add token="jquery" url="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js" />
       </whiteList>
     </security>
     <processing jsEngine="MsieJsEngine">
-      <virtualPaths cssPaths="~/css, ~/content" jsPaths="~/js, ~/scripts" />
-      <physicalFiles path="~/.cruncherCache" daysBeforeRemoveExpired="7" />
+      <virtualPaths cssPaths="~/css, ~/content, ~/static" jsPaths="~/js, ~/scripts, ~/static" />
+      <physicalFiles path="~/.cruncher" daysBeforeRemoveExpired="7" />
       <autoPrefixer enabled="true" browsers="> 1%, last 2 versions, Firefox ESR, Opera 12.1" cascade="true" safe="false" />
     </processing>
   </cruncher>
