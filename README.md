@@ -17,6 +17,8 @@ Requires 64 bit functionality due to the Sass compiler dependency. If using IIS 
 
     Tools > Options > Projects and Solutions > Web Projects > Use the 64 bit version of IIS Express…
 
+Also requires the [Visual C++ Redistributable](http://www.microsoft.com/en-us/download/details.aspx?id=40784)
+
 If you use Cruncher please get in touch on my twitter [@james_m_south](https://twitter.com/james_m_south). Feedback is always welcome.
 
 
