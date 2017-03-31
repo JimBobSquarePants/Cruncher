@@ -29,12 +29,12 @@ namespace Cruncher.Postprocessors.AutoPrefixer
         /// <summary>
         /// Name of resource, which contains a AutoPrefixer library
         /// </summary>
-        private const string AutoPrefixerLibraryResource = "Cruncher.Postprocessors.AutoPrefixer.Resources.autoprefixer.min.js";
+        private const string AutoPrefixerLibraryResource = "Resources.autoprefixer.min.js";
 
         /// <summary>
         /// Name of resource, which contains a AutoPrefixer processor helper
         /// </summary>
-        private const string AutoPrefixerHelperResource = "Cruncher.Postprocessors.AutoPrefixer.Resources.autoprefixer-helpers.min.js";
+        private const string AutoPrefixerHelperResource = "Resources.autoprefixer-helpers.min.js";
 
         /// <summary>
         /// Template of function call, which is responsible for compilation
@@ -134,7 +134,7 @@ namespace Cruncher.Postprocessors.AutoPrefixer
                 }
                 catch (JsRuntimeException ex)
                 {
-                    throw new AutoPrefixerProcessingException(JsRuntimeErrorHelpers.Format(ex));
+                    throw new AutoPrefixerProcessingException(JsErrorHelpers.Format(ex));
                 }
             }
 

@@ -142,7 +142,7 @@ namespace Cruncher.Configuration
                 {
                     string engineName = this.GetCruncherProcessingSection().JsEngine;
 
-                    this.javaScriptEngineFunc = () => JsEngineSwitcher.Current.CreateJsEngineInstance(engineName);
+                    this.javaScriptEngineFunc = () => JsEngineSwitcher.Instance.CreateEngine(engineName);
                 }
 
                 return this.javaScriptEngineFunc;

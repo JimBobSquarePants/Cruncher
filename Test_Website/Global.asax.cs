@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JavaScriptEngineSwitcher.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -21,6 +22,7 @@ namespace Test_Website
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+            JsEngineSwitcherConfig.Configure(JsEngineSwitcher.Instance);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
     }
