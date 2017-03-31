@@ -29,12 +29,12 @@ namespace Cruncher.Preprocessors.Coffee
         /// <summary>
         /// Name of resource, which contains a CoffeeScript-library
         /// </summary>
-        private const string CoffeeScriptLibraryResource = "Cruncher.Preprocessors.Coffee.Resources.coffee-script.min.js";
+        private const string CoffeeScriptLibraryResource = "Resources.coffee-script.min.js";
 
         /// <summary>
         /// Name of resource, which contains a CoffeeScript-compiler helper
         /// </summary>
-        private const string CoffeeScriptHelperResource = "Cruncher.Preprocessors.Coffee.Resources.coffee-script-helpers.min.js";
+        private const string CoffeeScriptHelperResource = "Resources.coffee-script-helpers.min.js";
 
         /// <summary>
         /// Template of function call, which is responsible for compilation
@@ -131,7 +131,7 @@ namespace Cruncher.Preprocessors.Coffee
                 }
                 catch (JsRuntimeException ex)
                 {
-                    throw new CoffeeScriptCompilingException(JsRuntimeErrorHelpers.Format(ex));
+                    throw new CoffeeScriptCompilingException(JsErrorHelpers.Format(ex));
                 }
             }
 

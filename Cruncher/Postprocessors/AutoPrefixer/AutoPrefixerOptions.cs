@@ -17,15 +17,19 @@ namespace Cruncher.Postprocessors.AutoPrefixer
     /// </summary>
     public sealed class AutoPrefixerOptions
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AutoPrefixerOptions"/> class.
-        /// </summary>
-        public AutoPrefixerOptions()
-        {
-            this.Browsers = new List<string>();
-            this.Cascade = true;
-            this.Safe = false;
-        }
+		/// <summary>
+		/// Constructs a instance of the CSS autoprefixing options
+		/// </summary>
+		public AutoPrefixerOptions()
+		{
+			Browsers = new List<string>();
+			Cascade = true;
+			Add = true;
+			Remove = true;
+			Supports = true;
+			Flexbox = true;
+			Grid = true;
+		}
 
         /// <summary>
         /// Gets or sets a value indicating whether the AutoPrefixer is enabled.
@@ -33,30 +37,67 @@ namespace Cruncher.Postprocessors.AutoPrefixer
         public bool Enabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a list of browser conditional expressions.
-        /// </summary>
-        public IList<string> Browsers
-        {
-            get;
-            set;
-        }
+		/// Gets or sets a list of browser conditional expressions
+		/// </summary>
+		public IList<string> Browsers
+		{
+			get;
+			set;
+		}
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to create nice visual cascade of prefixes.
-        /// </summary>
-        public bool Cascade
-        {
-            get;
-            set;
-        }
+		/// <summary>
+		/// Gets or sets a flag for whether to create nice visual cascade of prefixes
+		/// </summary>
+		public bool Cascade
+		{
+			get;
+			set;
+		}
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to enable the special safe mode to parse broken CSS.
-        /// </summary>
-        public bool Safe
-        {
-            get;
-            set;
-        }
+		/// <summary>
+		/// Gets or sets a flag for whether to add new prefixes
+		/// </summary>
+		public bool Add
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Gets or sets a flag for whether to remove outdated prefixes
+		/// </summary>
+		public bool Remove
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Gets or sets a flag for whether to add prefixes for <code>@supports</code> parameters
+		/// </summary>
+		public bool Supports
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Gets or sets a flag for whether to add prefixes for flexbox properties.
+		/// With "no-2009" value Autoprefixer will add prefixes only for final and IE versions of specification.
+		/// </summary>
+		public object Flexbox
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Gets or sets a flag for whether to add IE prefixes for Grid Layout properties
+		/// </summary>
+		public bool Grid
+		{
+			get;
+			set;
+		}
     }
 }

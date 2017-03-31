@@ -225,8 +225,8 @@ namespace Cruncher.Configuration
             /// <summary>
             /// Gets or sets a value indicating whether to create nice visual cascade of prefixes.
             /// </summary>
-            /// <value><see langword="true"/> if the current application is should cascade prefixes; otherwise, <see langword="false"/>.</value>
-            [ConfigurationProperty("cascade", DefaultValue = true, IsRequired = true)]
+            /// <value><see langword="true"/> if Autoprefixer should cascade prefixes; otherwise, <see langword="false"/>.</value>
+            [ConfigurationProperty("cascade", DefaultValue = true)]
             public bool Cascade
             {
                 get { return (bool)this["cascade"]; }
@@ -234,14 +234,58 @@ namespace Cruncher.Configuration
             }
 
             /// <summary>
-            /// Gets or sets a value indicating whether to enable the special safe mode to parse broken CSS.
+            /// Gets or sets a value indicating whether Autoprefixer should add prefixes.
             /// </summary>
-            /// <value><see langword="true"/> if the current application is enable safe mode; otherwise, <see langword="false"/>.</value>
-            [ConfigurationProperty("safe", DefaultValue = false, IsRequired = true)]
-            public bool Safe
+            /// <value><see langword="true"/> if Autoprefixer should add prefixes; otherwise, <see langword="false"/>.</value>
+            [ConfigurationProperty("add", DefaultValue = true)]
+            public bool Add
             {
-                get { return (bool)this["safe"]; }
-                set { this["safe"] = value; }
+                get { return (bool)this["add"]; }
+                set { this["add"] = value; }
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether Autoprefixer should remove outdated prefixes.
+            /// </summary>
+            /// <value><see langword="true"/> if Autoprefixer should remove prefixes; otherwise, <see langword="false"/>.</value>
+            [ConfigurationProperty("remove ", DefaultValue = true)]
+            public bool Remove
+            {
+                get { return (bool)this["remove"]; }
+                set { this["remove"] = value; }
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether Autoprefixer should add prefixes for @supports parameters.
+            /// </summary>
+            /// <value><see langword="true"/> if Autoprefixer should add prefixes for @supports parameters; otherwise, <see langword="false"/>.</value>
+            [ConfigurationProperty("supports", DefaultValue = true)]
+            public bool Supports
+            {
+                get { return (bool)this["supports"]; }
+                set { this["supports"] = value; }
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether Autoprefixer should add prefixes for flexbox properties.
+            /// </summary>
+            /// <value><see langword="true"/> if Autoprefixer should add prefixes for flexbox properties; otherwise, <see langword="false"/>.</value>
+            [ConfigurationProperty("flexbox", DefaultValue = true)]
+            public bool Flexbox
+            {
+                get { return (bool)this["flexbox"]; }
+                set { this["flexbox"] = value; }
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether Autoprefixer should add IE prefixes for Grid Layout properties.
+            /// </summary>
+            /// <value><see langword="true"/> if Autoprefixer should add IE prefixes for Grid Layout properties; otherwise, <see langword="false"/>.</value>
+            [ConfigurationProperty("grid", DefaultValue = true)]
+            public bool Grid
+            {
+                get { return (bool)this["grid"]; }
+                set { this["grid"] = value; }
             }
         }
     }
