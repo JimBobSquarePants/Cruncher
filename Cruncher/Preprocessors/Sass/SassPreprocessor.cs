@@ -41,7 +41,7 @@ namespace Cruncher.Preprocessors.Sass
                 var options = new LibSass.Compiler.Options.SassOptions 
                 {
                     InputPath = path,
-                    OutputStyle = LibSass.Compiler.Options.SassOutputStyle.Nested,
+                    OutputStyle = LibSass.Compiler.Options.SassOutputStyle.Expanded,
                     Precision = 5,
                     IsIndentedSyntax = System.IO.Path.GetExtension(path).Equals(".sass", StringComparison.OrdinalIgnoreCase)
                 };

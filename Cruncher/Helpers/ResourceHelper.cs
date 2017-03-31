@@ -24,6 +24,7 @@ namespace Cruncher.Helpers
     using Cruncher.Caching;
     using Cruncher.Configuration;
     using Cruncher.Extensions;
+    using System.Reflection;
 
     /// <summary>
     /// Provides a series of helper methods for dealing with resources.
@@ -107,6 +108,28 @@ namespace Cruncher.Helpers
                 return resource;
             }
         }
+
+		/// <summary>
+		/// Gets a content of the embedded resource as string
+		/// </summary>
+		/// <param name="resourceName">The case-sensitive resource name</param>
+		/// <param name="assembly">The assembly, which contains the embedded resource</param>
+		/// <returns>Сontent of the embedded resource as string</returns>
+		public static string GetResourceAsString(string resourceName, Assembly assembly)
+		{
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+			{
+				if (stream == null)
+				{
+					throw new NullReferenceException(string.Format("Resource with name '{0}' is null", resourceName));
+				}
+
+				using (var reader = new StreamReader(stream))
+				{
+					return reader.ReadToEnd();
+				}
+			}
+		}
 
         /// <summary>
         /// The create resource physical file.

@@ -29,17 +29,22 @@ namespace Cruncher.Postprocessors.AutoPrefixer
         /// <summary>
         /// Name of resource, which contains a AutoPrefixer library
         /// </summary>
-        private const string AutoPrefixerLibraryResource = "Resources.autoprefixer.min.js";
+        private const string AutoPrefixerLibraryResource = "Resources.autoprefixer-combined.min.js";
 
         /// <summary>
         /// Name of resource, which contains a AutoPrefixer processor helper
         /// </summary>
-        private const string AutoPrefixerHelperResource = "Resources.autoprefixer-helpers.min.js";
+        private const string AutoPrefixerHelperResource = "Resources.autoprefixerHelper.min.js";
 
         /// <summary>
         /// Template of function call, which is responsible for compilation
         /// </summary>
         private const string CompilationFunctionCallTemplate = @"autoprefixerHelper.process({0}, {1});";
+
+		/// <summary>
+		/// Name of variable, which contains a country statistics service
+		/// </summary>
+		private const string COUNTRY_STATISTICS_SERVICE_VARIABLE_NAME = "CountryStatisticsService";
 
         /// <summary>
         /// The sync root for locking against.
@@ -166,8 +171,12 @@ namespace Cruncher.Postprocessors.AutoPrefixer
             JObject optionsJson = new JObject(
                 new JProperty("browsers", new JArray(options.Browsers)),
                 new JProperty("cascade", options.Cascade),
-                new JProperty("safe", options.Safe));
-
+                new JProperty("add", options.Add),
+                new JProperty("remove", options.Remove),
+                new JProperty("supports", options.Supports),
+                new JProperty("flexbox", options.Flexbox),
+                new JProperty("grid", options.Grid)
+            );
             return optionsJson;
         }
 
@@ -215,6 +224,7 @@ namespace Cruncher.Postprocessors.AutoPrefixer
             {
                 if (this.javascriptEngine != null)
                 {
+                    this.javascriptEngine.RemoveVariable(COUNTRY_STATISTICS_SERVICE_VARIABLE_NAME);
                     this.javascriptEngine.Dispose();
                     this.javascriptEngine = null;
                 }
@@ -233,6 +243,9 @@ namespace Cruncher.Postprocessors.AutoPrefixer
         {
             if (!this.initialized)
             {
+
+                this.javascriptEngine.EmbedHostObject(COUNTRY_STATISTICS_SERVICE_VARIABLE_NAME, CountryStatisticsService.Instance);
+
                 Type type = this.GetType();
 
                 this.javascriptEngine.ExecuteResource(AutoPrefixerLibraryResource, type);

@@ -76,6 +76,7 @@
     <Compile Include="Postprocessors\AutoPrefixer\AutoPrefixerPostprocessor.cs" />
     <Compile Include="Postprocessors\AutoPrefixer\AutoPrefixerProcessingException.cs" />
     <Compile Include="Postprocessors\AutoPrefixer\AutoPrefixerProcessor.cs" />
+    <Compile Include="Postprocessors\AutoPrefixer\CountryStatisticsService.cs" />
     <Compile Include="Preprocessors\Coffee\CoffeeScriptCompilingException.cs" />
     <Compile Include="Preprocessors\Coffee\CoffeeScriptCompiler.cs" />
     <Compile Include="Preprocessors\Coffee\CoffeeScriptPreprocessor.cs" />
@@ -115,43 +116,32 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-helpers.min.js.map">
-      <DependentUpon>autoprefixer-helpers.min.js</DependentUpon>
-    </None>
-    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.min.js.map">
-      <DependentUpon>autoprefixer.min.js</DependentUpon>
-    </None>
-    <None Include="Preprocessors\Coffee\Resources\coffee-script.min.js.map">
-      <DependentUpon>coffee-script.min.js</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.js" />
     <None Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js.map">
       <DependentUpon>coffee-script-helpers.min.js</DependentUpon>
     </None>
-    <None Include="Preprocessors\Coffee\Resources\coffee-script.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-helpers.js" />
-    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.js" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script-helpers.min.js">
       <DependentUpon>coffee-script-helpers.js</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="Preprocessors\Coffee\Resources\coffee-script.js" />
+    <None Include="Preprocessors\Coffee\Resources\coffee-script.min.js.map">
+      <DependentUpon>coffee-script.min.js</DependentUpon>
+    </None>
     <EmbeddedResource Include="Preprocessors\Coffee\Resources\coffee-script.min.js">
       <DependentUpon>coffee-script.js</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-helpers.min.js">
-      <DependentUpon>autoprefixer-helpers.js</DependentUpon>
+    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\CountryStatistics\*.json" />
+    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-combined.js" />
+    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer-combined.min.js">
+      <DependentUpon>autoprefixer-combined.js</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixer.min.js">
-      <DependentUpon>autoprefixer.js</DependentUpon>
+    <None Include="Postprocessors\AutoPrefixer\Resources\autoprefixerHelper.js" />
+    <EmbeddedResource Include="Postprocessors\AutoPrefixer\Resources\autoprefixerHelper.min.js">
+      <DependentUpon>autoprefixerHelper.js</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

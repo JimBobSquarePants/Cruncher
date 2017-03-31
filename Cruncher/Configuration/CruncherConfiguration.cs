@@ -240,12 +240,15 @@ namespace Cruncher.Configuration
                 return this.autoPrefixerOptions;
             }
 
-            this.autoPrefixerOptions = new AutoPrefixerOptions
-            {
-                Browsers = this.GetCruncherProcessingSection().AutoPrefixer.Browsers.Split(',').Select(p => HttpUtility.HtmlDecode(p.Trim())).ToList(),
+            this.autoPrefixerOptions = new AutoPrefixerOptions {
                 Enabled = this.GetCruncherProcessingSection().AutoPrefixer.Enabled,
+                Browsers = this.GetCruncherProcessingSection().AutoPrefixer.Browsers.Split(',').Select(p => HttpUtility.HtmlDecode(p.Trim())).ToList(),
                 Cascade = this.GetCruncherProcessingSection().AutoPrefixer.Cascade,
-                Safe = this.GetCruncherProcessingSection().AutoPrefixer.Safe
+                Add = true,
+                Remove = true,
+                Supports = true,
+                Flexbox = true,
+                Grid = true
             };
 
             return this.autoPrefixerOptions;

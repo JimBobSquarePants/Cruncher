@@ -6,3 +6,15 @@ h2 {
   color: $blue;
 }
 
+.flex {
+    background: yellow;
+    border: 5px solid red;
+    width: 350px;
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+}
+
+.flex > div {
+    flex: 1 1 auto;
+}
