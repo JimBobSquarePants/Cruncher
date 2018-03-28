@@ -170,3 +170,4 @@ pip-log.txt
 assets-cruncher/
 .cruncherCache/
 .cruncher/
+.vs/

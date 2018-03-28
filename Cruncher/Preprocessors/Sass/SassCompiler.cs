@@ -11,8 +11,11 @@
 namespace Cruncher.Preprocessors.Sass
 {
     using System;
+    using System.Collections.Generic;
+    using System.Configuration;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
+    using System.Linq;
     using System.Text.RegularExpressions;
 
     using LibSassNet;
@@ -74,7 +77,18 @@ namespace Cruncher.Preprocessors.Sass
                 }
 
                 string processedInput = mode == CompilerMode.Scss ? input : this.ConvertToScss(input);
-                return this.compiler.Compile(processedInput, OutputStyle.Nested, false, 5, new[] { Path.GetDirectoryName(fileName) });
+                var includePaths = new List<string> { Path.GetDirectoryName(fileName) };
+                var includePathRaw = ConfigurationManager.AppSettings["SassIncludePaths"];
+                //throw new Exception("Include Paths Found in AppSettings: " + includePathRaw);
+                if (!string.IsNullOrEmpty(includePathRaw))
+                {
+                    var split = includePathRaw.Split(',');
+                    //throw new Exception("First Path Converted Found in AppSettings: " + AppDomain.CurrentDomain.BaseDirectory + split[0]);
+                    includePaths.AddRange(split.Where(i => Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + i))
+                        .Select(i => AppDomain.CurrentDomain.BaseDirectory + i));
+                }
+                //throw new Exception("Include Paths Passed to Sass Compiler: " + string.Join(",", includePaths));
+                return this.compiler.Compile(processedInput, OutputStyle.Nested, false, 5, includePaths.ToArray());
             }
             catch (Exception ex)
             {
